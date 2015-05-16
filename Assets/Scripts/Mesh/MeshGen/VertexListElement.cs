@@ -22,6 +22,11 @@ namespace _MeshGen
 			return vector_;
 		}
 
+		public void SetVector(Vector3 v)
+		{
+			vector_.Set ( v.x, v.y, v.z);
+		}
+
 		public void AddVector(ref List< float > list)
 		{
 			list.Add ( vector_.x );

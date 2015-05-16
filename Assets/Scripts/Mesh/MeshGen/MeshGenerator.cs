@@ -15,6 +15,8 @@ namespace _MeshGen
 		private MeshRenderer meshRenderer_;
 		private MeshCollider meshCollider_;
 
+		private List < VertexMover > vertexMovers_ = new List< VertexMover > ( );
+
 		public void SetMaterial(Material m)
 		{
 			meshRenderer_.material = m;
@@ -58,7 +60,7 @@ namespace _MeshGen
 
 		public void MakeMesh()
 		{
-			Debug.Log("Making mesh");
+//			Debug.Log("Making mesh");
 
 			if (vertexList_.Count == 0 || triangleList_.Count == 0)
 			{
@@ -98,7 +100,7 @@ namespace _MeshGen
 			Debug.Log("Finish making "+this.DebugDescribe());
 		}
 
-		void SplitTriangle(TriangleListElement t)
+		VertexListElement SplitTriangle(TriangleListElement t)
 		{
 			Vector3 newVector = triangleList_.GetCentre ( t );
 			int newVectorIndex = vertexList_.AddVertex( newVector );
@@ -124,6 +126,8 @@ namespace _MeshGen
 			           );
 
 			SetDirty();
+
+			return vertexList_.GetElement( newVectorIndex);
 		}
 
 		void Update()
@@ -149,6 +153,27 @@ namespace _MeshGen
 					}
 				}
 			}
+			if (vertexMovers_.Count > 0)
+			{
+				List < VertexMover > toRemove = new List<VertexMover>();
+
+				foreach (VertexMover mover in vertexMovers_)
+				{
+					bool changed = mover.update( Time.deltaTime );
+					if (changed)
+					{
+						SetDirty();
+					}
+					if (mover.Finished)
+					{
+						toRemove.Add(mover);
+					}
+				}
+				foreach (VertexMover mover in toRemove)
+				{
+					vertexMovers_.Remove(mover);
+				}
+			}
 		}
 
 		public void OnClicked()
@@ -163,7 +188,22 @@ namespace _MeshGen
 			{
 				int i = UnityEngine.Random.Range( 0, triangleList_.Count);
 				TriangleListElement t = triangleList_.GetTriAtIndex(i);
-				SplitTriangle( t);
+				VertexListElement newVertex = SplitTriangle( t);
+
+				Vector3 v0 = vertexList_.GetVectorAtIndex(t.GetVertexIndex(0));
+				Vector3 v1 = vertexList_.GetVectorAtIndex(t.GetVertexIndex(1));
+				Vector3 v2 = vertexList_.GetVectorAtIndex(t.GetVertexIndex(2));
+				// get dist as mean of the 3 edges
+				float dist = ( 
+				              Vector3.Distance( v0,v1)
+				              + Vector3.Distance( v1,v2)
+				              + Vector3.Distance( v2,v0)
+				              ) / 3f;
+				Vector3 direction = Vector3.Cross( v0-v1, v2-v0 );
+				direction.Normalize();
+				direction = -1f * direction;
+				VertexMover newMover = new VertexMover( newVertex, direction, dist, 2f);
+				vertexMovers_.Add(newMover);
 			}
 		}
 

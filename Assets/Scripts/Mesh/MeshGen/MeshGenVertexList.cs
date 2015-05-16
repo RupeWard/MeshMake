@@ -33,6 +33,15 @@ namespace _MeshGen
 			vertices_[i].triangles.Remove (t);
 		}
 		
+		public VertexListElement GetElement(int i)
+		{
+			if ( i < 0 || i >= vertices_.Count )
+			{
+				Debug.LogError ("Can't get element of index "+i+" from "+vertices_.Count);
+				return null;
+			}
+			return vertices_[i];
+		}
 
 		public Vector3 GetVectorAtIndex(int i)
 		{

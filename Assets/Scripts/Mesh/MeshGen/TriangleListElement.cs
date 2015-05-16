@@ -60,7 +60,8 @@ namespace _MeshGen
 			sb.Append ("Tr: ");
 			for ( int i =0; i<3; i++ )
 			{
-				sb.Append(GetVertexIndex(i)).Append(",");
+				if (i >0 ) sb.Append(", ");
+				sb.Append(GetVertexIndex(i));
 			}
 		}
 		#endregion IDebugDescribable
