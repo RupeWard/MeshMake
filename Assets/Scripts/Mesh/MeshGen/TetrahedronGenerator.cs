@@ -46,15 +46,15 @@ namespace _MeshGen
 			double tetSideDistCentreToVertex = 2 * halfTetSideLength / System.Math.Sqrt( 3);
 			double tetSideDistCentreToSide = 0.5 * tetSideDistCentreToVertex;
 
-			double angleInTriangle = angleBetweenVertices/2;
+			//double angleInTriangle = angleBetweenVertices/2;
 
 			double heightOfTetCentre = System.Math.Sqrt ( squareDistCentreToVertex * squareDistCentreToVertex
 			                                             - tetSideDistCentreToVertex * tetSideDistCentreToVertex);
 
-			Vector3 base0 = new Vector3 ( 0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide );
-			Vector3 base1 = new Vector3 ( -0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide );
-			Vector3 base2 = new Vector3 (0f, -1f * (float)(heightOfTetCentre), -1f * (float)tetSideDistCentreToVertex); 
-			Vector3 apex = new Vector3 ( 0f, (float)squareSideDistCentreToVertex, 0f  );
+			VertexListElement base0 = new VertexListElement( new Vector3 ( 0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide ));
+			VertexListElement base1 = new VertexListElement( new Vector3 ( -0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide ));
+			VertexListElement base2 = new VertexListElement( new Vector3 (0f, -1f * (float)(heightOfTetCentre), -1f * (float)tetSideDistCentreToVertex)); 
+			VertexListElement apex = new VertexListElement( new Vector3 ( 0f, (float)squareSideDistCentreToVertex, 0f  ));
 
 			int apexIndex = vertexList_.AddVertex( apex);
 			int base0Index = vertexList_.AddVertex( base0);

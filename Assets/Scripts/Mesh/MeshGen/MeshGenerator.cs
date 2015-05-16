@@ -28,7 +28,7 @@ namespace _MeshGen
 		void Awake()
 		{
 			vertexList_ = new MeshGenVertexList ( );
-			triangleList_ = new MeshGenTriangleList ( vertexList_);
+			triangleList_ = new MeshGenTriangleList ( vertexList_ );
 
 			meshFilter_ = gameObject.GetComponent< MeshFilter > ( );
 			if ( meshFilter_ == null )
@@ -46,8 +46,6 @@ namespace _MeshGen
 		void Start()
 		{
 			isDirty_ = false;
-			vertexList_ = new MeshGenVertexList();
-			triangleList_ = new MeshGenTriangleList(vertexList_);
 		}
 
 		public void MakeMesh()
@@ -88,6 +86,11 @@ namespace _MeshGen
 			mesh.Optimize();
 
 			Debug.Log("Finish making mesh");
+		}
+
+		void SplitTriangle()
+		{
+
 		}
 
 		void Update()

@@ -6,12 +6,33 @@ namespace _MeshGen
 {
 	public class MeshGenVertexList // : MeshGenList < VertexListElement >  
 	{
-		private List< Vector3 > vertices_ = new List< Vector3 >();
+		private List< VertexListElement > vertices_ = new List< VertexListElement >();
 
 		public int Count
 		{
 			get { return vertices_.Count; }
 		}
+
+		public void ConnectVertexToTriangle( int i, TriangleListElement t)
+		{
+			if ( i < 0 || i >= vertices_.Count )
+			{
+				Debug.LogError ("Can't connect vertex of index "+i+" from "+vertices_.Count);
+				return;
+			}
+			vertices_[i].triangles.Add (t);
+		}
+
+		public void DisconnectVertexFromTriangle( int i, TriangleListElement t)
+		{
+			if ( i < 0 || i >= vertices_.Count )
+			{
+				Debug.LogError ("Can't connect vertex of index "+i+" from "+vertices_.Count);
+				return;
+			}
+			vertices_[i].triangles.Remove (t);
+		}
+		
 
 		public Vector3 GetVectorAtIndex(int i)
 		{
@@ -20,7 +41,22 @@ namespace _MeshGen
 				Debug.LogError ("Can't get vertex of index "+i+" from "+vertices_.Count);
 				return Vector3.zero;
 			}
-			return vertices_ [ i ];
+			return vertices_[i].GetVector();
+		}
+
+		public int AddVertex( VertexListElement v )
+		{
+			int i = IndexOf (v.GetVector());
+			if (i != -1) 
+			{
+				Debug.LogWarning("Point "+v+" already in list");
+			} 
+			else 
+			{
+				i = vertices_.Count;
+				vertices_.Add( v );
+			}
+			return i;
 		}
 
 		public int AddVertex( Vector3 v )
@@ -33,7 +69,7 @@ namespace _MeshGen
 			else 
 			{
 				i = vertices_.Count;
-				vertices_.Add(v);
+				vertices_.Add( new VertexListElement(v));
 			}
 			return i;
 		}
@@ -45,7 +81,7 @@ namespace _MeshGen
 			{
 				for (int i = 0; i < vertices_.Count; i++)
 				{
-					if (vertices_[i].EqualsApprox(v, MeshGenerator.POSITION_TELRANCE))
+					if (vertices_[i].GetVector().EqualsApprox(v, MeshGenerator.POSITION_TELRANCE))
 					{
 						result = i;
 						break;
@@ -54,6 +90,7 @@ namespace _MeshGen
 			}
 			return result;
 		}
+
 
 		public bool Contains( Vector3 v)
 		{

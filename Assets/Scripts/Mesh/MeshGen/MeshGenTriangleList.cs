@@ -14,7 +14,7 @@ namespace _MeshGen
 			get { return triangles_.Count; }
 		}
 
-		public MeshGenTriangleList( MeshGenVertexList vl)
+		public MeshGenTriangleList(  MeshGenVertexList vl)
 		{
 			vertexList_ = vl;
 			triangles_ = new List< TriangleListElement >();
@@ -33,6 +33,10 @@ namespace _MeshGen
 			int result = -1;
 			result = triangles_.Count;
 			triangles_.Add ( t );
+			for ( int i = 0; i <3; i++)
+			{
+				vertexList_.ConnectVertexToTriangle( t.GetVertexIndex(i), t );
+			}
 			return result;
 		}
 
@@ -45,6 +49,8 @@ namespace _MeshGen
 			}
 			return triangles_ [ i ];
 		}
+
+
 	}
 }
 
