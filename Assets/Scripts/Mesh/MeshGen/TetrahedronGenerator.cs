@@ -8,7 +8,16 @@ namespace _MeshGen
 		Vector3 centre_ = Vector3.zero;
 		float size_ = 1f;
 
-		public TetrahedronGenerator(Vector3 centre, float size) : base()
+		static public TetrahedronGenerator Create (string name, Vector3 centre, float size)
+		{
+			GameObject go = new GameObject ( name );
+			TetrahedronGenerator tg = go.AddComponent< TetrahedronGenerator >();
+			tg.Init( centre, size);
+			go.transform.localPosition = centre;
+			return tg;
+		}
+
+		private void Init(Vector3 centre, float size) 
 		{
 			Debug.Log ( "TetGen: CTOR Start" );
 			this.centre_ = centre;
@@ -42,10 +51,10 @@ namespace _MeshGen
 			double heightOfTetCentre = System.Math.Sqrt ( squareDistCentreToVertex * squareDistCentreToVertex
 			                                             - tetSideDistCentreToVertex * tetSideDistCentreToVertex);
 
-			Vector3 base0 = centre_ + new Vector3 ( 0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide );
-			Vector3 base1 = centre_ + new Vector3 ( -0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide );
-			Vector3 base2 = centre_ + new Vector3 (0f, -1f * (float)(heightOfTetCentre), -1f * (float)tetSideDistCentreToVertex); 
-			Vector3 apex = centre_ + new Vector3 ( 0f, (float)squareSideDistCentreToVertex, 0f  );
+			Vector3 base0 = new Vector3 ( 0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide );
+			Vector3 base1 = new Vector3 ( -0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide );
+			Vector3 base2 = new Vector3 (0f, -1f * (float)(heightOfTetCentre), -1f * (float)tetSideDistCentreToVertex); 
+			Vector3 apex = new Vector3 ( 0f, (float)squareSideDistCentreToVertex, 0f  );
 
 			int apexIndex = vertexList_.AddVertex( apex);
 			int base0Index = vertexList_.AddVertex( base0);
@@ -61,6 +70,8 @@ namespace _MeshGen
 			triangleList_.AddTriangle(side0Tri);
 			triangleList_.AddTriangle(side1Tri);
 			triangleList_.AddTriangle(side2Tri);
+
+			SetDirty();
 		}
 
 		#region IDebugDescribable

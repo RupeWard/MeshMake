@@ -3,17 +3,15 @@ using System.Collections;
 
 public class AppManager : SingletonApplicationLifetime< AppManager > 
 {
-	public MeshFilter mesh;
+	public Material defaultMaterial;
 
 	// Use this for initialization
 	void Start () 
 	{
-		mesh.transform.position = Vector3.zero;
-
 		Debug.Log ( "AppManager.Start" );
-		_MeshGen.TetrahedronGenerator tetGenerator = new _MeshGen.TetrahedronGenerator ( Vector3.zero, 10f);
-		tetGenerator.MakeMesh(mesh);
-		mesh.transform.position = Vector3.zero;
+		_MeshGen.TetrahedronGenerator tetGenerator = _MeshGen.TetrahedronGenerator.Create ("Tet", Vector3.zero, 10f);
+		tetGenerator.SetMaterial(defaultMaterial);
+		tetGenerator.MakeMesh();
 	}
 	
 	// Update is called once per frame
