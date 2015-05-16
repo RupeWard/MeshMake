@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace _MeshGen
 {
-	public class TriangleListElement // : MeshGenListElement< TriangleListElement >
+	public class TriangleListElement : IDebugDescribable
 	{
 		int[] vertexIndices_ = new int[3]{ -1, -1, -1};
 
@@ -53,6 +53,19 @@ namespace _MeshGen
 			}
 			return ( matches == 3 );
 		}
+
+		#region IDebugDescribable
+		public virtual void DebugDescribe(System.Text.StringBuilder sb)
+		{
+			sb.Append ("Tr: ");
+			for ( int i =0; i<3; i++ )
+			{
+				sb.Append(GetVertexIndex(i)).Append(",");
+			}
+		}
+		#endregion IDebugDescribable
+
+
 	}
 }
 

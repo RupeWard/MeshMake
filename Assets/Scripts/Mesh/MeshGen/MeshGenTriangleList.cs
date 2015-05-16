@@ -40,6 +40,15 @@ namespace _MeshGen
 			return result;
 		}
 
+		public void RemoveTriangle(TriangleListElement t)
+		{
+			for ( int i = 0; i <3; i++)
+			{
+				vertexList_.DisconnectVertexFromTriangle( t.GetVertexIndex(i), t );
+			}
+			triangles_.Remove ( t );
+		}
+
 		public TriangleListElement GetTriAtIndex(int i)
 		{
 			if ( i < 0 || i >= triangles_.Count )
@@ -50,6 +59,16 @@ namespace _MeshGen
 			return triangles_ [ i ];
 		}
 
+		public Vector3 GetCentre(TriangleListElement t)
+		{
+			Vector3 result = Vector3.zero;
+			for (int i = 0; i<3; i++)
+			{
+				result = result + vertexList_.GetVectorAtIndex( t.GetVertexIndex(i) );
+			}
+			result = result /3f;
+			return result;
+		}
 
 	}
 }

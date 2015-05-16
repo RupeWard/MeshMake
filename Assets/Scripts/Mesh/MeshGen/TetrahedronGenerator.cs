@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace _MeshGen
 {
-	public class TetrahedronGenerator : MeshGenerator, IDebugDescribable
+	public class TetrahedronGenerator : MeshGenerator
 	{
 		Vector3 centre_ = Vector3.zero;
 		float size_ = 1f;
@@ -73,13 +73,6 @@ namespace _MeshGen
 
 			SetDirty();
 		}
-
-		#region IDebugDescribable
-		public void DebugDescribe(System.Text.StringBuilder sb)
-		{
-			sb.Append ("TetGen: "+vertexList_.Count+" verts, "+triangleList_.Count+" tris");
-		}
-		#endregion IDebugDescribable
 	}
 
 }

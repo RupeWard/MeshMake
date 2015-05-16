@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace _MeshGen
 {
-	public class MeshGenerator : MonoBehaviour
+	public class MeshGenerator : MonoBehaviour, IDebugDescribable
 	{
 		public static readonly float POSITION_TELRANCE = 0.001f;
 
@@ -13,6 +13,7 @@ namespace _MeshGen
 
 		private MeshFilter meshFilter_;
 		private MeshRenderer meshRenderer_;
+		private MeshCollider meshCollider_;
 
 		public void SetMaterial(Material m)
 		{
@@ -41,6 +42,13 @@ namespace _MeshGen
 			{
 				meshRenderer_ = gameObject.AddComponent< MeshRenderer >();
 			}
+
+			meshCollider_ = gameObject.GetComponent< MeshCollider > ( );
+			if ( meshCollider_ == null )
+			{
+				meshCollider_ = gameObject.AddComponent< MeshCollider >();
+			}
+			meshCollider_.sharedMesh = meshFilter_.sharedMesh;
 		}
 
 		void Start()
@@ -85,23 +93,86 @@ namespace _MeshGen
 			mesh.RecalculateBounds();
 			mesh.Optimize();
 
-			Debug.Log("Finish making mesh");
+			meshCollider_.sharedMesh = meshFilter_.sharedMesh;
+
+			Debug.Log("Finish making "+this.DebugDescribe());
 		}
 
-		void SplitTriangle()
+		void SplitTriangle(TriangleListElement t)
 		{
+			Vector3 newVector = triangleList_.GetCentre ( t );
+			int newVectorIndex = vertexList_.AddVertex( newVector );
 
+			Vector3 v0 = vertexList_.GetVectorAtIndex( t.GetVertexIndex(0) );
+			Vector3 v1 = vertexList_.GetVectorAtIndex( t.GetVertexIndex(1) );
+			Vector3 v2 = vertexList_.GetVectorAtIndex( t.GetVertexIndex(2) );
+
+			TriangleListElement t0 = new TriangleListElement( t.GetVertexIndex(0), t.GetVertexIndex(1), newVectorIndex);
+			TriangleListElement t1 = new TriangleListElement( t.GetVertexIndex(1), t.GetVertexIndex(2), newVectorIndex);
+			TriangleListElement t2 = new TriangleListElement( newVectorIndex, t.GetVertexIndex(2), t.GetVertexIndex(0));
+
+			triangleList_.AddTriangle(t0);
+			triangleList_.AddTriangle(t1);
+			triangleList_.AddTriangle(t2);
+
+			triangleList_.RemoveTriangle(t);
+
+			Debug.Log ("Split triangle: Lost "+t.DebugDescribe()
+			           +"\nGained "+t0.DebugDescribe()
+			           +"\n       "+t1.DebugDescribe()
+			           +"\n       "+t2.DebugDescribe()
+			           );
+
+			SetDirty();
 		}
 
 		void Update()
 		{
 			if ( isDirty_ )
 			{
-				MakeMesh();
+				MakeMesh ( );
 				isDirty_ = false;
+			}
+			if ( Input.GetMouseButtonDown (0 ) )
+			{
+				Debug.Log("Mouse");
+				Ray ray = Camera.main.ScreenPointToRay ( Input.mousePosition );
+				RaycastHit hit = new RaycastHit ( );
+			
+				if ( Physics.Raycast ( ray,  out hit ) )
+				{
+					Debug.Log("Hit");
+
+					if ( hit.collider == meshCollider_ )
+					{
+						OnClicked ( );
+					}
+				}
 			}
 		}
 
+		public void OnClicked()
+		{
+			Debug.Log ( "Clicked on the thing" );
+			SplitRandomTriangle();
+		}
+
+		public void SplitRandomTriangle()
+		{
+			if ( triangleList_.Count > 3 )
+			{
+				int i = UnityEngine.Random.Range( 0, triangleList_.Count);
+				TriangleListElement t = triangleList_.GetTriAtIndex(i);
+				SplitTriangle( t);
+			}
+		}
+
+#region IDebugDescribable
+		public virtual void DebugDescribe(System.Text.StringBuilder sb)
+		{
+			sb.Append ("MeshGen: "+vertexList_.Count+" verts, "+triangleList_.Count+" tris");
+		}
+#endregion IDebugDescribable
 
 
 	}
