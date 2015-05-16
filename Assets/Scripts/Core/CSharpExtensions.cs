@@ -52,6 +52,17 @@ public static class CSharpExtensions
 		return d < (other-tolerance);
 	}
 
+	public static bool EqualsApprox(this Vector3 v, Vector3 other, float tolerance)
+	{
+		#if UNITY_EDITOR
+		if (tolerance < 0f)
+		{
+			Debug.LogWarning ("Negative tolerance!");
+			tolerance *= -1f;
+		}
+		#endif
+		return ( Vector3.Distance (v, other) < tolerance );
+	}
 	#endregion
 	
 

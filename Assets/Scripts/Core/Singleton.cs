@@ -24,7 +24,7 @@
  * 
  */
 
-//#define DEBUG_SINGLETONS
+#define DEBUG_SINGLETONS
 
 using System;
 using UnityEngine;
@@ -274,6 +274,30 @@ public class SingletonApplicationLifetime<GameObjectType> : MonoBehaviour
             if (SingletonHelper<GameObjectType>.ShouldAssignInstance(ref instance, ref blockInstanceFetch))
             {
 				string instanceName = "The"+typeof(GameObjectType).ToString();
+
+				GameObjectType got = FindObjectOfType(typeof(GameObjectType)) as GameObjectType;
+				if (got != null)
+				{
+					instance = got;
+					got.gameObject.name = instanceName;
+					DontDestroyOnLoad(got.gameObject);
+#if DEBUG_SINGLETONS
+					Debug.Log("Found and assigned lifetime instance of type " + typeof(GameObjectType).ToString());
+#endif //DEBUG_SINGLETONS
+				}
+				else
+				{
+					Debug.Log("Couldn't find instance of type " + typeof(GameObjectType).ToString()+" so attempting to create");
+					GameObject go = new GameObject();
+					instance = go.AddComponent< GameObjectType >();
+					go.name = instanceName;
+					DontDestroyOnLoad(go);
+#if DEBUG_SINGLETONS
+					Debug.Log("Created lifetime instance of type " + typeof(GameObjectType).ToString());
+#endif //DEBUG_SINGLETONS
+				}
+
+				/*
 				GameObject gameObj = GameObject.Find(instanceName) as GameObject;
 
                 if (gameObj != null)
@@ -287,7 +311,7 @@ public class SingletonApplicationLifetime<GameObjectType> : MonoBehaviour
                 else
                 {
                     Debug.LogError("Unable to find game object called '"+instanceName+"' of type " + typeof(GameObjectType).ToString() + " in current scene");
-                }
+                }*/
             }
 
             return instance;
