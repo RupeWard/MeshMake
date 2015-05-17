@@ -4,6 +4,8 @@ using System.Collections;
 public class CameraMover : MonoBehaviour 
 {
 	public float zoomSpeed = 10f;
+	public bool allowThroughOrigin = false;
+
 	private float rotateSpeedDegrees = 10f;
 	private float moveSpeedDegrees = 10f;
 
@@ -13,6 +15,7 @@ public class CameraMover : MonoBehaviour
 	public float moveStepDegrees = 10f;
 
 	private float maxDistFromOrigin_;
+	private float minDistFromOrigin_;
 
 	private bool isZooming_ = false;
 	private bool isRotating_ = false;
@@ -33,6 +36,7 @@ public class CameraMover : MonoBehaviour
 	void Start () 
 	{
 		maxDistFromOrigin_ = AppManager.Instance.maxDist - AppManager.Instance.camerabuffer;
+		minDistFromOrigin_ = AppManager.Instance.camerabuffer;
 		destZoomDistance_  = 0f;
 		distZoomedSoFar_ = 0f;
 	 	destRotationDegrees_ = 0f;
@@ -71,12 +75,24 @@ public class CameraMover : MonoBehaviour
 				}
 				
 				transform.position = Vector3.MoveTowards( transform.position, Vector3.zero, -1f * distToMove);
+				if (sign > 0 && transform.position.magnitude >= maxDistFromOrigin_)
+				{
+					Debug.Log ("Zoom ending when reached maxDist");
+					destZoomDistance_ = 0f;
+					distZoomedSoFar_ = 0f;
+				}
+				else if (sign < 0 && transform.position.magnitude <= minDistFromOrigin_)
+				{
+					Debug.Log ("Zoom ending when reached minDist");
+					destZoomDistance_ = 0f;
+					distZoomedSoFar_ = 0f;
+				}
 				bHasZoomed = true;
 			}
 			if (!bHasZoomed)
 			{
 				isZooming_ = false;
-				Debug.Log("Camera zoom finished with zoomDist = "+destZoomDistance_+", soFar ="+distZoomedSoFar_);
+				Debug.Log("Camera zoom finished");
 			}
 		}
 		if (isRotating_)
