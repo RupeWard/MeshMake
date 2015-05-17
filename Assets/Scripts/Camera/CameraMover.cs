@@ -3,20 +3,27 @@ using System.Collections;
 
 public class CameraMover : MonoBehaviour 
 {
-	public float linearSpeed = 10f;
-	private float angularSpeed = 10f;
+	public float zoomSpeed = 10f;
+	private float rotateSpeedDegrees = 10f;
+	private float moveSpeedDegrees = 10f;
 
 	public float tolerance = 0.001f;
-	public float inOutStep = 0.1f;
+	public float zoomStep = 0.1f;
 	public float rotateStepDegrees = 10f;
+	public float moveStepDegrees = 10f;
 
-	private float maxDist_;
+	private float maxDistFromOrigin_;
 
-	private bool isMoving_ = false;
+	private bool isZooming_ = false;
 	private bool isRotating_ = false;
+	private bool isMoving_ = false;
 
-	private Vector3 destPosition_;
-//	private Quaternion destRotation_;
+	private float destZoomDistance_ = 0f;
+	private float distZoomedSoFar_ = 0f;
+
+	private float angleRotatedSoFar_ = 0f;
+	private float destRotationDegrees_ = 0f;
+	
 
 	void Awake()
 	{
@@ -25,34 +32,51 @@ public class CameraMover : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		maxDist_ = AppManager.Instance.maxDist - AppManager.Instance.camerabuffer;
-		destPosition_ = transform.position;
+		maxDistFromOrigin_ = AppManager.Instance.maxDist - AppManager.Instance.camerabuffer;
+		destZoomDistance_  = 0f;
+		distZoomedSoFar_ = 0f;
 	 	destRotationDegrees_ = 0f;
+		angleRotatedSoFar_ = 0f;
 	}
 
 	public void Stop()
 	{
-		destPosition_ = transform.position;
+		destZoomDistance_  = 0f;
 		destRotationDegrees_ = 0f;
-		isMoving_ = false;
+		isZooming_ = false;
 		isRotating_ = false;
 	}
 
 	// Update is called once per frame
 	void Update () 
 	{
-		if (isMoving_) 
+		if (isZooming_) 
 		{
-			bool bHasMoved = false;
-			if (Vector3.Distance ( transform.position, destPosition_) > tolerance)
-			{				
-				transform.position = Vector3.MoveTowards( transform.position, destPosition_, linearSpeed * Time.deltaTime);
-				bHasMoved = true;
-			}
-			if (!bHasMoved)
+			bool bHasZoomed = false;
+			if (Mathf.Abs(destZoomDistance_) > 0f && Mathf.Abs(distZoomedSoFar_) < Mathf.Abs (destZoomDistance_))
 			{
-				isMoving_ = false;
-				Debug.Log("Camera mover finished");
+				float sign = (destZoomDistance_ > 0f)?(1f):(-1f);
+				float distToMove = sign * zoomSpeed * Time.deltaTime;
+				
+				if ( Mathf.Abs(distZoomedSoFar_ + distToMove) > Mathf.Abs (destZoomDistance_))
+				{
+					Debug.Log("Zoom ending when "+distZoomedSoFar_+" of "+destZoomDistance_+" with "+distToMove+" to add");
+					distToMove = destZoomDistance_ - distZoomedSoFar_;
+					distZoomedSoFar_ = destZoomDistance_;
+					destZoomDistance_ = 0f;
+				}
+				else
+				{
+					distZoomedSoFar_ += distToMove;
+				}
+				
+				transform.position = Vector3.MoveTowards( transform.position, Vector3.zero, -1f * distToMove);
+				bHasZoomed = true;
+			}
+			if (!bHasZoomed)
+			{
+				isZooming_ = false;
+				Debug.Log("Camera zoom finished with zoomDist = "+destZoomDistance_+", soFar ="+distZoomedSoFar_);
 			}
 		}
 		if (isRotating_)
@@ -61,7 +85,7 @@ public class CameraMover : MonoBehaviour
 			if (Mathf.Abs(destRotationDegrees_) > 0f && Mathf.Abs(angleRotatedSoFar_) < Mathf.Abs (destRotationDegrees_))
 			{
 				float sign = (destRotationDegrees_ > 0f)?(1f):(-1f);
-				float angleToRotate = sign * angularSpeed * Time.deltaTime;
+				float angleToRotate = sign * rotateSpeedDegrees * Time.deltaTime;
 
 				if ( Mathf.Abs(angleRotatedSoFar_ + angleToRotate) > Mathf.Abs (destRotationDegrees_))
 				{
@@ -86,9 +110,6 @@ public class CameraMover : MonoBehaviour
 
 	}
 
-	float angleRotatedSoFar_ = 0f;
-	float destRotationDegrees_ = 0f;
-
 	void RotateLeftOrRight(bool left)
 	{
 		angleRotatedSoFar_ = 0f;
@@ -103,41 +124,18 @@ public class CameraMover : MonoBehaviour
 		isRotating_ = true;
 	}
 
-	void MoveInOrOut(bool moveIn)
+	void ZoomInOrOut(bool moveIn)
 	{
-		Vector3 newDest = transform.position;
+		distZoomedSoFar_ = 0f;
+		float oldDest = destZoomDistance_;
+		destZoomDistance_ = zoomStep;
 		if ( moveIn )
 		{
-			newDest = newDest * ( 1f - inOutStep );
+			destZoomDistance_ *= -1f;
 		}
-		else
-		{
-			newDest = newDest * ( 1f + inOutStep );
-		}
+		Debug.Log("Zoom "+( (moveIn)?("In"):("Out")) +" changed destZoom from" + oldDest+" to " +destZoomDistance_ );
 
-		newDest = 0.5f * ( newDest + destPosition_ );
-
-		/*
-		if ( isMoving_ )
-		{
-			Vector3 normedDest = dest_;
-			normedDest .Normalize();
-			newDest = 0.5f * (newDest + normedDest);
-			newDest.Normalize();
-			Debug.Log("Combined movements");
-		}*/
-
-//		newDest = newDest * step;
-		if ( IsValidDest ( newDest ) )
-		{
-			Debug.Log("Move "+( (moveIn)?("In"):("Out") +" changed dest from" + destPosition_ +" to "+newDest ));
-			destPosition_ = newDest;
-			isMoving_ = true;
-		}
-		else
-		{
-			Debug.Log ("Move invalid");
-		}
+		isZooming_ = true;
 	}
 
 	public void RotateLeft()
@@ -150,18 +148,18 @@ public class CameraMover : MonoBehaviour
 		RotateLeftOrRight ( false );
 	}
 
-	public void MoveIn()
+	public void ZoomIn()
 	{
-		MoveInOrOut ( true );
+		ZoomInOrOut ( true );
 	}
 
-	public void MoveOut()
+	public void ZoomOut()
 	{
-		MoveInOrOut ( false );
+		ZoomInOrOut ( false );
 	}
 
 	private bool IsValidDest(Vector3 v)
 	{
-		return ( v.magnitude < maxDist_ );
+		return ( v.magnitude < maxDistFromOrigin_ );
 	}
 }
