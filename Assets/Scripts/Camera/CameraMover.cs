@@ -126,6 +126,10 @@ public class CameraMover : MonoBehaviour
 
 	}
 
+	void MoveUpOrDown(bool up)
+	{
+	}
+
 	void RotateLeftOrRight(bool left)
 	{
 		angleRotatedSoFar_ = 0f;
@@ -172,6 +176,16 @@ public class CameraMover : MonoBehaviour
 	public void ZoomOut()
 	{
 		ZoomInOrOut ( false );
+	}
+
+	public void MoveUp()
+	{
+		MoveUpOrDown ( true );
+	}
+
+	public void MoveDown()
+	{
+		MoveUpOrDown ( false );
 	}
 
 	private bool IsValidDest(Vector3 v)
