@@ -95,6 +95,7 @@ namespace _MeshGen
 			mesh.RecalculateBounds();
 			mesh.Optimize();
 
+			meshCollider_.sharedMesh = null;
 			meshCollider_.sharedMesh = meshFilter_.sharedMesh;
 
 			Debug.Log("Finish making "+this.DebugDescribe());
@@ -194,15 +195,16 @@ namespace _MeshGen
 				Vector3 v1 = vertexList_.GetVectorAtIndex(t.GetVertexIndex(1));
 				Vector3 v2 = vertexList_.GetVectorAtIndex(t.GetVertexIndex(2));
 				// get dist as mean of the 3 edges
-				float dist = ( 
+				float tetEdge = ( 
 				              Vector3.Distance( v0,v1)
 				              + Vector3.Distance( v1,v2)
 				              + Vector3.Distance( v2,v0)
 				              ) / 3f;
+				float height = tetEdge * Mathf.Sqrt (2f/3f);
 				Vector3 direction = Vector3.Cross( v0-v1, v2-v0 );
 				direction.Normalize();
 				direction = -1f * direction;
-				VertexMover newMover = new VertexMover( newVertex, direction, dist, 2f);
+				VertexMover newMover = new VertexMover( newVertex, direction, height, 2f);
 				vertexMovers_.Add(newMover);
 			}
 		}
