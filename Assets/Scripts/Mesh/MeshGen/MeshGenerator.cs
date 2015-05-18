@@ -194,14 +194,18 @@ namespace _MeshGen
 				Vector3 tpos = vertexList_.GetVectorAtIndex( t.GetVertexIndex(tindex) );
 				for (int otherindex = 0; otherindex < 4; otherindex++)
 				{
-					Vector3 otherpos = vertexList_.GetVectorAtIndex( other.GetVertexIndex(tindex) );
+					Vector3 otherpos = vertexList_.GetVectorAtIndex( other.GetVertexIndex(otherindex) );
 
-					if (Vector3.Distance( tpos, otherpos ) <= POSITION_TELRANCE)
+					if (Vector3.Distance( tpos, otherpos ) <= POSITION_TELRANCE*4f)
 					{
 						matches++;
 						break;
 					}
 				}
+			}
+			if (matches > 0)
+			{
+//				Debug.Log(matches+" matches");
 			}
 			return ( matches == 4 );
 		}
