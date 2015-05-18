@@ -6,7 +6,6 @@ namespace _MeshGen
 	public class TetrahedronGenerator : MeshGenerator
 	{
 		Vector3 centre_ = Vector3.zero;
-		float size_ = 1f;
 
 		static public TetrahedronGenerator Create (string name, Vector3 centre, float size)
 		{

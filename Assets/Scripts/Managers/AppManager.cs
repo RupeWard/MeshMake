@@ -51,22 +51,24 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	{
 		if ( currentGenerator_ != null )
 		{
-			_MeshGen.CubeGenerator cg = currentGenerator_ as _MeshGen.CubeGenerator;
-			if (cg == null)
+			_MeshGen.CubeGenerator cubeGenerator = currentGenerator_ as _MeshGen.CubeGenerator;
+			if (cubeGenerator == null)
 			{
 				GameObject.Destroy (currentGenerator_.gameObject);
 			}
 			else
 			{
-				Debug.LogWarning ("Not implemented");
+				cubeGenerator.ExtendRandomRect();
 				return;
 			}
 		}
-		_MeshGen.CubeGenerator cubeGenerator = _MeshGen.CubeGenerator.Create ("Cub", Vector3.zero, 10f);
-		cubeGenerator.SetMaterial(defaultMaterial);
-		cubeGenerator.MakeMesh();
-		
-		currentGenerator_ = cubeGenerator;
+		{
+			_MeshGen.CubeGenerator cubeGenerator = _MeshGen.CubeGenerator.Create ("Cub", Vector3.zero, 10f);
+			cubeGenerator.SetMaterial(defaultMaterial);
+			cubeGenerator.MakeMesh();
+			
+			currentGenerator_ = cubeGenerator;
+		}
 	}
 
 }

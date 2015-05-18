@@ -31,6 +31,10 @@ namespace _MeshGen
 				return;
 			}
 			vertices_[i].rects.Remove (t);
+			if ( vertices_[i].NumConnections <= 0 )
+			{
+				vertices_.RemoveAt(i);
+			}
 		}
 		
 		public void ConnectVertexToTriangle( int i, TriangleListElement t)
@@ -51,6 +55,10 @@ namespace _MeshGen
 				return;
 			}
 			vertices_[i].triangles.Remove (t);
+			if ( vertices_[i].NumConnections <= 0 )
+			{
+				vertices_.RemoveAt(i);
+			}
 		}
 		
 		public VertexListElement GetElement(int i)

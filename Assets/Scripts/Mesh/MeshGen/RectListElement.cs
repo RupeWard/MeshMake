@@ -40,7 +40,7 @@ namespace _MeshGen
 			triangles[1].AddToMeshGenLists( gen, verts, triVerts );
 		}
 
-		public static bool Equals(RectListElement t, RectListElement other)
+		public static bool IsSameRect(RectListElement t, RectListElement other)
 		{
 			int matches = 0;
 

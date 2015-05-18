@@ -6,7 +6,6 @@ namespace _MeshGen
 	public class CubeGenerator : MeshGenerator
 	{
 		Vector3 centre_ = Vector3.zero;
-		float size_ = 1f;
 
 		static public CubeGenerator Create (string name, Vector3 centre, float size)
 		{

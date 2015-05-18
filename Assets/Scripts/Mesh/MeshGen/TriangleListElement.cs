@@ -39,7 +39,7 @@ namespace _MeshGen
 			}
 		}
 
-		public static bool Equals(TriangleListElement t, TriangleListElement other)
+		public static bool HasSameIndices(TriangleListElement t, TriangleListElement other)
 		{
 			int matches = 0;
 

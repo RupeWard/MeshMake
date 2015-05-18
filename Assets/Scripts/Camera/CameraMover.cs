@@ -3,6 +3,8 @@ using System.Collections;
 
 public class CameraMover : MonoBehaviour 
 {
+	private static readonly bool DEBUG_CAMERAMOVER = false; 
+
 	public bool allowThroughOrigin = false;
 
 	public float initialZoomSpeed = 10f;
@@ -101,15 +103,21 @@ public class CameraMover : MonoBehaviour
 			Vector3 v0 = camera_.ScreenToWorldPoint( new Vector3( 0f, -100f, camera_.nearClipPlane ) );
 			Vector3 v1 = camera_.ScreenToWorldPoint( new Vector3( 0f, 100f, camera_.nearClipPlane ) );
 			Vector3 line1 = v1-v0; // horiz line in screen
-			
-			Debug.Log ("line is "+line1);
-			
+
+			if (DEBUG_CAMERAMOVER)
+			{
+				Debug.Log ("line is "+line1);
+			}
+
 			Vector3 axis = Vector3.Cross(line1,transform.position);
 			Vector3 point = Vector3.zero;
 
 			float angleToMove = currentMoveSpeed_ * Time.deltaTime;
 
-			Debug.Log ( "Move "+(angleToMove)+" degrees  about pt "+point+" axis"+axis);
+			if (DEBUG_CAMERAMOVER)
+			{
+				Debug.Log ( "Move "+(angleToMove)+" degrees  about pt "+point+" axis"+axis);
+			}
 			transform.RotateAround( point, axis, -1f * angleToMove);
 
 			if (currentMoveSpeed_ < 0f) 

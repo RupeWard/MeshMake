@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace _MeshGen
 {
-	public class VertexMover
+	public class RectMover
 	{
 		private VertexListElement vertex_ = null;
 		private Vector3 initialPosition_;
@@ -21,7 +21,7 @@ namespace _MeshGen
 			get { return finished_; }
 		}
 
-		public VertexMover( VertexListElement v, Vector3 direction, float dist, float t)
+		public RectMover( VertexListElement v, Vector3 direction, float dist, float t)
 		{
 			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+direction.ToString()+" "+dist+" "+t);
 			this.vertex_ = v;
@@ -54,14 +54,7 @@ namespace _MeshGen
 				//TODO stop if we hit another triangle
 				vertex_.SetVector(newVector);
 				changed = true;
-				if (finished_)
-				{
-					Debug.Log ("Finished move time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+finalPosition_);
-				}
-				else
-				{
-//					Debug.Log ("Moved time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+finalPosition_);
-				}
+				Debug.Log ("Moved time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+finalPosition_);
 			}
 			return changed;
 		}

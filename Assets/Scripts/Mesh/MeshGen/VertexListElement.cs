@@ -11,6 +11,11 @@ namespace _MeshGen
 		public HashSet< TriangleListElement > triangles = new HashSet<TriangleListElement> ( );
 		public HashSet< RectListElement > rects = new HashSet<RectListElement> ( );
 
+		public int NumConnections
+		{
+			get { return triangles.Count + rects.Count; }
+		}
+
 		public VertexListElement( Vector3 v)
 		{
 			vector_= v;
