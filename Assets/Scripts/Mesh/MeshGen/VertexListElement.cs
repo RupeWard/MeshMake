@@ -9,6 +9,7 @@ namespace _MeshGen
 		Vector3 vector_ = Vector3.zero;
 
 		public HashSet< TriangleListElement > triangles = new HashSet<TriangleListElement> ( );
+		public HashSet< RectListElement > rects = new HashSet<RectListElement> ( );
 
 		public VertexListElement( Vector3 v)
 		{

@@ -29,11 +29,14 @@ namespace _MeshGen
 			return vertexIndices_[i];
 		}
 
-		public void AddVertIndicesToList(ref List<int> list)
+		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < int > triVerts )
 		{
-			list.Add ( vertexIndices_[0]);
-			list.Add ( vertexIndices_[1]);
-			list.Add ( vertexIndices_[2]);
+			int firstIndex = verts.Count;
+			for (int v=0; v<3; v++)
+			{
+				verts.Add ( gen.VertexList.GetVectorAtIndex( GetVertexIndex(v) ) );
+				triVerts.Add ( firstIndex + v);
+			}
 		}
 
 		public static bool Equals(TriangleListElement t, TriangleListElement other)

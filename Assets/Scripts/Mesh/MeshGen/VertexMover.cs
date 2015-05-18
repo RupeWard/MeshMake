@@ -51,6 +51,7 @@ namespace _MeshGen
 				float dist = distance_ * fraction;
 				Vector3 newVector = initialPosition_ + (finalPosition_ - initialPosition_) * fraction;  
 
+				//TODO stop if we hit another triangle
 				vertex_.SetVector(newVector);
 				changed = true;
 				Debug.Log ("Moved time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+finalPosition_);

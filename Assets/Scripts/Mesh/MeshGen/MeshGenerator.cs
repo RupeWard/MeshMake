@@ -9,7 +9,12 @@ namespace _MeshGen
 		public static readonly float POSITION_TELRANCE = 0.001f;
 
 		protected MeshGenVertexList vertexList_ = null;
+		public MeshGenVertexList VertexList
+		{
+			get { return vertexList_; }
+		}
 		protected MeshGenTriangleList triangleList_ = null;
+		protected MeshGenRectList rectList_ = null;
 
 		private MeshFilter meshFilter_;
 		private MeshRenderer meshRenderer_;
@@ -32,6 +37,7 @@ namespace _MeshGen
 		{
 			vertexList_ = new MeshGenVertexList ( );
 			triangleList_ = new MeshGenTriangleList ( vertexList_ );
+			rectList_ = new MeshGenRectList ( vertexList_ );
 
 			meshFilter_ = gameObject.GetComponent< MeshFilter > ( );
 			if ( meshFilter_ == null )
@@ -62,9 +68,9 @@ namespace _MeshGen
 		{
 //			Debug.Log("Making mesh");
 
-			if (vertexList_.Count == 0 || triangleList_.Count == 0)
+			if (vertexList_.Count == 0 || (triangleList_.Count == 0 && rectList_.Count == 0))
 			{
-				Debug.LogError( "Can't make mesh with "+vertexList_.Count+" verts and "+triangleList_.Count+" tris");
+				Debug.LogError( "Can't make mesh with "+vertexList_.Count+" verts, "+rectList_.Count+"rects and "+triangleList_.Count+" tris");
 				return;
 			}
 
@@ -78,16 +84,27 @@ namespace _MeshGen
 
 			List < Vector3 > verts = new List< Vector3 >();
 			List< int > triVerts = new List< int >();
-			for (int i = 0; i < triangleList_.Count; i++)
-			{
-				TriangleListElement t = triangleList_.GetTriAtIndex(i);
 
-				for (int tmp=0; tmp<3; tmp++)
+			if (triangleList_ != null)
+			{
+				Debug.Log("Adding "+triangleList_.Count+" tris");
+				for (int i = 0; i < triangleList_.Count; i++)
 				{
-					verts.Add ( vertexList_.GetVectorAtIndex( t.GetVertexIndex(tmp) ) );
-					triVerts.Add ( i*3 + tmp);
+					TriangleListElement t = triangleList_.GetTriAtIndex(i);
+					t.AddToMeshGenLists( this, verts, triVerts);
 				}
 			}
+
+			if (rectList_ != null)
+			{
+				Debug.Log("Adding "+rectList_.Count+" rects");
+				for (int i = 0; i < rectList_.Count; i++)
+				{
+					RectListElement t = rectList_.GetRectAtIndex(i);
+					t.AddToMeshGenLists( this, verts, triVerts);
+				}
+			}
+
 			mesh.vertices = verts.ToArray();
 			mesh.triangles = triVerts.ToArray();
 
@@ -135,8 +152,8 @@ namespace _MeshGen
 		{
 			if ( isDirty_ )
 			{
-				MakeMesh ( );
 				isDirty_ = false;
+				MakeMesh ( );
 			}
 			if ( Input.GetMouseButtonDown (0 ) )
 			{
@@ -180,7 +197,7 @@ namespace _MeshGen
 		public void OnClicked()
 		{
 			Debug.Log ( "Clicked on the thing" );
-			SplitRandomTriangle();
+//			SplitRandomTriangle();
 		}
 
 		public void SplitRandomTriangle()
@@ -189,6 +206,9 @@ namespace _MeshGen
 			{
 				int i = UnityEngine.Random.Range( 0, triangleList_.Count);
 				TriangleListElement t = triangleList_.GetTriAtIndex(i);
+
+				// TODO Check distance from centre of triangle to obstacle
+				// this is lower bound for mover distance
 				VertexListElement newVertex = SplitTriangle( t);
 
 				Vector3 v0 = vertexList_.GetVectorAtIndex(t.GetVertexIndex(0));

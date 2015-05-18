@@ -13,6 +13,26 @@ namespace _MeshGen
 			get { return vertices_.Count; }
 		}
 
+		public void ConnectVertexToRect( int i, RectListElement t)
+		{
+			if ( i < 0 || i >= vertices_.Count )
+			{
+				Debug.LogError ("Can't connect vertex of index "+i+" from "+vertices_.Count);
+				return;
+			}
+			vertices_[i].rects.Add (t);
+		}
+
+		public void DisconnectVertexFromRect( int i, RectListElement t)
+		{
+			if ( i < 0 || i >= vertices_.Count )
+			{
+				Debug.LogError ("Can't disconnect vertex of index "+i+" from "+vertices_.Count);
+				return;
+			}
+			vertices_[i].rects.Remove (t);
+		}
+		
 		public void ConnectVertexToTriangle( int i, TriangleListElement t)
 		{
 			if ( i < 0 || i >= vertices_.Count )
@@ -27,7 +47,7 @@ namespace _MeshGen
 		{
 			if ( i < 0 || i >= vertices_.Count )
 			{
-				Debug.LogError ("Can't connect vertex of index "+i+" from "+vertices_.Count);
+				Debug.LogError ("Can't disconnect vertex of index "+i+" from "+vertices_.Count);
 				return;
 			}
 			vertices_[i].triangles.Remove (t);
