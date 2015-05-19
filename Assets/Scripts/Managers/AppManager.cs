@@ -10,13 +10,19 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	private _MeshGen.MeshGenerator currentGenerator_ = null;
 
-	// Use this for initialization
+	public GameObject ballPrefab;
+	public Transform world;
+
+	protected override void PostAwake()
+	{
+		Ball.maxDistFromOrigin = AppManager.Instance.maxDist - AppManager.Instance.camerabuffer;
+	}
+
 	void Start () 
 	{
 		Debug.Log ( "AppManager.Start" );
 	}
 	
-	// Update is called once per frame
 	void Update () 
 	{
 	
@@ -69,6 +75,46 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 			
 			currentGenerator_ = cubeGenerator;
 		}
+	}
+
+	public void OnBallButtonClicked()
+	{
+		MakeBall ( );
+	}
+
+	private int ballNum = 0;
+	private void MakeBall()
+	{
+		GameObject go = Instantiate ( ballPrefab ) as GameObject;
+		go.name = "Ball_"+ ballNum.ToString();
+		Ball ball = go.AddComponent< Ball >();
+		float dist = Ball.maxDistFromOrigin - go.transform.localScale.x;
+
+		Debug.Log ("Making ball at dist "+dist);
+
+		float xangle = Random.Range( 0, 2*Mathf.PI);
+		float yangle = Random.Range( 0, 2*Mathf.PI);
+		float zangle = Random.Range( 0, 2*Mathf.PI);
+
+		Vector3 position = new Vector3(
+			dist * Mathf.Cos( xangle ),
+			dist * Mathf.Cos( yangle ),
+			dist * Mathf.Cos( zangle )
+			);
+		Vector3 direction = -1f*position;
+		direction = direction / direction.magnitude;
+
+		float var =  20f;
+		float speed = 40f;
+
+		float xvar = var - Random.Range( 0, 2*var);
+		float yvar = var - Random.Range( 0, 2*var);
+		float zvar = var - Random.Range( 0, 2*var);
+		
+		direction = Quaternion.Euler( xvar, yvar, zvar ) * direction;
+		direction.Normalize();
+		ball.Init( position, speed * direction); 
+		ballNum++;
 	}
 
 }
