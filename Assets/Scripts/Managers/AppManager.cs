@@ -11,6 +11,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	private _MeshGen.MeshGenerator currentGenerator_ = null;
 
 	public GameObject ballPrefab;
+	public GameObject physBallPrefab;
 	public Transform world;
 
 	protected override void PostAwake()
@@ -79,7 +80,8 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	public void OnBallButtonClicked()
 	{
-		MakeBall ( );
+//		MakeBall ( );
+		MakePhysBall ( );
 	}
 
 	private int ballNum = 0;
@@ -107,6 +109,40 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 		float var =  20f;
 		float speed = 40f;
 
+		float xvar = var - Random.Range( 0, 2*var);
+		float yvar = var - Random.Range( 0, 2*var);
+		float zvar = var - Random.Range( 0, 2*var);
+		
+		direction = Quaternion.Euler( xvar, yvar, zvar ) * direction;
+		direction.Normalize();
+		ball.Init( position, speed * direction); 
+		ballNum++;
+	}
+
+	private void MakePhysBall()
+	{
+		GameObject go = Instantiate ( physBallPrefab ) as GameObject;
+		go.name = "PhysBall_"+ ballNum.ToString();
+		PhysBall ball = go.AddComponent< PhysBall >();
+		float dist = Ball.maxDistFromOrigin - go.transform.localScale.x;
+		
+		Debug.Log ("Making ball at dist "+dist);
+		
+		float xangle = Random.Range( 0, 2*Mathf.PI);
+		float yangle = Random.Range( 0, 2*Mathf.PI);
+		float zangle = Random.Range( 0, 2*Mathf.PI);
+		
+		Vector3 position = new Vector3(
+			dist * Mathf.Cos( xangle ),
+			dist * Mathf.Cos( yangle ),
+			dist * Mathf.Cos( zangle )
+			);
+		Vector3 direction = -1f*position;
+		direction = direction / direction.magnitude;
+		
+		float var =  20f;
+		float speed = 40f;
+		
 		float xvar = var - Random.Range( 0, 2*var);
 		float yvar = var - Random.Range( 0, 2*var);
 		float zvar = var - Random.Range( 0, 2*var);

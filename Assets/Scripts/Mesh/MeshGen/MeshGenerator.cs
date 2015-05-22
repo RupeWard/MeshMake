@@ -6,6 +6,8 @@ namespace _MeshGen
 {
 	public class MeshGenerator : MonoBehaviour, IDebugDescribable
 	{
+		public static bool allowMultiMovement = false;
+
 		public static readonly float POSITION_TELRANCE = 0.001f;
 		public static bool DEBUG_MESHMAKE = false;
 
@@ -196,7 +198,7 @@ namespace _MeshGen
 				{
 					Vector3 otherpos = vertexList_.GetVectorAtIndex( other.GetVertexIndex(otherindex) );
 
-					if (Vector3.Distance( tpos, otherpos ) <= POSITION_TELRANCE*4f)
+					if (Vector3.Distance( tpos, otherpos ) <= POSITION_TELRANCE*10f)
 					{
 						matches++;
 						break;
@@ -253,15 +255,22 @@ namespace _MeshGen
 
 		public void ExtendRandomRect()
 		{
-			if ( rectList_.Count > 5 )
+			bool allow = true;
+			if ( !allowMultiMovement && vertexMovers_.Count > 0 )
+			{
+				Debug.Log ("Not extending Rect because movers exist");
+				allow = false;
+			}
+			if (allow && rectList_.Count > 5 )
 			{
 				int i = UnityEngine.Random.Range( 0, rectList_.Count);
 				RectListElement t = rectList_.GetRectAtIndex(i);
-				ExtendRect( t, size_);
+				ExtendRect2( t, size_);
 			}
 
 		}
 
+		/*
 		public void ExtendRect(RectListElement originRect, float height)
 		{
 			int o0_i = originRect.GetVertexIndex ( 0 );
@@ -314,11 +323,143 @@ namespace _MeshGen
 			vertexMovers_.Add(newMover2);
 			vertexMovers_.Add(newMover3);
 
+		}*/
+
+		public void ExtendRect2(RectListElement originRect, float height)
+		{
+			Debug.Log ( "ExtendRect2" );
+			int[] originVertexIndices = new int[4];
+			Vector3[] originVertices = new Vector3[4];
+
+			for ( int i=0; i<4; i++ )
+			{
+				originVertexIndices[i] = originRect.GetVertexIndex ( i );
+				originVertices[i] = vertexList_.GetVectorAtIndex(originVertexIndices[i]);
+			}
+			Vector3 originCentre = rectList_.GetCentre ( originRect);
+			
+			Vector3 direction = Vector3.Cross( originVertices[0]-originVertices[2], originVertices[1]-originVertices[3]);
+
+			int[] newVertexIndices = new int[4];
+			Vector3[] newVertices = new Vector3[4];
+
+			for ( int i=0; i<4; i++ )
+			{
+				newVertices[i] = originVertices[i] + direction * POSITION_TELRANCE * 2f;
+				newVertexIndices[i] = vertexList_.AddVertex(newVertices[i]);
+			}
+
+			// 0123 faces out
+			RectListElement newTopRect = new RectListElement(newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3]);
+			RectListElement newFrontRect = new RectListElement( originVertexIndices[0], originVertexIndices[1], newVertexIndices[1], newVertexIndices[0] );
+			RectListElement newArseRect = new RectListElement( originVertexIndices[2], originVertexIndices[3], newVertexIndices[3], newVertexIndices[2] );
+			RectListElement newLeftRect = new RectListElement( originVertexIndices[3], originVertexIndices[0], newVertexIndices[0], newVertexIndices[3]);
+			RectListElement newRightRect = new RectListElement( originVertexIndices[1], originVertexIndices[2], newVertexIndices[2], newVertexIndices[1]);
+
+			rectList_.RemoveRect( originRect);
+
+			// Don't add new ones till analysed
+			List< RectListElement >[] rectsSharingEdges = new List< RectListElement >[4];
+			int totalRectsSharingEdges = 0;
+			for (int i = 0; i<4; i++)
+			{
+				rectsSharingEdges[i] = rectList_.GetRectsSharingEdge
+					(
+						originVertexIndices[ RectListElement.edgeIndices[i][0]], 
+						originVertexIndices[ RectListElement.edgeIndices[i][1]]
+					);
+				totalRectsSharingEdges += rectsSharingEdges[i].Count; 
+			}
+
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			sb.Append ("ANALYSIS");
+			if (totalRectsSharingEdges > 0)
+			{
+				sb.Append ("\n "+totalRectsSharingEdges+" RectSharing edges:");
+				for (int i = 0; i<4; i++)
+				{
+					sb.Append ("\n  Edge ").Append (i).Append (": ").Append (rectsSharingEdges[i].Count);
+					foreach (RectListElement rle in rectsSharingEdges[i])
+					{
+						sb.Append ("\n   ").Append(rle.DebugDescribe());
+					}
+				}
+			}
+			else
+			{
+				sb.Append ("\n NO RectSharing edges:");
+			}
+			Debug.Log(sb.ToString());
+
+			// Don't add new ones till analysed
+			rectList_.AddRect( newTopRect);
+			rectList_.AddRect( newFrontRect);
+			rectList_.AddRect( newArseRect);
+			rectList_.AddRect( newLeftRect);
+			rectList_.AddRect( newRightRect);
+			
+
+			for (int i =0; i<4; i++)
+			{
+				VertexMover newMover = new VertexMover( vertexList_.GetElement(newVertexIndices[i]), direction, height, 2f);
+				vertexMovers_.Add(newMover);
+			}
+		}
+
+		public void ExtendRect(RectListElement originRect, float height)
+		{
+			int[] originVertexIndices = new int[4];
+			Vector3[] originVertices = new Vector3[4];
+			
+			for ( int i=0; i<4; i++ )
+			{
+				originVertexIndices[i] = originRect.GetVertexIndex ( i );
+				originVertices[i] = vertexList_.GetVectorAtIndex(originVertexIndices[i]);
+			}
+			Vector3 originCentre = rectList_.GetCentre ( originRect);
+			
+			Vector3 direction = Vector3.Cross( originVertices[0]-originVertices[2], originVertices[1]-originVertices[3]);
+			
+			int[] newVertexIndices = new int[4];
+			Vector3[] newVertices = new Vector3[4];
+			
+			for ( int i=0; i<4; i++ )
+			{
+				newVertices[i] = originVertices[i] + direction * POSITION_TELRANCE * 2f;
+				newVertexIndices[i] = vertexList_.AddVertex(newVertices[i]);
+			}
+			
+			RectListElement newTopRect = new RectListElement(newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3]);
+			RectListElement newFrontRect = new RectListElement( originVertexIndices[0], originVertexIndices[1], newVertexIndices[1], newVertexIndices[0] );
+			RectListElement newArseRect = new RectListElement( originVertexIndices[2], originVertexIndices[3], newVertexIndices[3], newVertexIndices[2] );
+			RectListElement newLeftRect = new RectListElement( originVertexIndices[3], originVertexIndices[0], newVertexIndices[0], newVertexIndices[3]);
+			RectListElement newRightRect = new RectListElement( originVertexIndices[1], originVertexIndices[2], newVertexIndices[2], newVertexIndices[1]);
+
+			rectList_.AddRect( newTopRect);
+			rectList_.AddRect( newFrontRect);
+			rectList_.AddRect( newArseRect);
+			rectList_.AddRect( newLeftRect);
+			rectList_.AddRect( newRightRect);
+			
+			rectList_.RemoveRect( originRect);
+			
+			for (int i =0; i<4; i++)
+			{
+				VertexMover newMover = new VertexMover( vertexList_.GetElement(newVertexIndices[i]), direction, height, 2f);
+				vertexMovers_.Add(newMover);
+			}
 		}
 
 		public void SplitRandomTriangle()
 		{
-			if ( triangleList_.Count > 3 )
+			bool allow = true;
+			if ( !allowMultiMovement && vertexMovers_.Count > 0 )
+			{
+				Debug.Log ("Not splitting triangle because movers exist");
+				allow = false;
+			}
+
+			if ( allow && triangleList_.Count > 3 )
 			{
 				int i = UnityEngine.Random.Range( 0, triangleList_.Count);
 				TriangleListElement t = triangleList_.GetTriAtIndex(i);

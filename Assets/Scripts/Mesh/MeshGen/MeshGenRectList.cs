@@ -70,6 +70,18 @@ namespace _MeshGen
 			return result;
 		}
 
+		public List< RectListElement > GetRectsSharingEdge( int index0, int index1 )
+		{
+			List< RectListElement > result = new List< RectListElement > ();
+			foreach (RectListElement rle in rects_)
+			{
+				if (rle.SharesEdge( index0, index1 ))
+				{
+					result.Add(rle);
+				}
+			}
+			return result;
+		}
 	}
 }
 

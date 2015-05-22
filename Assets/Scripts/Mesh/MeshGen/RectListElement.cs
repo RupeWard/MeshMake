@@ -6,6 +6,14 @@ namespace _MeshGen
 {
 	public class RectListElement : IDebugDescribable
 	{
+		static public readonly int[][] edgeIndices = new int[][] 
+		{
+			new int[]{ 0, 1 },
+			new int[]{ 1, 2 },
+			new int[]{ 2, 3 },
+			new int[]{ 3, 0 }
+		};
+		
 		int[] vertexIndices_ = new int[4]{ -1, -1, -1, -1};
 		TriangleListElement[] triangles = new TriangleListElement[2] { null, null };
 
@@ -19,6 +27,21 @@ namespace _MeshGen
 			triangles[0] = new TriangleListElement( v0, v1, v3);
 			triangles[1] = new TriangleListElement( v1, v2, v3);
 
+		}
+
+		public bool SharesEdge( int index0, int index1 )
+		{
+			bool shares = false;
+			for ( int edge = 0; edge < 4; edge++)
+			{
+				if ((vertexIndices_[ edgeIndices[edge][0]] == index0 &&  vertexIndices_[ edgeIndices[edge][1]] == index1)
+				    || (vertexIndices_[ edgeIndices[edge][1]] == index0 &&  vertexIndices_[ edgeIndices[edge][0]] == index1))
+				{
+					shares = true;
+					break;
+				}
+			}
+			return shares;
 		}
 
 		public void flipOrientation()
