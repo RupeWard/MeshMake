@@ -52,12 +52,12 @@ namespace _MeshGen
 			int t2 = vertexList_.AddVertex( top2);
 			int t3 = vertexList_.AddVertex( top3);
 
-			RectListElement baseRect = new RectListElement( b3, b2, b1, b0 );
-			RectListElement topRect = new RectListElement( t1, t2, t3, t0 );
-			RectListElement frontRect = new RectListElement( b0, b1, t1, t0 );
-			RectListElement arseRect = new RectListElement( b2, b3, t3, t2 );
-			RectListElement leftRect = new RectListElement( b3, b0, t0, t3);
-			RectListElement rightRect = new RectListElement( b1, b2, t2, t1);
+			RectListElement baseRect = new RectListElement(rectList_,  b3, b2, b1, b0 );
+			RectListElement topRect = new RectListElement(rectList_,  t1, t2, t3, t0 );
+			RectListElement frontRect = new RectListElement(rectList_,  b0, b1, t1, t0 );
+			RectListElement arseRect = new RectListElement(rectList_,  b2, b3, t3, t2 );
+			RectListElement leftRect = new RectListElement(rectList_,  b3, b0, t0, t3);
+			RectListElement rightRect = new RectListElement(rectList_,  b1, b2, t2, t1);
 
 			rectList_.AddRect(baseRect);
 			rectList_.AddRect(topRect);

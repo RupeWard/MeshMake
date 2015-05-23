@@ -9,6 +9,11 @@ namespace _MeshGen
 		private MeshGenVertexList vertexList_;
 		private List < RectListElement > rects_ = null;
 
+		public Vector3 GetVertex(int i)
+		{
+			return vertexList_.GetVectorAtIndex(i);
+		}
+
 		public int Count
 		{
 			get { return rects_.Count; }
@@ -64,20 +69,49 @@ namespace _MeshGen
 			Vector3 result = Vector3.zero;
 			for (int i = 0; i<4; i++)
 			{
-				result = result + vertexList_.GetVectorAtIndex( t.GetVertexIndex(i) );
+				result = result + t.GetVertex(i);
 			}
 			result = result /4f;
 			return result;
 		}
 
-		public List< RectListElement > GetRectsSharingEdge( int index0, int index1 )
+		public Vector3 GetNormal(RectListElement t)
 		{
-			List< RectListElement > result = new List< RectListElement > ();
+			return Vector3.Cross(	
+					t.GetVertex(0) - t.GetVertex(2),
+					t.GetVertex(1) - t.GetVertex(3));
+		}
+
+		public class RectsSharingEdgeInfo
+		{
+			public int index0;
+			public int index1;
+
+			public RectListElement rle;
+			public int shares;
+			public Vector3 dirnAway0;
+			public Vector3 dirnAway1;
+		}
+
+		public List< RectsSharingEdgeInfo > GetRectsSharingEdge( int index0, int index1 )
+		{
+			List< RectsSharingEdgeInfo > result = new List< RectsSharingEdgeInfo >  ();
 			foreach (RectListElement rle in rects_)
 			{
-				if (rle.SharesEdge( index0, index1 ))
+				Vector3 dirnAway0 = Vector3.zero;
+				Vector3 dirnAway1 = Vector3.zero;
+
+				int shares = rle.SharesEdge( index0, index1, ref dirnAway0, ref dirnAway1 );
+				if (shares != 0)
 				{
-					result.Add(rle);
+					RectsSharingEdgeInfo info = new RectsSharingEdgeInfo();
+					info.index0 = index0;
+					info.index1 = index1;
+					info.rle = rle;
+					info.shares = shares;
+					info.dirnAway0 = dirnAway0;
+					info.dirnAway1 = dirnAway1;
+					result.Add(info);
 				}
 			}
 			return result;
