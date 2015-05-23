@@ -6,6 +6,8 @@ namespace _MeshGen
 {
 	public class MeshGenerator : MonoBehaviour, IDebugDescribable
 	{
+		static public readonly GridUVProviders gridUVProviders = new GridUVProviders ( 3,3);
+
 		public static bool allowMultiMovement = false;
 
 		public static readonly float POSITION_TELRANCE = 0.001f;
@@ -95,6 +97,7 @@ namespace _MeshGen
 			mesh.Clear ( );
 
 			List < Vector3 > verts = new List< Vector3 >();
+			List < Vector2 > uvs = new List< Vector2 >();
 			List< int > triVerts = new List< int >();
 
 			if (triangleList_ != null)
@@ -106,7 +109,7 @@ namespace _MeshGen
 				for (int i = 0; i < triangleList_.Count; i++)
 				{
 					TriangleListElement t = triangleList_.GetTriAtIndex(i);
-					t.AddToMeshGenLists( this, verts, triVerts);
+					t.AddToMeshGenLists( this, verts, uvs, triVerts);
 				}
 			}
 
@@ -119,12 +122,13 @@ namespace _MeshGen
 				for (int i = 0; i < rectList_.Count; i++)
 				{
 					RectListElement t = rectList_.GetRectAtIndex(i);
-					t.AddToMeshGenLists( this, verts, triVerts);
+					t.AddToMeshGenLists( this, verts, uvs, triVerts);
 				}
 			}
 
 			mesh.vertices = verts.ToArray();
 			mesh.triangles = triVerts.ToArray();
+			mesh.uv = uvs.ToArray();
 
 			mesh.RecalculateNormals();
 			mesh.RecalculateBounds();

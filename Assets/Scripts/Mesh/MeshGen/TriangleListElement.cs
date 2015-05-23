@@ -6,6 +6,8 @@ namespace _MeshGen
 {
 	public class TriangleListElement : IDebugDescribable
 	{
+		I_UVProvider uvProvider = null;
+
 		int[] vertexIndices_ = new int[3]{ -1, -1, -1};
 
 		public TriangleListElement( int v0, int v1, int v2)
@@ -15,6 +17,14 @@ namespace _MeshGen
 			vertexIndices_[2] = v2;
 		}
 
+		public TriangleListElement( int v0, int v1, int v2, I_UVProvider iup)
+		{
+			uvProvider = iup;
+			vertexIndices_[0] = v0;
+			vertexIndices_[1] = v1;
+			vertexIndices_[2] = v2;
+		}
+		
 		public void flipOrientation()
 		{
 			int tmp = vertexIndices_ [ 0 ];
@@ -29,13 +39,17 @@ namespace _MeshGen
 			return vertexIndices_[i];
 		}
 
-		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < int > triVerts )
+		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs,  List < int > triVerts )
 		{
 			int firstIndex = verts.Count;
 			for (int v=0; v<3; v++)
 			{
 				verts.Add ( gen.VertexList.GetVectorAtIndex( GetVertexIndex(v) ) );
 				triVerts.Add ( firstIndex + v);
+				if (uvProvider != null)
+				{
+					uvs.Add( uvProvider.GetUVForTriangleIndex(v) );
+				}
 			}
 		}
 

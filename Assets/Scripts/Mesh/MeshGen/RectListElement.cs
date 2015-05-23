@@ -7,6 +7,13 @@ namespace _MeshGen
 	public class RectListElement : IDebugDescribable
 	{
 		private MeshGenRectList rectList_ = null;
+		private GridUVProviders uvProviders_ = null;
+		private GridUVProviders.GridPosition gridPosition;
+
+		private void SetGridPosition(GridUVProviders.GridPosition gp)
+		{
+			gridPosition = gp;
+		}
 
 		public class EdgeDef :IDebugDescribable
 		{
@@ -100,6 +107,7 @@ namespace _MeshGen
 		int[] vertexIndices_ = new int[4]{ -1, -1, -1, -1};
 		TriangleListElement[] triangles = new TriangleListElement[2] { null, null };
 
+
 		public RectListElement( MeshGenRectList rectList, int v0, int v1, int v2, int v3)
 		{
 			rectList_ = rectList;
@@ -112,6 +120,28 @@ namespace _MeshGen
 			triangles[0] = new TriangleListElement( v0, v1, v3);
 			triangles[1] = new TriangleListElement( v1, v2, v3);
 
+		}
+
+		public RectListElement( MeshGenRectList rectList, int v0, int v1, int v2, int v3, GridUVProviders gup, GridUVProviders.GridPosition gp)
+		{
+			uvProviders_ = gup;
+			SetGridPosition(gp);
+
+			rectList_ = rectList;
+			
+			vertexIndices_[0] = v0;
+			vertexIndices_[1] = v1;
+			vertexIndices_[2] = v2;
+			vertexIndices_[3] = v3;
+			
+			triangles[0] = new TriangleListElement( v0, v1, v3, uvProviders_.GetTriangleProviderForRect(gp, 0));
+			triangles[1] = new TriangleListElement( v1, v2, v3, uvProviders_.GetTriangleProviderForRect(gp, 1));
+			
+		}
+
+		public void SetUVProvider(GridUVProviders g)
+		{
+			uvProviders_ = g;
 		}
 
 		public Vector3 GetCentre()
@@ -204,10 +234,10 @@ namespace _MeshGen
 			return rectList_.GetVertex ( vertexIndices_[i] );
 		}
 
-		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < int > triVerts )
+		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs, List < int > triVerts )
 		{
-			triangles[0].AddToMeshGenLists( gen, verts, triVerts );
-			triangles[1].AddToMeshGenLists( gen, verts, triVerts );
+			triangles[0].AddToMeshGenLists( gen, verts, uvs, triVerts );
+			triangles[1].AddToMeshGenLists( gen, verts, uvs, triVerts );
 		}
 
 		public static bool IsSameRect(RectListElement t, RectListElement other)
