@@ -15,7 +15,7 @@ public class UVProvider_Base : I_UVProvider
 
 #region I_UVProvider
 
-	public Vector2 GetUVForTriangleIndex ( int i )
+	public virtual Vector2 GetUVForTriangleIndex ( int i )
 	{
 		return uvs[i];
 	}

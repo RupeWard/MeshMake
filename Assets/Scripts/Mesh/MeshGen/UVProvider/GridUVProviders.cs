@@ -45,6 +45,9 @@ public class GridUVProviders
 
 	public I_UVProvider GetTriangleProviderForRect(GridPosition pos, int triangleNumber)
 	{
+		GridUVProvider.numRows = numRows;
+		GridUVProvider.numColumns = numColumns;
+
 		float left =  (float)pos.row / (float)numRows;
 		float right = (float)( pos.row + 1 )/ (float)numRows;
 		float bottom = (float)pos.column / (float)numColumns;
@@ -53,21 +56,23 @@ public class GridUVProviders
 		I_UVProvider result = null;
 		if ( triangleNumber == 0 )
 		{
-			result = new UVProvider_Base (
+			result = new GridUVProvider (
 				new Vector2[]{
 				new Vector2(left,bottom),
 				new Vector2(left,top),
 				new Vector2(right,top)
-			});
+			},
+			pos);
 		}
 		else
 		{
-			result = new UVProvider_Base (
+			result = new GridUVProvider (
 				new Vector2[]{
 				new Vector2(right,top),
 				new Vector2(right,bottom),
 				new Vector2(left,bottom)
-			});
+			},
+			pos);
 		}
 		return result;
 	}

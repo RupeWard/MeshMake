@@ -65,19 +65,20 @@ namespace _MeshGen
 //			GridUVProviders.GridPosition gp8 = new GridUVProviders.GridPosition( 2,2);// blue in color3x3
 */
 
-			GridUVProviders.GridPosition gp0 = new GridUVProviders.GridPosition( 1,2); // cyan in color3x3
-			GridUVProviders.GridPosition gp1 = gp0;
-			GridUVProviders.GridPosition gp2 = gp0;
-			GridUVProviders.GridPosition gp3 = gp0;
-			GridUVProviders.GridPosition gp4 = gp0;
-			GridUVProviders.GridPosition gp5 = gp0;
+			GridUVProviders.GridPosition gp = MeshGenerator.cyanRectGridPosition;
 
-			RectListElement baseRect = new RectListElement(rectList_,  b3, b2, b1, b0, MeshGenerator.gridUVProviders, gp0 );
-			RectListElement topRect = new RectListElement(rectList_,  t1, t2, t3, t0, MeshGenerator.gridUVProviders, gp1 );
-			RectListElement frontRect = new RectListElement(rectList_,  b0, b1, t1, t0, MeshGenerator.gridUVProviders, gp2 );
-			RectListElement arseRect = new RectListElement(rectList_,  b2, b3, t3, t2, MeshGenerator.gridUVProviders, gp3 );
-			RectListElement leftRect = new RectListElement(rectList_,  b3, b0, t0, t3, MeshGenerator.gridUVProviders, gp4);
-			RectListElement rightRect = new RectListElement(rectList_,  b1, b2, t2, t1, MeshGenerator.gridUVProviders, gp5);
+//			GridUVProviders.GridPosition gp1 = gp0;
+//			GridUVProviders.GridPosition gp2 = gp0;
+//			GridUVProviders.GridPosition gp3 = gp0;
+//			GridUVProviders.GridPosition gp4 = gp0;
+//			GridUVProviders.GridPosition gp5 = gp0;
+
+			RectListElement baseRect = new RectListElement(rectList_,  b3, b2, b1, b0, MeshGenerator.gridUVProviders, gp );
+			RectListElement topRect = new RectListElement(rectList_,  t1, t2, t3, t0, MeshGenerator.gridUVProviders, gp );
+			RectListElement frontRect = new RectListElement(rectList_,  b0, b1, t1, t0, MeshGenerator.gridUVProviders, gp );
+			RectListElement arseRect = new RectListElement(rectList_,  b2, b3, t3, t2, MeshGenerator.gridUVProviders, gp );
+			RectListElement leftRect = new RectListElement(rectList_,  b3, b0, t0, t3, MeshGenerator.gridUVProviders, gp);
+			RectListElement rightRect = new RectListElement(rectList_,  b1, b2, t2, t1, MeshGenerator.gridUVProviders, gp);
 
 			rectList_.AddRect(baseRect);
 			rectList_.AddRect(topRect);

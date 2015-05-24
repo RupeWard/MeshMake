@@ -7,6 +7,15 @@ namespace _MeshGen
 	public class MeshGenerator : MonoBehaviour, IDebugDescribable
 	{
 		static public readonly GridUVProviders gridUVProviders = new GridUVProviders ( 3,3);
+		static public readonly GridUVProviders.GridPosition cyanRectGridPosition = new GridUVProviders.GridPosition ( 0,0 );
+		static public readonly GridUVProviders.GridPosition mauveRectGridPosition = new GridUVProviders.GridPosition ( 0,1 );
+		static public readonly GridUVProviders.GridPosition yellowRectGridPosition = new GridUVProviders.GridPosition ( 1,2 );
+		static public readonly GridUVProviders.GridPosition greyRectGridPosition = new GridUVProviders.GridPosition( 1,0);// grey in color3x3
+		static public readonly GridUVProviders.GridPosition purpleRectGridPosition = new GridUVProviders.GridPosition( 1,1);// purpkke in color3x3
+		static public readonly GridUVProviders.GridPosition redRectGridPosition = new GridUVProviders.GridPosition( 1,2);// purpkke in color3x3
+		static public readonly GridUVProviders.GridPosition greenRectGridPosition = new GridUVProviders.GridPosition( 2,0);// green in color3x3
+		static public readonly GridUVProviders.GridPosition blackRectGridPosition = new GridUVProviders.GridPosition( 2,1);// black in color3x3
+		static public readonly GridUVProviders.GridPosition blueRectGridPosition = new GridUVProviders.GridPosition( 2,2);// blue in color3x3
 
 		public static bool allowMultiMovement = false;
 
@@ -440,11 +449,11 @@ namespace _MeshGen
 			// 0123 faces out
 
 
-			RectListElement newTopRect = new RectListElement(rectList_, newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3]);
-			RectListElement newFrontRect = new RectListElement(rectList_,  originVertexIndices[0], originVertexIndices[1], newVertexIndices[1], newVertexIndices[0] );
-			RectListElement newArseRect = new RectListElement(rectList_,  originVertexIndices[2], originVertexIndices[3], newVertexIndices[3], newVertexIndices[2] );
-			RectListElement newLeftRect = new RectListElement(rectList_,  originVertexIndices[3], originVertexIndices[0], newVertexIndices[0], newVertexIndices[3]);
-			RectListElement newRightRect = new RectListElement(rectList_,  originVertexIndices[1], originVertexIndices[2], newVertexIndices[2], newVertexIndices[1]);
+			RectListElement newTopRect = new RectListElement(rectList_, newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition);
+			RectListElement newFrontRect = new RectListElement(rectList_,  originVertexIndices[0], originVertexIndices[1], newVertexIndices[1], newVertexIndices[0], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition );
+			RectListElement newArseRect = new RectListElement(rectList_,  originVertexIndices[2], originVertexIndices[3], newVertexIndices[3], newVertexIndices[2], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition );
+			RectListElement newLeftRect = new RectListElement(rectList_,  originVertexIndices[3], originVertexIndices[0], newVertexIndices[0], newVertexIndices[3], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition);
+			RectListElement newRightRect = new RectListElement(rectList_,  originVertexIndices[1], originVertexIndices[2], newVertexIndices[2], newVertexIndices[1], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition);
 
 			// Don't add new ones till analysed
 			rectList_.AddRect( newTopRect);
