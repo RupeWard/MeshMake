@@ -13,6 +13,7 @@ namespace _MeshGen
 			CubeGenerator tg = go.AddComponent< CubeGenerator >();
 			tg.Init( centre, size);
 			go.transform.localPosition = centre;
+			go.transform.parent = AppManager.Instance.world;
 			return tg;
 		}
 

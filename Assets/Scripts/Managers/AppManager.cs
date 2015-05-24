@@ -177,6 +177,8 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 		GameObject go = Instantiate ( physBallPrefab ) as GameObject;
 		go.name = "PhysBall_"+ ballNum.ToString();
 		PhysBall ball = go.AddComponent< PhysBall >();
+		go.transform.parent = AppManager.Instance.world;
+
 		float dist = Ball.maxDistFromOrigin - go.transform.localScale.x;
 		
 		Debug.Log ("Making ball at dist "+dist);

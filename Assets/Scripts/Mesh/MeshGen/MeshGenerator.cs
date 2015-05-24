@@ -33,6 +33,7 @@ namespace _MeshGen
 		private MeshFilter meshFilter_;
 		private MeshRenderer meshRenderer_;
 		private MeshCollider meshCollider_;
+		private Rigidbody rigidBody_;
 
 		private List < VertexMover > vertexMovers_ = new List< VertexMover > ( );
 
@@ -78,6 +79,19 @@ namespace _MeshGen
 			}
 			meshCollider_.sharedMesh = meshFilter_.sharedMesh;
 			meshCollider_.sharedMaterial = AppManager.Instance.defaultThingPhysicsMaterials;
+
+			rigidBody_ = gameObject.GetComponent< Rigidbody > ( );
+			if ( rigidBody_ == null )
+			{
+				rigidBody_ = gameObject.AddComponent< Rigidbody >();
+			}
+			rigidBody_.useGravity = false;
+			rigidBody_.drag = 0.1f;
+			rigidBody_.angularDrag = 0.1f;
+			rigidBody_.velocity = Vector3.zero;
+			rigidBody_.angularVelocity = Vector3.zero;
+			rigidBody_.mass = 1f;
+			rigidBody_.isKinematic = true;
 		}
 
 		void Start()
@@ -150,6 +164,8 @@ namespace _MeshGen
 			{
 				Debug.Log("Finish making "+this.DebugDescribe());
 			}
+//			rigidBody_.isKinematic = false;
+
 		}
 
 		void Update()
@@ -543,7 +559,7 @@ namespace _MeshGen
 							                             edgeInfo.neighbourIndex0,
 							                             newVertexIndex1,
 							                             edgeInfo.neighbourIndex1,
-							                             null,
+							                             greenRectGridPosition,
 							                             AppManager.Instance.moveDuration);
 
 						vertexMovers_.Add(newMover);
@@ -575,6 +591,7 @@ namespace _MeshGen
 				//FIXME log;
 
 			}
+			rigidBody_.mass = rigidBody_.mass +1f;
 			Debug.Log(sb.ToString());
 		}
 
