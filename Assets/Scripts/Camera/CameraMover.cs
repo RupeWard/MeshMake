@@ -20,7 +20,8 @@ public class CameraMover : MonoBehaviour
 	public float moveAcceleration = 0.1f;
 
 	private float currentZoomSpeed_ = 0f;
-	private float currentMoveSpeed_ = 0f;
+	private float currentMoveUpDownSpeed_ = 0f;
+	private float currentMoveLeftRightSpeed_ = 0f;
 	private float currentRotateSpeed_ = 0f;
 
 	public float tolerance = 0.001f;
@@ -59,19 +60,35 @@ public class CameraMover : MonoBehaviour
 
 	public void MoveUp()
 	{
-		currentMoveSpeed_ = initialMoveSpeedDegrees;
+		currentMoveUpDownSpeed_ = initialMoveSpeedDegrees;
 	}
 	
 	public void MoveDown()
 	{
-		currentMoveSpeed_ = -1f * initialMoveSpeedDegrees;
+		currentMoveUpDownSpeed_ = -1f * initialMoveSpeedDegrees;
 	}
-	
-	public void MoveStop ( )
+
+	public void MoveLeft()
 	{
-		currentMoveSpeed_ = 0f;
+		currentMoveLeftRightSpeed_ = -1f * initialMoveSpeedDegrees;
 	}
 	
+	public void MoveRight()
+	{
+		currentMoveLeftRightSpeed_ = initialMoveSpeedDegrees;
+	}
+	
+
+	public void MoveUpDownStop ( )
+	{
+		currentMoveUpDownSpeed_ = 0f;
+	}
+
+	public void MoveLeftRightStop ( )
+	{
+		currentMoveLeftRightSpeed_ = 0f;
+	}
+
 	public void RotateLeft()
 	{
 		currentRotateSpeed_ = -1f * initialRotateSpeedDegrees;
@@ -92,17 +109,18 @@ public class CameraMover : MonoBehaviour
 	{
 		ZoomStop ( );
 		RotateStop ( );
-		MoveStop ( );
+		MoveUpDownStop ( );
+		MoveLeftRightStop ( );
 	}
 
 	// Update is called once per frame
 	void Update () 
 	{
-		if (currentMoveSpeed_ != 0f)
+		if (currentMoveUpDownSpeed_ != 0f)
 		{
 			Vector3 v0 = camera_.ScreenToWorldPoint( new Vector3( 0f, -100f, camera_.nearClipPlane ) );
 			Vector3 v1 = camera_.ScreenToWorldPoint( new Vector3( 0f, 100f, camera_.nearClipPlane ) );
-			Vector3 line1 = v1-v0; // horiz line in screen
+			Vector3 line1 = v1-v0; // vert line in screen
 
 			if (DEBUG_CAMERAMOVER)
 			{
@@ -112,7 +130,7 @@ public class CameraMover : MonoBehaviour
 			Vector3 axis = Vector3.Cross(line1,transform.position);
 			Vector3 point = Vector3.zero;
 
-			float angleToMove = currentMoveSpeed_ * Time.deltaTime;
+			float angleToMove = currentMoveUpDownSpeed_ * Time.deltaTime;
 
 			if (DEBUG_CAMERAMOVER)
 			{
@@ -120,17 +138,52 @@ public class CameraMover : MonoBehaviour
 			}
 			transform.RotateAround( point, axis, -1f * angleToMove);
 
-			if (currentMoveSpeed_ < 0f) 
+			if (currentMoveUpDownSpeed_ < 0f) 
 			{
-				currentMoveSpeed_ -= moveAcceleration;
-				currentMoveSpeed_ = Mathf.Max ( currentMoveSpeed_, -1f * maxMoveSpeedDegrees);
+				currentMoveUpDownSpeed_ -= moveAcceleration;
+				currentMoveUpDownSpeed_ = Mathf.Max ( currentMoveUpDownSpeed_, -1f * maxMoveSpeedDegrees);
 			}
-			else if (currentMoveSpeed_ > 0f) 
+			else if (currentMoveUpDownSpeed_ > 0f) 
 			{
-				currentMoveSpeed_ += moveAcceleration;
-				currentMoveSpeed_ = Mathf.Min ( currentMoveSpeed_, maxMoveSpeedDegrees);
+				currentMoveUpDownSpeed_ += moveAcceleration;
+				currentMoveUpDownSpeed_ = Mathf.Min ( currentMoveUpDownSpeed_, maxMoveSpeedDegrees);
 			}
 		}
+
+		if (currentMoveLeftRightSpeed_ != 0f)
+		{
+			Vector3 v0 = camera_.ScreenToWorldPoint( new Vector3( -100f, 0f, camera_.nearClipPlane ) );
+			Vector3 v1 = camera_.ScreenToWorldPoint( new Vector3( 100f, 0f, camera_.nearClipPlane ) );
+			Vector3 line1 = v1-v0; // horiz line in screen
+			
+			if (DEBUG_CAMERAMOVER)
+			{
+				Debug.Log ("line is "+line1);
+			}
+			
+			Vector3 axis = Vector3.Cross(line1,transform.position);
+			Vector3 point = Vector3.zero;
+			
+			float angleToMove = currentMoveLeftRightSpeed_ * Time.deltaTime;
+			
+			if (DEBUG_CAMERAMOVER)
+			{
+				Debug.Log ( "Move "+(angleToMove)+" degrees  about pt "+point+" axis"+axis);
+			}
+			transform.RotateAround( point, axis, -1f * angleToMove);
+			
+			if (currentMoveLeftRightSpeed_ < 0f) 
+			{
+				currentMoveLeftRightSpeed_ -= moveAcceleration;
+				currentMoveLeftRightSpeed_ = Mathf.Max ( currentMoveLeftRightSpeed_, -1f * maxMoveSpeedDegrees);
+			}
+			else if (currentMoveLeftRightSpeed_ > 0f) 
+			{
+				currentMoveLeftRightSpeed_ += moveAcceleration;
+				currentMoveLeftRightSpeed_ = Mathf.Min ( currentMoveLeftRightSpeed_, maxMoveSpeedDegrees);
+			}
+		}
+		
 
 		if (currentZoomSpeed_ != 0f)
 		{
