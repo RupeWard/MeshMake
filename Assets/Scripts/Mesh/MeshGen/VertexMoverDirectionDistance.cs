@@ -11,7 +11,7 @@ namespace _MeshGen
 			HashSet< RectListElement > rles = vertex_.rects;
 			foreach( RectListElement rle in rles)
 			{
-				rle.SetGridPosition( MeshGenerator.yellowRectGridPosition);
+				rle.SetGridPosition( finalGridPosition_ );
 			}
 		}
 
@@ -28,7 +28,9 @@ namespace _MeshGen
 		private Vector3 direction_ = Vector3.zero;
 		private float distance_;
 
-		public VertexMoverDirectionDistance( VertexListElement v, Vector3 direction, float dist, float t): base(t)
+		private GridUVProviders.GridPosition finalGridPosition_ = _MeshGen.MeshGenerator.redRectGridPosition;
+
+		public VertexMoverDirectionDistance( VertexListElement v, Vector3 direction, float dist, float t, GridUVProviders.GridPosition fp): base(t)
 		{
 //			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+direction.ToString()+" "+dist+" "+t);
 			this.vertex_ = v;
@@ -37,6 +39,10 @@ namespace _MeshGen
 			this.direction_.Normalize();
 			this.distance_ = dist;
 			this.finalPosition_ = this.initialPosition_;
+			if (fp != null)
+			{
+				finalGridPosition_ = fp;
+			}
 		}
 
 		public VertexMoverDirectionDistance( VertexListElement v, Vector3 final, float t):base(t)

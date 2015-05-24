@@ -25,10 +25,13 @@ namespace _MeshGen
 			private int targetIndex0;
 			private int targetIndex1;
 
+		private GridUVProviders.GridPosition movingPosition = MeshGenerator.greyRectGridPosition;
+
 		public VertexMoverRectCollapser( MeshGenRectList rectList,
 		                                RectListElement rle, 
 			                                int o0, int t0,
 			                                int o1, int t1,
+		                                GridUVProviders.GridPosition mp,
 		                                float t):base(t)
 		{
 			Debug.Log ("Creating RectCollapser: ");
@@ -42,11 +45,15 @@ namespace _MeshGen
 			this.target0 = rectList_.vertexList.GetElement(t0);
 			this.target1 = rectList_.vertexList.GetElement(t1);
 			this.rect_ = rle;
+			if (mp!=null)
+			{
+				this.movingPosition = mp;
+			}
 
 			vertexMovers_[0]=new VertexMoverTarget( origin0, target0, timeTaken_);
 			vertexMovers_[1]=new VertexMoverTarget( origin1, target1, timeTaken_);
 
-			rect_.SetGridPosition(MeshGenerator.greenRectGridPosition);
+			rect_.SetGridPosition(movingPosition);
 		}
 
 		public override bool update(float elapsed)

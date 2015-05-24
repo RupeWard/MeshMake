@@ -8,7 +8,7 @@ namespace _MeshGen
 	{
 		private MeshGenRectList rectList_ = null;
 		private GridUVProviders uvProviders_ = null;
-		private GridUVProviders.GridPosition gridPosition;
+		public GridUVProviders.GridPosition gridPosition;
 
 		public void SetGridPosition(GridUVProviders.GridPosition gp)
 		{
@@ -110,6 +110,11 @@ namespace _MeshGen
 		int[] vertexIndices_ = new int[4]{ -1, -1, -1, -1};
 		TriangleListElement[] triangles = new TriangleListElement[2] { null, null };
 
+		public float DistanceFromCentre(Vector3 position)
+		{
+			Vector3 centre = GetCentre ( );
+			return ( position - centre ).magnitude;
+		}
 
 		public RectListElement( MeshGenRectList rectList, int v0, int v1, int v2, int v3)
 		{

@@ -9,7 +9,7 @@ namespace _MeshGen
 		static public readonly GridUVProviders gridUVProviders = new GridUVProviders ( 3,3);
 		static public readonly GridUVProviders.GridPosition cyanRectGridPosition = new GridUVProviders.GridPosition ( 0,0 );
 		static public readonly GridUVProviders.GridPosition mauveRectGridPosition = new GridUVProviders.GridPosition ( 0,1 );
-		static public readonly GridUVProviders.GridPosition yellowRectGridPosition = new GridUVProviders.GridPosition ( 1,2 );
+		static public readonly GridUVProviders.GridPosition yellowRectGridPosition = new GridUVProviders.GridPosition ( 0,2 );
 		static public readonly GridUVProviders.GridPosition greyRectGridPosition = new GridUVProviders.GridPosition( 1,0);// grey in color3x3
 		static public readonly GridUVProviders.GridPosition purpleRectGridPosition = new GridUVProviders.GridPosition( 1,1);// purpkke in color3x3
 		static public readonly GridUVProviders.GridPosition redRectGridPosition = new GridUVProviders.GridPosition( 1,2);// purpkke in color3x3
@@ -170,7 +170,7 @@ namespace _MeshGen
 
 					if ( hit.collider == meshCollider_ )
 					{
-						OnClicked ( );
+						OnClicked ( hit );
 					}
 				}
 			}
@@ -265,10 +265,36 @@ namespace _MeshGen
 			}
 		}
 
-		public void OnClicked()
+		public void OnClicked(RaycastHit hit)
 		{
-			Debug.Log ( "Clicked on the thing" );
-//			SplitRandomTriangle();
+			Debug.Log ( "Clicked on the thing at "+hit.point );
+
+			RectListElement rle = GetClosestRect(hit.point);
+			if (rle == null)
+			{
+				Debug.LogError("Failed to find closest rect to hit!");
+			}
+			else
+			{
+				Debug.Log ("Clicked on "+rle.DebugDescribe());
+				ExtendRect(rle, size_, yellowRectGridPosition);
+			}
+		}
+
+		RectListElement GetClosestRect(Vector3 position)
+		{
+			RectListElement result = null;
+			float closestDistance = float.MaxValue;
+			for ( int i = 0; i< rectList_.Count; i++ )
+			{
+				float d = rectList_.GetRectAtIndex(i).DistanceFromCentre(position);
+				if (d < closestDistance)
+				{
+					closestDistance = d;
+					result = rectList_.GetRectAtIndex(i);
+				}
+			}
+			return result;
 		}
 
 		public void ExtendRandomRect()
@@ -283,13 +309,23 @@ namespace _MeshGen
 			{
 				int i = UnityEngine.Random.Range( 0, rectList_.Count);
 				RectListElement t = rectList_.GetRectAtIndex(i);
-				ExtendRect( t, size_);
+				ExtendRect( t, size_, blueRectGridPosition);
 			}
 
 		}
-
+		/*
 		public void ExtendRect(RectListElement originRect, float height)
 		{
+			ExtendRect(originRect, height, null);
+		}
+		*/
+
+		public void ExtendRect(RectListElement originRect, float height, GridUVProviders.GridPosition movingGridPosition)
+		{
+			if ( movingGridPosition == null )
+			{
+				movingGridPosition = greyRectGridPosition;
+			}
 			Debug.Log ( "ExtendRect" );
 			int[] originVertexIndices = new int[4];
 			Vector3[] originVertices = new Vector3[4];
@@ -458,7 +494,7 @@ namespace _MeshGen
 			// if there's no shared edge, do as before...
 
 			// create all movers?
-			RectListElement newTopRect = new RectListElement(rectList_, newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition);
+			RectListElement newTopRect = new RectListElement(rectList_, newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3], MeshGenerator.gridUVProviders, movingGridPosition);
 			rectList_.AddRect( newTopRect);
 
 			bool[] moverMadeForVertex = new bool[4]
@@ -506,7 +542,7 @@ namespace _MeshGen
 							                             edgeInfo.neighbourIndex0,
 							                             newVertexIndex1,
 							                             edgeInfo.neighbourIndex1,
-
+							                             null,
 							                             AppManager.Instance.moveDuration);
 
 						vertexMovers_.Add(newMover);
@@ -524,7 +560,7 @@ namespace _MeshGen
 						                    originVertexIndices[ edgeDef.GetIndex(1) ],
 						                    newVertexIndices[ edgeDef.GetIndex(1) ],
 						                    newVertexIndices[ edgeDef.GetIndex(0) ], 
-						                    MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition );
+						                    MeshGenerator.gridUVProviders, movingGridPosition );
 					rectList_.AddRect( newRect);
 					//FIXME log;
 
@@ -533,7 +569,7 @@ namespace _MeshGen
 
 			for (int i =0; i<4; i++)
 			{
-				VertexMover newMover = new VertexMoverDirectionDistance( vertexList_.GetElement(newVertexIndices[i]), direction, height, AppManager.Instance.moveDuration);
+				VertexMover newMover = new VertexMoverDirectionDistance( vertexList_.GetElement(newVertexIndices[i]), direction, height, AppManager.Instance.moveDuration, null);
 				vertexMovers_.Add(newMover);
 				//FIXME log;
 
@@ -618,7 +654,7 @@ namespace _MeshGen
 				Vector3 direction = Vector3.Cross( v0-v1, v2-v0 );
 				direction.Normalize();
 				direction = -1f * direction;
-				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance( newVertex, direction, height, AppManager.Instance.moveDuration);
+				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance( newVertex, direction, height, AppManager.Instance.moveDuration, null);
 				vertexMovers_.Add(newMover);
 			}
 		}
