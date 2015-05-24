@@ -49,7 +49,7 @@ namespace _MeshGen
 			this.distance_ = (final - initialPosition_).magnitude;
 		}
 
-		protected override Vector3 FinalPosition()
+		protected Vector3 FinalPosition()
 		{
 			return (direction_.magnitude == 0f)?(finalPosition_):(initialPosition_+direction_*distance_); 
 		}

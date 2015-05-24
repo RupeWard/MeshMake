@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace _MeshGen
 {
-	public class VertexMoverTarget
+	public class VertexMoverTarget : VertexMover
 	{
 		private VertexListElement vertex_ = null;
 		public VertexListElement Vertex
@@ -13,29 +13,24 @@ namespace _MeshGen
 
 		private VertexListElement target_ = null;
 
-		private float timeTaken_;
-
-		private float timeSoFar_ =0f;
-		
-		private Vector3 initialPosition_;
-
-		private bool finished_ = false;
-		public bool Finished
+		protected Vector3 FinalPosition()
 		{
-			get { return finished_; }
+			return target_.GetVector(); 
 		}
 
-		public VertexMoverTarget( VertexListElement v, VertexListElement targ, float t)
+
+		private Vector3 initialPosition_;
+
+
+		public VertexMoverTarget( VertexListElement v, VertexListElement targ, float t):base(t)
 		{
 			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+targ.GetVector().ToString());
 			this.vertex_ = v;
 			this.target_ = targ;
 			this.initialPosition_ = v.GetVector();
-			this.timeTaken_ = t;
-			this.timeSoFar_ = 0f;
 		}
 
-		public bool update(float elapsed)
+		public override bool update(float elapsed)
 		{
 			bool changed = false;
 			if ( !finished_ )
