@@ -277,7 +277,7 @@ namespace _MeshGen
 			else
 			{
 				Debug.Log ("Clicked on "+rle.DebugDescribe());
-				ExtendRect(rle, size_, yellowRectGridPosition);
+				ExtendRect(rle, size_, yellowRectGridPosition, redRectGridPosition);
 			}
 		}
 
@@ -309,7 +309,7 @@ namespace _MeshGen
 			{
 				int i = UnityEngine.Random.Range( 0, rectList_.Count);
 				RectListElement t = rectList_.GetRectAtIndex(i);
-				ExtendRect( t, size_, blueRectGridPosition);
+				ExtendRect( t, size_, blueRectGridPosition, greyRectGridPosition);
 			}
 
 		}
@@ -320,7 +320,7 @@ namespace _MeshGen
 		}
 		*/
 
-		public void ExtendRect(RectListElement originRect, float height, GridUVProviders.GridPosition movingGridPosition)
+		public void ExtendRect(RectListElement originRect, float height, GridUVProviders.GridPosition movingGridPosition, GridUVProviders.GridPosition finalGridPosition)
 		{
 			if ( movingGridPosition == null )
 			{
@@ -569,7 +569,7 @@ namespace _MeshGen
 
 			for (int i =0; i<4; i++)
 			{
-				VertexMover newMover = new VertexMoverDirectionDistance( vertexList_.GetElement(newVertexIndices[i]), direction, height, AppManager.Instance.moveDuration, null);
+				VertexMover newMover = new VertexMoverDirectionDistance( vertexList_.GetElement(newVertexIndices[i]), direction, height, AppManager.Instance.moveDuration, finalGridPosition);
 				vertexMovers_.Add(newMover);
 				//FIXME log;
 

@@ -45,7 +45,7 @@ namespace _MeshGen
 			}
 		}
 
-		public VertexMoverDirectionDistance( VertexListElement v, Vector3 final, float t):base(t)
+		public VertexMoverDirectionDistance( VertexListElement v, Vector3 final, float t, GridUVProviders.GridPosition fp):base(t)
 		{
 //			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+final.ToString()+" "+t);
 			this.vertex_ = v;
@@ -53,6 +53,10 @@ namespace _MeshGen
 			this.finalPosition_ = final;
 			this.direction_ = Vector3.zero;
 			this.distance_ = (final - initialPosition_).magnitude;
+			if (fp != null)
+			{
+				finalGridPosition_ = fp;
+			}
 		}
 
 		protected Vector3 FinalPosition()
