@@ -31,6 +31,7 @@ public class PhysBall : MonoBehaviour
 			rigidBody_.velocity = Vector3.zero;
 			dead = true;
 		}
+		/*
 		else
 			if (transform.localPosition.magnitude >= Ball.maxDistFromOrigin )
 		{
@@ -45,7 +46,7 @@ public class PhysBall : MonoBehaviour
 		else
 		{
 			Debug.Log("Ball moved to "+transform.localPosition+" v = "+rigidBody_.velocity);
-		}
+		}*/
 		
 	}
 

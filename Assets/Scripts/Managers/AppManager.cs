@@ -4,6 +4,8 @@ using System.Collections;
 public class AppManager : SingletonApplicationLifetime< AppManager > 
 {
 	public Material defaultMaterial;
+	public PhysicMaterial defaultThingPhysicsMaterials;
+
 	public float maxDist = 50f;
 
 	public float camerabuffer = 2f;

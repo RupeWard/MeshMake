@@ -77,6 +77,7 @@ namespace _MeshGen
 				meshCollider_ = gameObject.AddComponent< MeshCollider >();
 			}
 			meshCollider_.sharedMesh = meshFilter_.sharedMesh;
+			meshCollider_.sharedMaterial = AppManager.Instance.defaultThingPhysicsMaterials;
 		}
 
 		void Start()
