@@ -109,11 +109,13 @@ public class Ship : MonoBehaviour
 
 		if (accelerating_ )
 		{
-			rigidBody.AddForce( DirectionPointing * accelerationRate * Time.fixedDeltaTime);
+			rigidBody.AddForce( DirectionPointing * accelerationRate, ForceMode.Force);
+//			rigidBody.AddForce( DirectionPointing * accelerationRate * Time.fixedDeltaTime);
 		}
 		else if (decelerating_)
 		{
-			rigidBody.AddForce( -1f * DirectionPointing * accelerationRate * Time.fixedDeltaTime);
+			rigidBody.AddForce( -1f * DirectionPointing * accelerationRate, ForceMode.Force);
+//			rigidBody.AddForce( -1f * DirectionPointing * accelerationRate * Time.fixedDeltaTime);
 		}	
 		if (rotateUpDownRate != 0f )
 		{
