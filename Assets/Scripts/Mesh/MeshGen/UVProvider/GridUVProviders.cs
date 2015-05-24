@@ -27,10 +27,10 @@ public class GridUVProviders
 
 	public I_UVProvider GetTriangleProvider(GridPosition pos)
 	{
-		float left = (float)pos.row/(float) numRows;
-		float right = (float)( pos.row + 1 ) / (float)numRows;
-		float bottom = (float)pos.column / (float)numColumns;
-		float top = (float)( pos.column + 1 ) / (float)numColumns;
+		float bottom = (float)pos.row/(float) numRows;
+		float top = (float)( pos.row + 1 ) / (float)numRows;
+		float left = (float)pos.column / (float)numColumns;
+		float right = (float)( pos.column + 1 ) / (float)numColumns;
 
 		I_UVProvider result = null;
 		result = new UVProvider_Base (
