@@ -10,9 +10,12 @@ namespace _MeshGen
 		private GridUVProviders uvProviders_ = null;
 		private GridUVProviders.GridPosition gridPosition;
 
-		private void SetGridPosition(GridUVProviders.GridPosition gp)
+		public void SetGridPosition(GridUVProviders.GridPosition gp)
 		{
 			gridPosition = gp;
+
+			triangles [ 0 ].SetGridPosition ( gp );
+			triangles [ 1 ].SetGridPosition ( gp );
 		}
 
 		public class EdgeDef :IDebugDescribable
@@ -125,7 +128,6 @@ namespace _MeshGen
 		public RectListElement( MeshGenRectList rectList, int v0, int v1, int v2, int v3, GridUVProviders gup, GridUVProviders.GridPosition gp)
 		{
 			uvProviders_ = gup;
-			SetGridPosition(gp);
 
 			rectList_ = rectList;
 			
@@ -136,7 +138,8 @@ namespace _MeshGen
 			
 			triangles[0] = new TriangleListElement( v0, v1, v3, uvProviders_.GetTriangleProviderForRect(gp, 0));
 			triangles[1] = new TriangleListElement( v1, v2, v3, uvProviders_.GetTriangleProviderForRect(gp, 1));
-			
+			SetGridPosition(gp);
+
 		}
 
 		public void SetUVProvider(GridUVProviders g)

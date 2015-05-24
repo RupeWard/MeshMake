@@ -6,7 +6,7 @@ namespace _MeshGen
 {
 	public class TriangleListElement : IDebugDescribable
 	{
-		I_UVProvider uvProvider = null;
+		GridUVProvider uvProvider = null;
 
 		int[] vertexIndices_ = new int[3]{ -1, -1, -1};
 
@@ -17,14 +17,22 @@ namespace _MeshGen
 			vertexIndices_[2] = v2;
 		}
 
-		public TriangleListElement( int v0, int v1, int v2, I_UVProvider iup)
+		public TriangleListElement( int v0, int v1, int v2, GridUVProvider iup)
 		{
 			uvProvider = iup;
 			vertexIndices_[0] = v0;
 			vertexIndices_[1] = v1;
 			vertexIndices_[2] = v2;
 		}
-		
+
+		public void SetGridPosition(GridUVProviders.GridPosition pos)
+		{
+			if ( uvProvider != null )
+			{
+				uvProvider.SetGridPosition(pos);
+			}
+		}
+
 		public void flipOrientation()
 		{
 			int tmp = vertexIndices_ [ 0 ];

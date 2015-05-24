@@ -17,9 +17,23 @@ public class GridUVProvider : UVProvider_Base
 	{
 		position = pos;
 	}
-	
-	public virtual Vector2 GetUVForTriangleIndex ( int i  )
+
+	public override Vector2 GetUVForTriangleIndex ( int i )
 	{
-		return uvs[i];
+		Vector2 baseV = base.GetUVForTriangleIndex(i);
+
+		float left =  (float)position.row / (float)numRows;
+		float right = (float)( position.row + 1 )/ (float)numRows;
+		float bottom = (float)position.column / (float)numColumns;
+		float top = (float)( position.column + 1 ) / (float)numColumns;
+
+		baseV.x = left + baseV.x * (right -left);
+		baseV.y = bottom + baseV.y * (top -bottom);
+
+		return baseV;
 	}
+	/*
+	 * 		
+
+	 */
 }

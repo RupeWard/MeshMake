@@ -187,6 +187,13 @@ namespace _MeshGen
 					}
 					if (mover.Finished)
 					{
+						VertexListElement vle = mover.Vertex;
+						HashSet< RectListElement > rles = vle.rects;
+						foreach( RectListElement rle in rles)
+						{
+							rle.SetGridPosition( yellowRectGridPosition);
+						}
+
 						toRemove.Add(mover);
 					}
 				}
