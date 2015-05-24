@@ -16,8 +16,21 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	public GameObject physBallPrefab;
 	public Transform world;
 
+	public Camera tetheredCamera;
+	public Camera shipCamera;
+
+	public enum EMode
+	{
+		TetheredCamera,
+		ShipCamera,
+		NONE
+	}
+
+	private EMode mode_ = EMode.NONE;
+
 	protected override void PostAwake()
 	{
+		SetMode(EMode.TetheredCamera);
 		Ball.maxDistFromOrigin = AppManager.Instance.maxDist - AppManager.Instance.camerabuffer;
 	}
 
@@ -29,6 +42,42 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	void Update () 
 	{
 	
+	}
+
+	private void SetMode( EMode m)
+	{
+		if (mode_ != m)
+		{
+			mode_ = m;
+			switch(mode_)
+			{
+				case EMode.TetheredCamera:
+				{
+					tetheredCamera.enabled = true;
+					shipCamera.enabled = false;
+					break;
+				}
+				case EMode.ShipCamera:
+				{
+					shipCamera.enabled = true;
+					tetheredCamera.enabled = false;
+					break;
+				}
+			}
+			HudManager.Instance.HandleModeChange(mode_);
+		}
+	}
+
+	public void OnCameraButtonClicked()
+	{
+		if ( mode_ == EMode.ShipCamera )
+		{
+			SetMode(EMode.TetheredCamera);
+		}
+		else if ( mode_ == EMode.TetheredCamera )
+		{
+			SetMode(EMode.ShipCamera);
+		}
 	}
 
 	public void OnTetButtonClicked()
