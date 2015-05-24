@@ -283,69 +283,14 @@ namespace _MeshGen
 			{
 				int i = UnityEngine.Random.Range( 0, rectList_.Count);
 				RectListElement t = rectList_.GetRectAtIndex(i);
-				ExtendRect2( t, size_);
+				ExtendRect3( t, size_);
 			}
 
 		}
 
-		/*
-		public void ExtendRect(RectListElement originRect, float height)
+		public void ExtendRect3(RectListElement originRect, float height)
 		{
-			int o0_i = originRect.GetVertexIndex ( 0 );
-			Vector3 o0 = vertexList_.GetVectorAtIndex(o0_i);
-
-			int o1_i = originRect.GetVertexIndex ( 1 );
-			Vector3 o1 = vertexList_.GetVectorAtIndex(o1_i);
-
-			int o2_i =  originRect.GetVertexIndex( 2 );
-			Vector3 o2 = vertexList_.GetVectorAtIndex(o2_i);
-
-			int o3_i = originRect.GetVertexIndex( 3 );
-			Vector3 o3 = vertexList_.GetVectorAtIndex(o3_i);
-
-			Vector3 originCentre = rectList_.GetCentre ( originRect);
-
-			Vector3 direction = Vector3.Cross( o0-o2, o1-o3 );
-
-			Vector3 n0 = o0 + direction * POSITION_TELRANCE * 2f;
-			Vector3 n1 = o1 + direction * POSITION_TELRANCE * 2f;
-			Vector3 n2 = o2 + direction * POSITION_TELRANCE * 2f;
-			Vector3 n3 = o3 + direction * POSITION_TELRANCE * 2f;
-
-			int n0_i = vertexList_.AddVertex(n0);
-			int n1_i = vertexList_.AddVertex(n1);
-			int n2_i = vertexList_.AddVertex(n2);
-			int n3_i = vertexList_.AddVertex(n3);
-
-			RectListElement newTopRect = new RectListElement(n0_i,n1_i,n2_i,n3_i);
-			RectListElement newFrontRect = new RectListElement( o0_i, o1_i, n1_i, n0_i );
-			RectListElement newArseRect = new RectListElement( o2_i, o3_i, n3_i, n2_i );
-			RectListElement newLeftRect = new RectListElement( o3_i, o0_i, n0_i, n3_i);
-			RectListElement newRightRect = new RectListElement( o1_i, o2_i, n2_i, n1_i);
-
-			rectList_.AddRect( newTopRect);
-			rectList_.AddRect( newFrontRect);
-			rectList_.AddRect( newArseRect);
-			rectList_.AddRect( newLeftRect);
-			rectList_.AddRect( newRightRect);
-
-			rectList_.RemoveRect( originRect);
-
-			VertexMover newMover0 = new VertexMover( vertexList_.GetElement(n0_i), direction, height, 2f);
-			VertexMover newMover1 = new VertexMover( vertexList_.GetElement(n1_i), direction, height, 2f);
-			VertexMover newMover2 = new VertexMover( vertexList_.GetElement(n2_i), direction, height, 2f);
-			VertexMover newMover3 = new VertexMover( vertexList_.GetElement(n3_i), direction, height, 2f);
-
-			vertexMovers_.Add(newMover0);
-			vertexMovers_.Add(newMover1);
-			vertexMovers_.Add(newMover2);
-			vertexMovers_.Add(newMover3);
-
-		}*/
-
-		public void ExtendRect2(RectListElement originRect, float height)
-		{
-			Debug.Log ( "ExtendRect2" );
+			Debug.Log ( "ExtendRect3" );
 			int[] originVertexIndices = new int[4];
 			Vector3[] originVertices = new Vector3[4];
 
@@ -378,7 +323,8 @@ namespace _MeshGen
 				rectsSharingEdges[i] = rectList_.GetRectsSharingEdge
 					(
 						originVertexIndices[ RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ] ,
-						originVertexIndices[ RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1)]
+						originVertexIndices[ RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1)],
+						originRect
 					);
 				totalRectsSharingEdges += rectsSharingEdges[i].Count; 
 			}
@@ -404,9 +350,9 @@ namespace _MeshGen
 					List< MeshGenRectList.RectsSharingEdgeInfo > toRemove = new List<MeshGenRectList.RectsSharingEdgeInfo>();
 					foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
 					{
-						if (sharingEdgeInfo.shares * sharingEdgeInfo.shares != 1)
+						if (sharingEdgeInfo.shareOrder * sharingEdgeInfo.shareOrder != 1)
 						{
-							string error = "This rect shouldn't have shares = "+sharingEdgeInfo.shares+": "+sharingEdgeInfo.rle.DebugDescribe();
+							string error = "This rect shouldn't have shares = "+sharingEdgeInfo.shareOrder+": "+sharingEdgeInfo.rle.DebugDescribe();
 							Debug.LogError(error);
 							sb.Append(error);
 						}
@@ -415,9 +361,9 @@ namespace _MeshGen
 							Vector3 rleNormalNormed = sharingEdgeInfo.rle.GetNormal();
 							rleNormalNormed.Normalize();
 							sb.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
-							sb.Append( " angle = ").Append(sharingEdgeInfo.shares * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
-								.Append ( " = ").Append(sharingEdgeInfo.shares * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
-									.Append (" (").Append (sharingEdgeInfo.shares).Append (") norm = ")
+							sb.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
+								.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
+									.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
 									.Append (rleNormalNormed);
 							sharingEdgeInfo.dirnAway0.Normalize();
 							sharingEdgeInfo.dirnAway1.Normalize();
@@ -437,8 +383,6 @@ namespace _MeshGen
 							}
 
 						}
-						/*
-*/
 					}
 					foreach( MeshGenRectList.RectsSharingEdgeInfo rsi in toRemove)
 					{
@@ -460,9 +404,9 @@ namespace _MeshGen
 									.Append (" ): ").Append (rectsSharingEdges[i].Count);
 							foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
 							{
-								if (sharingEdgeInfo.shares * sharingEdgeInfo.shares != 1)
+								if (sharingEdgeInfo.shareOrder * sharingEdgeInfo.shareOrder != 1)
 								{
-									string error = "This rect shouldn't have shares = "+sharingEdgeInfo.shares+": "+sharingEdgeInfo.rle.DebugDescribe();
+									string error = "This rect shouldn't have shares = "+sharingEdgeInfo.shareOrder+": "+sharingEdgeInfo.rle.DebugDescribe();
 									Debug.LogError(error);
 									sb.Append(error);
 								}
@@ -471,9 +415,9 @@ namespace _MeshGen
 									Vector3 rleNormalNormed = sharingEdgeInfo.rle.GetNormal();
 									rleNormalNormed.Normalize();
 									sb.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
-									sb.Append( " angle = ").Append(sharingEdgeInfo.shares * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
-										.Append ( " = ").Append(sharingEdgeInfo.shares * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
-											.Append (" (").Append (sharingEdgeInfo.shares).Append (") norm = ")
+									sb.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
+										.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
+											.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
 											.Append (rleNormalNormed);
 									sharingEdgeInfo.dirnAway0.Normalize();
 									sharingEdgeInfo.dirnAway1.Normalize();
@@ -501,7 +445,6 @@ namespace _MeshGen
 				sb.Append ("\n NO RectSharing edges:");
 			}
 
-			Debug.Log(sb.ToString());
 
 			// identify which rects sharing edges need modifying
 			// angle between rects? is direction same as normal?
@@ -511,28 +454,281 @@ namespace _MeshGen
 			// 0123 faces out
 
 
+			// go through the 4 edges
+			// if there's no shared edge, do as before...
+
+			// create all movers?
+			RectListElement newTopRect = new RectListElement(rectList_, newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition);
+			rectList_.AddRect( newTopRect);
+
+			bool[] moverMadeForVertex = new bool[4]
+			{
+				false, false, false, false
+			};
+
+			for (int edgeIndex = 0; edgeIndex < 4; edgeIndex ++)
+			{
+				RectListElement.EdgeDef edgeDef = RectListElement.EdgeDefs.EdgeDef(edgeIndex);
+
+				List < MeshGenRectList.RectsSharingEdgeInfo > rectsSharingEdge = rectsSharingEdges[edgeIndex];
+				if (rectsSharingEdge != null && rectsSharingEdge.Count > 0)
+				{
+					//FIXME check length & log;
+
+					MeshGenRectList.RectsSharingEdgeInfo edgeInfo = rectsSharingEdge[0];
+					if (edgeInfo != null)
+					{
+						int newVertexIndex0 = -1;
+						int newVertexIndex1 = -1;
+						for (int i =0; i<4; i++)
+						{
+							if (originVertexIndices[i] == edgeInfo.index0)
+							{
+								newVertexIndex0 = newVertexIndices[i];
+							}
+							if (originVertexIndices[i] == edgeInfo.index1)
+							{
+								newVertexIndex1 = newVertexIndices[i];
+							}
+						}
+						if (newVertexIndex0 == -1 || newVertexIndex1 == -1)
+						{
+							Debug.LogError("Couldn't find matchign old/new vertices");
+						}
+
+						edgeInfo.rle.ReplaceVertexIndex(edgeInfo.index0, newVertexIndex0);
+						edgeInfo.rle.ReplaceVertexIndex(edgeInfo.index1, newVertexIndex1);
+
+						VertexMoverRectCollapser newMover = 
+							new VertexMoverRectCollapser( rectList_,
+							                             edgeInfo.rle,
+							                             newVertexIndex0,
+							                             edgeInfo.neighbourIndex0,
+							                             newVertexIndex1,
+							                             edgeInfo.neighbourIndex1,
+
+							                             AppManager.Instance.moveDuration);
+
+						vertexMovers_.Add(newMover);
+						moverMadeForVertex[ edgeDef.GetIndex(0) ] = true;
+						moverMadeForVertex[ edgeDef.GetIndex(1) ] = true;
+						// FIXME log;
+
+					}
+				}
+				else
+				{
+					RectListElement newRect = 
+						new RectListElement(rectList_, 
+						                    originVertexIndices[ edgeDef.GetIndex(0) ], 
+						                    originVertexIndices[ edgeDef.GetIndex(1) ],
+						                    newVertexIndices[ edgeDef.GetIndex(1) ],
+						                    newVertexIndices[ edgeDef.GetIndex(0) ], 
+						                    MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition );
+					rectList_.AddRect( newRect);
+					//FIXME log;
+
+				}
+			}
+
+			for (int i =0; i<4; i++)
+			{
+				VertexMover newMover = new VertexMoverDirectionDistance( vertexList_.GetElement(newVertexIndices[i]), direction, height, AppManager.Instance.moveDuration);
+				vertexMovers_.Add(newMover);
+				//FIXME log;
+
+			}
+			Debug.Log(sb.ToString());
+		}
+
+		public void ExtendRect2(RectListElement originRect, float height)
+		{
+			Debug.Log ( "ExtendRect2" );
+			int[] originVertexIndices = new int[4];
+			Vector3[] originVertices = new Vector3[4];
+			
+			for ( int i=0; i<4; i++ )
+			{
+				originVertexIndices[i] = originRect.GetVertexIndex ( i );
+				originVertices[i] = originRect.GetVertex ( i );
+			}
+			Vector3 originCentre = originRect.GetCentre ( );
+			
+			Vector3 direction = Vector3.Cross( originVertices[0]-originVertices[2], originVertices[1]-originVertices[3]);
+			direction.Normalize();
+			
+			int[] newVertexIndices = new int[4];
+			Vector3[] newVertices = new Vector3[4];
+			
+			for ( int i=0; i<4; i++ )
+			{
+				newVertices[i] = originVertices[i] + direction * POSITION_TELRANCE * 2f;
+				newVertexIndices[i] = vertexList_.AddVertex(newVertices[i]);
+			}
+			
+			rectList_.RemoveRect( originRect);
+			
+			// Don't add new ones till analysed
+			List < MeshGenRectList.RectsSharingEdgeInfo >[] rectsSharingEdges = new List < MeshGenRectList.RectsSharingEdgeInfo >[4];
+			int totalRectsSharingEdges = 0;
+			for (int i = 0; i<4; i++)
+			{
+				rectsSharingEdges[i] = rectList_.GetRectsSharingEdge
+					(
+						originVertexIndices[ RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ] ,
+						originVertexIndices[ RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1)],
+						originRect
+						);
+				totalRectsSharingEdges += rectsSharingEdges[i].Count; 
+			}
+			
+			Vector3 originRectNormalNormed =  originRect.GetNormal();
+			originRectNormalNormed.Normalize();
+			
+			bool pruned = false;
+			
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			sb.Append ("ANALYSIS: origin = ").Append (originRect.DebugDescribe())
+				.Append (" Norm = ").Append(originRectNormalNormed)
+					.Append(" dirn = ").Append (direction);
+			if (totalRectsSharingEdges > 0)
+			{
+				sb.Append ("\n "+totalRectsSharingEdges+" RectSharing edges:");
+				for (int i = 0; i<4; i++)
+				{
+					sb.Append ("\n  Edge ").Append (i)
+						.Append(" (" ).Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
+							.Append (", ").Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
+							.Append (" ): ").Append (rectsSharingEdges[i].Count);
+					List< MeshGenRectList.RectsSharingEdgeInfo > toRemove = new List<MeshGenRectList.RectsSharingEdgeInfo>();
+					foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
+					{
+						if (sharingEdgeInfo.shareOrder * sharingEdgeInfo.shareOrder != 1)
+						{
+							string error = "This rect shouldn't have shares = "+sharingEdgeInfo.shareOrder+": "+sharingEdgeInfo.rle.DebugDescribe();
+							Debug.LogError(error);
+							sb.Append(error);
+						}
+						else
+						{
+							Vector3 rleNormalNormed = sharingEdgeInfo.rle.GetNormal();
+							rleNormalNormed.Normalize();
+							sb.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
+							sb.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
+								.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
+									.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
+									.Append (rleNormalNormed);
+							sharingEdgeInfo.dirnAway0.Normalize();
+							sharingEdgeInfo.dirnAway1.Normalize();
+							sb.Append(" Dirns Away: ").Append(sharingEdgeInfo.dirnAway0);
+							if (sharingEdgeInfo.dirnAway0 == direction)
+							{
+								sb.Append(" !!!! ");
+							}
+							else
+							{
+								toRemove.Add(sharingEdgeInfo);
+							}
+							sb.Append (" ").Append(sharingEdgeInfo.dirnAway1);
+							if (sharingEdgeInfo.dirnAway1 == direction)
+							{
+								sb.Append(" !!!! ");
+							}							
+						}
+					}
+					foreach( MeshGenRectList.RectsSharingEdgeInfo rsi in toRemove)
+					{
+						pruned = true;
+						rectsSharingEdges[i].Remove(rsi);
+					}
+				}
+				if (pruned)
+				{
+					if (totalRectsSharingEdges > 0)
+					{
+						sb.Append ("\nAfterPruning...");
+						sb.Append ("\n ").Append (totalRectsSharingEdges).Append (" RectSharing edges:");
+						for (int i = 0; i<4; i++)
+						{
+							sb.Append ("\n  Edge ").Append (i)
+								.Append(" (" ).Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
+									.Append (", ").Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
+									.Append (" ): ").Append (rectsSharingEdges[i].Count);
+							foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
+							{
+								if (sharingEdgeInfo.shareOrder * sharingEdgeInfo.shareOrder != 1)
+								{
+									string error = "This rect shouldn't have shares = "+sharingEdgeInfo.shareOrder+": "+sharingEdgeInfo.rle.DebugDescribe();
+									Debug.LogError(error);
+									sb.Append(error);
+								}
+								else
+								{
+									Vector3 rleNormalNormed = sharingEdgeInfo.rle.GetNormal();
+									rleNormalNormed.Normalize();
+									sb.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
+									sb.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
+										.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
+											.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
+											.Append (rleNormalNormed);
+									sharingEdgeInfo.dirnAway0.Normalize();
+									sharingEdgeInfo.dirnAway1.Normalize();
+									sb.Append(" Dirns Away: ").Append(sharingEdgeInfo.dirnAway0);
+									if (sharingEdgeInfo.dirnAway0 == direction)
+									{
+										sb.Append(" !!!! ");
+									}
+									sb.Append (" ").Append(sharingEdgeInfo.dirnAway1);
+									if (sharingEdgeInfo.dirnAway1 == direction)
+									{
+										sb.Append(" !!!! ");
+									}
+									
+								}
+							}
+						}
+					}
+				}
+				
+				
+			}
+			else
+			{
+				sb.Append ("\n NO RectSharing edges:");
+			}
+			
+			Debug.Log(sb.ToString());
+			
+			// identify which rects sharing edges need modifying
+			// angle between rects? is direction same as normal?
+			// don't create a side rect, just connect to the shared one
+			// make the new top rect's shared one's top vertices
+			// new type of mover - takes vertex to another vertex
+			// 0123 faces out
+			
+			
 			RectListElement newTopRect = new RectListElement(rectList_, newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition);
 			RectListElement newFrontRect = new RectListElement(rectList_,  originVertexIndices[0], originVertexIndices[1], newVertexIndices[1], newVertexIndices[0], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition );
 			RectListElement newArseRect = new RectListElement(rectList_,  originVertexIndices[2], originVertexIndices[3], newVertexIndices[3], newVertexIndices[2], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition );
 			RectListElement newLeftRect = new RectListElement(rectList_,  originVertexIndices[3], originVertexIndices[0], newVertexIndices[0], newVertexIndices[3], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition);
 			RectListElement newRightRect = new RectListElement(rectList_,  originVertexIndices[1], originVertexIndices[2], newVertexIndices[2], newVertexIndices[1], MeshGenerator.gridUVProviders, MeshGenerator.mauveRectGridPosition);
-
+			
 			// Don't add new ones till analysed
 			rectList_.AddRect( newTopRect);
 			rectList_.AddRect( newFrontRect);
 			rectList_.AddRect( newArseRect);
 			rectList_.AddRect( newLeftRect);
 			rectList_.AddRect( newRightRect);
-
-
-
+			
+			
+			
 			for (int i =0; i<4; i++)
 			{
-				VertexMover newMover = new VertexMoverDirectionDistance( vertexList_.GetElement(newVertexIndices[i]), direction, height, 2f);
+				VertexMover newMover = new VertexMoverDirectionDistance( vertexList_.GetElement(newVertexIndices[i]), direction, height, AppManager.Instance.moveDuration);
 				vertexMovers_.Add(newMover);
 			}
 		}
-
+		
 		public void ExtendRect(RectListElement originRect, float height)
 		{
 			int[] originVertexIndices = new int[4];
@@ -608,7 +804,7 @@ namespace _MeshGen
 				Vector3 direction = Vector3.Cross( v0-v1, v2-v0 );
 				direction.Normalize();
 				direction = -1f * direction;
-				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance( newVertex, direction, height, 2f);
+				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance( newVertex, direction, height, AppManager.Instance.moveDuration);
 				vertexMovers_.Add(newMover);
 			}
 		}

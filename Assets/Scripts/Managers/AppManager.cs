@@ -10,6 +10,8 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	private _MeshGen.MeshGenerator currentGenerator_ = null;
 
+	public float moveDuration = 2f;
+
 	public GameObject ballPrefab;
 	public GameObject physBallPrefab;
 	public Transform world;

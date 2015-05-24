@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace _MeshGen
 {
-	public class VertexListElement
+	public class VertexListElement : IDebugDescribable
 	{
 		Vector3 vector_ = Vector3.zero;
 
@@ -43,6 +43,13 @@ namespace _MeshGen
 		public static bool Equals(VertexListElement t, VertexListElement other)
 		{
 			return (Vector3.Distance(t.GetVector(), other.GetVector()) < MeshGenerator.POSITION_TELRANCE);
+		}
+
+		public void DebugDescribe(System.Text.StringBuilder sb)
+		{
+			sb.Append ( "[Vertex " ).Append ( vector_ )
+				.Append (triangles.Count).Append ("/").Append (rects.Count)
+				.Append ( "]" );
 		}
 	}
 }

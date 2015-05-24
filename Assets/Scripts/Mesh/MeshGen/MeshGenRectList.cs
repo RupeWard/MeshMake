@@ -7,11 +7,21 @@ namespace _MeshGen
 	public class MeshGenRectList // : MeshGenList < TriangleListElement >  
 	{
 		private MeshGenVertexList vertexList_;
+		public MeshGenVertexList vertexList
+		{
+			get { return vertexList_; }
+		}
+
 		private List < RectListElement > rects_ = null;
 
 		public Vector3 GetVertex(int i)
 		{
 			return vertexList_.GetVectorAtIndex(i);
+		}
+
+		public VertexListElement GetVertexElement(int i)
+		{
+			return vertexList_.GetElement(i);
 		}
 
 		public int Count
@@ -33,6 +43,26 @@ namespace _MeshGen
 			}
 		}
 
+		public int ReplaceVertexIndex( int oldIndex, int newIndex)
+		{
+			int numReplaced = 0;
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			foreach (RectListElement rle in rects_)
+			{
+				if (rle.ReplaceVertexIndex(oldIndex, newIndex))
+				{
+					sb.Append("Replaced ").Append (oldIndex).Append (" with ").Append(newIndex).Append (" in ").Append (rle.DebugDescribe()+"\n");
+					vertexList_.DisconnectVertexFromRect(oldIndex, rle);
+					numReplaced++;
+				}
+			}
+			if (sb.Length > 0)
+			{
+				Debug.Log (sb.ToString());
+			}
+			return numReplaced;
+		}
+
 		public int AddRect(RectListElement t)
 		{
 			int result = -1;
@@ -47,6 +77,7 @@ namespace _MeshGen
 
 		public void RemoveRect(RectListElement t)
 		{
+			Debug.Log ( "Removing rect: " + t.DebugDescribe ( ) );
 			for ( int i = 0; i <4; i++)
 			{
 				vertexList_.DisconnectVertexFromRect( t.GetVertexIndex(i), t );
@@ -87,30 +118,38 @@ namespace _MeshGen
 			public int index0;
 			public int index1;
 
+			public RectListElement originRle;
 			public RectListElement rle;
-			public int shares;
+			public int shareOrder;
 			public Vector3 dirnAway0;
 			public Vector3 dirnAway1;
+			public int neighbourIndex0;
+			public int neighbourIndex1;
 		}
 
-		public List< RectsSharingEdgeInfo > GetRectsSharingEdge( int index0, int index1 )
+
+		public List< RectsSharingEdgeInfo > GetRectsSharingEdge( int index0, int index1, RectListElement o )
 		{
 			List< RectsSharingEdgeInfo > result = new List< RectsSharingEdgeInfo >  ();
 			foreach (RectListElement rle in rects_)
 			{
 				Vector3 dirnAway0 = Vector3.zero;
 				Vector3 dirnAway1 = Vector3.zero;
-
-				int shares = rle.SharesEdge( index0, index1, ref dirnAway0, ref dirnAway1 );
-				if (shares != 0)
+				int otherNeighbourIndex0 = -1;
+				int otherNeighbourIndex1 = -1;
+				int shareOrder = rle.SharesEdge( index0, index1, ref dirnAway0, ref dirnAway1, ref otherNeighbourIndex0, ref otherNeighbourIndex1 );
+				if (shareOrder != 0)
 				{
 					RectsSharingEdgeInfo info = new RectsSharingEdgeInfo();
 					info.index0 = index0;
 					info.index1 = index1;
 					info.rle = rle;
-					info.shares = shares;
+					info.shareOrder = shareOrder;
 					info.dirnAway0 = dirnAway0;
 					info.dirnAway1 = dirnAway1;
+					info.originRle = o;
+					info.neighbourIndex0 = otherNeighbourIndex0;
+					info.neighbourIndex1 = otherNeighbourIndex1;
 					result.Add(info);
 				}
 			}

@@ -47,6 +47,19 @@ namespace _MeshGen
 			return vertexIndices_[i];
 		}
 
+		public bool ReplaceVertexIndex( int oldIndex, int newIndex)
+		{
+			for (int i = 0; i< 3; i++)
+			{
+				if (vertexIndices_[i] == oldIndex)
+				{
+					vertexIndices_[i] = newIndex;
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs,  List < int > triVerts )
 		{
 			int firstIndex = verts.Count;

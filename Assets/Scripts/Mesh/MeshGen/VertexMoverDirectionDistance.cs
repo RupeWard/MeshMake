@@ -30,7 +30,7 @@ namespace _MeshGen
 
 		public VertexMoverDirectionDistance( VertexListElement v, Vector3 direction, float dist, float t): base(t)
 		{
-			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+direction.ToString()+" "+dist+" "+t);
+//			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+direction.ToString()+" "+dist+" "+t);
 			this.vertex_ = v;
 			this.initialPosition_ = v.GetVector();
 			this.direction_ = direction;
@@ -41,7 +41,7 @@ namespace _MeshGen
 
 		public VertexMoverDirectionDistance( VertexListElement v, Vector3 final, float t):base(t)
 		{
-			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+final.ToString()+" "+t);
+//			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+final.ToString()+" "+t);
 			this.vertex_ = v;
 			this.initialPosition_ = v.GetVector();
 			this.finalPosition_ = final;

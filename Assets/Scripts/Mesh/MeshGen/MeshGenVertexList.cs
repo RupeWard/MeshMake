@@ -33,7 +33,8 @@ namespace _MeshGen
 			vertices_[i].rects.Remove (t);
 			if ( vertices_[i].NumConnections <= 0 )
 			{
-				vertices_.RemoveAt(i);
+				Debug.Log("Vertex now has no connections "+vertices_[i].DebugDescribe());
+//				vertices_.RemoveAt(i);
 			}
 		}
 		
@@ -57,7 +58,8 @@ namespace _MeshGen
 			vertices_[i].triangles.Remove (t);
 			if ( vertices_[i].NumConnections <= 0 )
 			{
-				vertices_.RemoveAt(i);
+				Debug.LogWarning("Vertex now has no connections "+vertices_[i].DebugDescribe());
+//				vertices_.RemoveAt(i);
 			}
 		}
 		

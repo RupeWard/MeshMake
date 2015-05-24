@@ -174,6 +174,24 @@ namespace _MeshGen
 			return r0.AngleFromNormalsRadians(r1.GetNormal());
 		}
 
+		public bool ReplaceVertexIndex( int oldIndex, int newIndex)
+		{
+			bool changed = false;
+			if (triangles[0].ReplaceVertexIndex(oldIndex, newIndex))
+			{
+				changed = true;
+			}
+			if (triangles[1].ReplaceVertexIndex(oldIndex, newIndex))
+			{
+				changed = true;
+			}
+			if (changed)
+			{
+				rectList_.vertexList.DisconnectVertexFromRect(oldIndex, this);
+			}
+			return changed;
+		}
+
 		public int SharesEdgeOld( int index0, int index1 )
 		{
 			int shares = 0;
@@ -191,31 +209,35 @@ namespace _MeshGen
 			return shares;
 		}
 
-		public int SharesEdge( int index0, int index1, ref Vector3 directionaway0, ref Vector3 directionaway1 )
+		public int SharesEdge( int index0, int index1, ref Vector3 directionaway0, ref Vector3 directionaway1, ref int otherNeighbour0, ref int otherNeighbour1 )
 		{
-			int shares = 0;
-			for ( int edge = 0; edge < 4 && shares == 0; edge++)
+			int shareOrder = 0;
+			for ( int edge = 0; edge < 4 && shareOrder == 0; edge++)
 			{
 				int edgeIndex0 = EdgeDefs.EdgeDef(edge).GetIndex(0);
 				int edgeIndex1 = EdgeDefs.EdgeDef(edge).GetIndex(1);
 				int indexOfNextToEdgeIndex0 = EdgeDefs.GetIndexOfNeighbouringPointFromEdge(EdgeDefs.EdgeDef(edge), edgeIndex0);
 				int indexOfNextToEdgeIndex1 = EdgeDefs.GetIndexOfNeighbouringPointFromEdge(EdgeDefs.EdgeDef(edge), edgeIndex1);
 
+				otherNeighbour0 = GetVertexIndex( indexOfNextToEdgeIndex0);
+				otherNeighbour1 = GetVertexIndex( indexOfNextToEdgeIndex1);
+
 				if (vertexIndices_[ edgeIndex0 ] == index0 &&  vertexIndices_[ edgeIndex1 ] == index1)
 				{
-					shares = 1;
+					shareOrder = 1;
 				}
 				else if (vertexIndices_[ edgeIndex1] == index0 &&  vertexIndices_[ edgeIndex0] == index1)
 				{
-					shares = -1;
+					shareOrder = -1;
 				}
-				if (shares != 0)
+				if (shareOrder != 0)
 				{
 					directionaway0 = GetVertex( indexOfNextToEdgeIndex0 ) - GetVertex( edgeIndex0 );
 					directionaway1 = GetVertex( indexOfNextToEdgeIndex1 ) - GetVertex( edgeIndex1 );
+					Debug.LogWarning("shares edge: "+this.DebugDescribe()+" "+index0+", "+index1+" "+shareOrder+" neighbours = "+otherNeighbour0+", "+otherNeighbour1);
 				}
 			}
-			return shares;
+			return shareOrder;
 		}
 		
 
@@ -236,6 +258,12 @@ namespace _MeshGen
 		{
 			return rectList_.GetVertex ( vertexIndices_[i] );
 		}
+
+		public VertexListElement GetVertexElement(int i)
+		{
+			return rectList_.GetVertexElement ( vertexIndices_[i] );
+		}
+		
 
 		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs, List < int > triVerts )
 		{
