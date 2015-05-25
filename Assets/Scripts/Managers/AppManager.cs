@@ -12,6 +12,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	public bool allowMultiExtend = false;
 	public bool allowCloseMultiExtend = false;
+	public bool denyFacing =false;
 
 	private _MeshGen.MeshGenerator currentGenerator_ = null;
 

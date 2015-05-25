@@ -414,20 +414,30 @@ namespace _MeshGen
 			int[] newVertexIndices = new int[4];
 			Vector3[] newVertices = new Vector3[4];
 
-			for ( int i=0; i<4; i++ )
-			{
-				Vector3 newTarget = originVertices[i] + direction * size_;
-				float closest;
-				int vleIndex = vertexList_.GetIndexOfClosestElement(newTarget, size_/100f, out closest); 
 
-				if (vleIndex != -1)
+			if (AppManager.Instance.denyFacing)
+			{
+				int found = 0;
+				for ( int i=0; i<4; i++ )
 				{
-					Debug.LogWarning("Found close vertex to "+i+": "+newTarget+" "+vertexList_.GetElement(i).DebugDescribe()+"S="+size_+" D = "+closest);
-					if (AnyMoverMovesVertex( vertexList_.GetElement(vleIndex)))
-				    {
-						Debug.LogError ("Found moving vertex at target! aborting extend rect");
-						//return;
+					Vector3 newTarget = originVertices[i] + direction * size_;
+					float closest;
+					int vleIndex = vertexList_.GetIndexOfClosestElement(newTarget, size_/100f, out closest); 
+					
+					if (vleIndex != -1)
+					{
+						found++;
+						//					Debug.LogWarning("Found close vertex to "+i+": "+newTarget+" "+vertexList_.GetElement(i).DebugDescribe()+"S="+size_+" D = "+closest);
+						//					if (AnyMoverMovesVertex( vertexList_.GetElement(vleIndex)))
+						//				    {
+						//						found++;
+						//					}
 					}
+				}
+				if (found > 3)
+				{
+					Debug.LogError("Not extending rect "+originRect.DebugDescribe()+" because all 4 target vertices exist");
+					return;
 				}
 			}
 		
