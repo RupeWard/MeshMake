@@ -34,6 +34,7 @@ namespace _MeshGen
 		private MeshRenderer meshRenderer_;
 		private MeshCollider meshCollider_;
 		private Rigidbody rigidBody_;
+		private ReverseNormals reverseNormals_;
 
 		private List < VertexMover > vertexMovers_ = new List< VertexMover > ( );
 
@@ -92,6 +93,11 @@ namespace _MeshGen
 			rigidBody_.angularVelocity = Vector3.zero;
 			rigidBody_.mass = 1f;
 			rigidBody_.isKinematic = true;
+			if ( reverseNormals_ == null )
+			{
+				reverseNormals_ = gameObject.AddComponent< ReverseNormals >();
+			}
+			reverseNormals_.SetState(ReverseNormals.EState.Outside);
 		}
 
 		void Start()

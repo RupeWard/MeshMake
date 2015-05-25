@@ -4,7 +4,46 @@ using System.Collections;
 [RequireComponent(typeof(MeshFilter))]
 public class ReverseNormals : MonoBehaviour 
 {
-	void Start () {
+	public enum EState
+	{
+		Inside,
+		Outside
+	}
+
+	public EState state = EState.Outside;
+	private EState cachedState = EState.Outside;
+
+	void Start () 
+	{
+		cachedState = state;
+		if ( state == EState.Inside )
+		{
+			Reverse();
+		}
+	}
+
+	public void SetState (EState newState)
+	{
+		if ( cachedState != newState )
+		{
+			Reverse();
+			state = newState;
+			cachedState = newState;
+		}
+	}
+
+	void Update()
+	{
+#if UNITY_EDITOR
+		if ( cachedState != state )
+		{
+			SetState(state);
+		}
+#endif
+	}
+
+	void Reverse()
+	{
 		MeshFilter filter = GetComponent(typeof (MeshFilter)) as MeshFilter;
 		if (filter != null)
 		{
