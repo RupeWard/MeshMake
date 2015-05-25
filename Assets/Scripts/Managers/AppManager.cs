@@ -20,11 +20,13 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	public Camera tetheredCamera;
 	public Camera shipCamera;
+	public Camera internalCamera;
 
 	public enum EMode
 	{
 		TetheredCamera,
 		ShipCamera,
+		InternalCamera,
 		NONE
 	}
 
@@ -57,12 +59,21 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 				{
 					tetheredCamera.enabled = true;
 					shipCamera.enabled = false;
+					internalCamera.enabled = false;
 					break;
 				}
 				case EMode.ShipCamera:
 				{
 					shipCamera.enabled = true;
 					tetheredCamera.enabled = false;
+					internalCamera.enabled = false;
+					break;
+				}
+				case EMode.InternalCamera:
+				{
+					shipCamera.enabled = false;
+					tetheredCamera.enabled = false;
+					internalCamera.enabled = true;
 					break;
 				}
 			}
@@ -72,13 +83,17 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	public void OnCameraButtonClicked()
 	{
-		if ( mode_ == EMode.ShipCamera )
+		if ( mode_ == EMode.InternalCamera )
 		{
 			SetMode(EMode.TetheredCamera);
 		}
 		else if ( mode_ == EMode.TetheredCamera )
 		{
 			SetMode(EMode.ShipCamera);
+		}
+		else if ( mode_ == EMode.ShipCamera )
+		{
+			SetMode(EMode.InternalCamera);
 		}
 	}
 
