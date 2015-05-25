@@ -416,8 +416,24 @@ namespace _MeshGen
 
 			for ( int i=0; i<4; i++ )
 			{
-				newVertices[i] = originVertices[i] + direction * POSITION_TELRANCE * 2f;
-				newVertexIndices[i] = vertexList_.AddVertex(newVertices[i]);
+				/*
+				Vector3 newTarget = originVertices[i] + direction * size_;
+				float closest;
+				int vleIndex = vertexList_.GetIndexOfClosestElement(newTarget, size_/100f, out closest); 
+
+				if (vleIndex != -1)
+				{
+					Debug.LogWarning("Found close vertex to "+i+": "+newTarget+" "+vertexList_.GetElement(i).DebugDescribe()+"S="+size_+" D = "+closest);
+				//	newVertexIndices[i] = vleIndex;
+				//	newVertices[i] = vertexList_.GetVectorAtIndex(vleIndex);
+				}
+				//else
+				*/
+				{
+					newVertices[i] = originVertices[i] + direction * POSITION_TELRANCE * 2f;
+					newVertexIndices[i] = vertexList_.AddVertex(newVertices[i]);
+				}
+
 			}
 
 			rectList_.RemoveRect( originRect);

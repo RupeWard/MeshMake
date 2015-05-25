@@ -8,6 +8,39 @@ namespace _MeshGen
 	{
 		private List< VertexListElement > vertices_ = new List< VertexListElement >();
 
+		public VertexListElement GetClosestElement(Vector3 pos, float max, out float closestDistance)
+		{
+			VertexListElement result = null;
+			closestDistance = float.MaxValue;
+			foreach ( VertexListElement v in vertices_ )
+			{
+				float d = v.Distance(pos);
+				if (d < max && d < closestDistance)
+				{
+					closestDistance = d;
+					result = v;
+				}
+			}
+			return result;
+		}
+
+		public int GetIndexOfClosestElement(Vector3 pos, float max, out float closestDistance)
+		{
+			int result = -1;
+			closestDistance = float.MaxValue;
+
+			for ( int i = 0; i < vertices_.Count; i++ )
+			{
+				float d = vertices_[i].Distance(pos);
+				if (d < max && d < closestDistance)
+				{
+					closestDistance = d;
+					result = i;
+				}
+			}
+			return result;
+		}
+
 		public int Count
 		{
 			get { return vertices_.Count; }
