@@ -3,18 +3,29 @@ using System.Collections;
 
 public class InternalCameraMover : MonoBehaviour 
 {
-	private static readonly bool DEBUG_CAMERAMOVER = false; 
+//	private static readonly bool DEBUG_CAMERAMOVER = false; 
 
 //	public float initialZoomSpeed = 10f;
 //	public float maxZoomSpeed = 50f;
 //	public float zoomAcceleration = 0.1f;
 
+	public float initialSpinSpeedDegrees = 10f;
+	public float maxSpinSpeedDegrees = 50f;
+	public float spinAcceleration = 0.1f;
+	
 	public float initialRotateSpeedDegrees = 10f;
 	public float maxRotateSpeedDegrees = 50f;
 	public float rotateAcceleration = 0.1f;
 
+	public float fieldOfViewAcceleration = 0.1f;
+	public float initialFieldOfViewSpeed = 5f;
+	public float maxFieldOfViewSpeed = 20f;
+
 	private float rotateUpDownSpeed_ = 0f;
 	private float rotateLeftRightSpeed_ =  0f;
+	private float fieldOfViewSpeed_ = 0f;
+	private float spinSpeed_ = 0f;
+	
 
 //	public float initialMoveSpeedDegrees = 10f;
 //	public float maxMoveSpeedDegrees = 50f;
@@ -38,22 +49,35 @@ public class InternalCameraMover : MonoBehaviour
 	{
 	}
 
-	/*
-	public void ZoomIn()
+	public void SpinLeft()
 	{
-		currentZoomSpeed_ = -1f * initialZoomSpeed;
-	}
-	
-	public void ZoomOut()
-	{
-		currentZoomSpeed_ = initialZoomSpeed;
+		spinSpeed_ = -1f * initialSpinSpeedDegrees;
 	}
 
-	public void ZoomStop ( )
+	public void SpinRight()
 	{
-		currentZoomSpeed_ = 0f;
+		spinSpeed_ = initialSpinSpeedDegrees;
 	}
-	*/
+
+	public void SpinStop()
+	{
+		spinSpeed_ = 0f;
+	}
+	
+	public void FieldOfViewIn()
+	{
+		fieldOfViewSpeed_ = -1f * initialFieldOfViewSpeed;
+	}
+
+	public void FieldOfViewOut()
+	{
+		fieldOfViewSpeed_ = initialFieldOfViewSpeed;
+	}
+
+	public void FieldOfViewStop()
+	{
+		fieldOfViewSpeed_ = 0f;
+	}
 
 	public void RotateUp()
 	{
@@ -90,9 +114,10 @@ public class InternalCameraMover : MonoBehaviour
 
 	public void Stop()
 	{
-//		ZoomStop ( );
 		RotateUpDownStop ( );
 		RotateLeftRightStop ( );
+		FieldOfViewStop ( );
+		SpinStop ( );
 	}
 
 	// Update is called once per frame
@@ -125,6 +150,24 @@ public class InternalCameraMover : MonoBehaviour
 				rotateUpDownSpeed_ += rotateAcceleration;
 				rotateUpDownSpeed_ = Mathf.Min ( rotateUpDownSpeed_, maxRotateSpeedDegrees);
 			}
+		}
+
+		if (spinSpeed_ != 0f)
+		{
+			float angleToRotate = spinSpeed_ * Time.deltaTime;
+			transform.Rotate( Vector3.forward * angleToRotate);
+			
+			if (spinSpeed_ < 0f) 
+			{
+				spinSpeed_ -= spinAcceleration;
+				spinSpeed_ = Mathf.Max ( spinSpeed_, -1f * maxSpinSpeedDegrees);
+			}
+			else if (spinSpeed_ > 0f) 
+			{
+				spinSpeed_ += spinAcceleration;
+				spinSpeed_ = Mathf.Min ( spinSpeed_, maxSpinSpeedDegrees);
+			}
+			
 		}
 		/*
 		if (currentMoveUpDownSpeed_ != 0f)
