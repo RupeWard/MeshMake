@@ -330,15 +330,10 @@ namespace _MeshGen
 			}
 
 		}
-		/*
-		public void ExtendRect(RectListElement originRect, float height)
-		{
-			ExtendRect(originRect, height, null);
-		}
-		*/
 
 		public void ExtendRect(RectListElement originRect, float height, GridUVProviders.GridPosition movingGridPosition, GridUVProviders.GridPosition finalGridPosition)
 		{
+			Debug.Log ( "ExtendRect " + originRect.DebugDescribe() );
 			if ( movingGridPosition == null )
 			{
 				movingGridPosition = greyRectGridPosition;
@@ -715,7 +710,20 @@ namespace _MeshGen
 		}
 #endregion IDebugDescribable
 
-
+		public void OnCollisionEnter(Collision collision)
+		{
+			PhysBall ball = collision.gameObject.GetComponent< PhysBall > ( );
+			if ( ball != null )
+			{
+				Debug.Log ( "Ball "+collision.gameObject.name+" hit "+gameObject.name );
+				RectListElement hitRect = GetClosestRect ( collision.contacts[0].point);
+				ExtendRect(hitRect, size_, purpleRectGridPosition, mauveRectGridPosition);
+			}
+			else
+			{
+				Debug.Log ( "Something '"+collision.gameObject.name+"' hit "+gameObject.name );
+			}
+		}
 	}
 
 }
