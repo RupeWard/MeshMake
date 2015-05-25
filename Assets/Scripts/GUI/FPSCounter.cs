@@ -12,36 +12,54 @@ public class FPSCounter : MonoBehaviour
 	public int displayInterval = 40;
 	private int sinceDisplay = 0;
 
+	private bool active_ = true;
+	public void ToggleActive()
+	{
+		active_ = !active_;
+		if ( !active_ )
+		{
+			intervals_.Clear();
+			if (fpsText != null)
+			{
+				fpsText.text = "FPS";
+			}
+
+		}
+	}
+
 	public System.Action <float> SendFPS;
 
 	void Update () 
 	{
-		intervals_.Enqueue (Time.deltaTime);
-		accum += Time.deltaTime;
-		
-		while (intervals_.Count > maxIntervals)
+		if ( active_ )
 		{
-			float f = intervals_.Dequeue();
-			accum -= f;
-		}
-		if (intervals_.Count >= minIntervals)
-		{
-			sinceDisplay--;
-			if (sinceDisplay < 0)
+			intervals_.Enqueue (Time.deltaTime);
+			accum += Time.deltaTime;
+			
+			while (intervals_.Count > maxIntervals)
 			{
-				sinceDisplay = displayInterval;
-				float meanDeltaTime = ( accum/intervals_.Count );
-				float fps = 1f/meanDeltaTime;
-				if (SendFPS != null)
+				float f = intervals_.Dequeue();
+				accum -= f;
+			}
+			if (intervals_.Count >= minIntervals)
+			{
+				sinceDisplay--;
+				if (sinceDisplay < 0)
 				{
-					SendFPS(fps);
-				}
-				if (fpsText != null)
-				{
-					fpsText.text = fps.ToString("F1");
+					sinceDisplay = displayInterval;
+					float meanDeltaTime = ( accum/intervals_.Count );
+					float fps = 1f/meanDeltaTime;
+					if (SendFPS != null)
+					{
+						SendFPS(fps);
+					}
+					if (fpsText != null)
+					{
+						fpsText.text = fps.ToString("F1");
+					}
 				}
 			}
 		}
-		
+
 	}
 }
