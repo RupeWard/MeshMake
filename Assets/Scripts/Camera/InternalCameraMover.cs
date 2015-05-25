@@ -20,6 +20,8 @@ public class InternalCameraMover : MonoBehaviour
 	public float fieldOfViewAcceleration = 0.1f;
 	public float initialFieldOfViewSpeed = 5f;
 	public float maxFieldOfViewSpeed = 20f;
+	public float maxFieldOfView = 180f;
+	public float minFieldOfView = 20f;
 
 	private float rotateUpDownSpeed_ = 0f;
 	private float rotateLeftRightSpeed_ =  0f;
@@ -169,6 +171,33 @@ public class InternalCameraMover : MonoBehaviour
 			}
 			
 		}
+
+		if (fieldOfViewSpeed_ != 0f)
+		{
+			float currentFOV = myCamera.fieldOfView;
+			float newFOV = currentFOV + fieldOfViewSpeed_ * Time.deltaTime;
+			if (newFOV < minFieldOfView || newFOV > maxFieldOfView)
+			{
+				fieldOfViewSpeed_ = 0f;
+			}
+			else
+			{
+				myCamera.fieldOfView = newFOV;
+				if (fieldOfViewSpeed_ < 0f) 
+				{
+					fieldOfViewSpeed_ -= fieldOfViewAcceleration;
+					fieldOfViewSpeed_ = Mathf.Max ( fieldOfViewSpeed_, -1f * maxFieldOfViewSpeed);
+				}
+				else if (fieldOfViewSpeed_ > 0f) 
+				{
+					fieldOfViewSpeed_ += fieldOfViewAcceleration;
+					fieldOfViewSpeed_ = Mathf.Min ( fieldOfViewSpeed_, maxFieldOfViewSpeed);
+				}
+
+			}
+
+		}
+
 		/*
 		if (currentMoveUpDownSpeed_ != 0f)
 		{
