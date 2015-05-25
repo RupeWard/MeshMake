@@ -30,6 +30,13 @@ namespace _MeshGen
 			this.initialPosition_ = v.GetVector();
 		}
 
+#region VertexMover
+
+		public override bool MovesVertexIndex(VertexListElement el)
+		{
+			return vertex_ == el || target_ == el;
+		}
+
 		public override bool update(float elapsed)
 		{
 			bool changed = false;
@@ -62,4 +69,7 @@ namespace _MeshGen
 			return changed;
 		}
 	}
+
+#endregion VertexMover
+
 }

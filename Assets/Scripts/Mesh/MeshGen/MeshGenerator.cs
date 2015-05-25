@@ -356,8 +356,39 @@ namespace _MeshGen
 
 		private System.Text.StringBuilder extendSB = new System.Text.StringBuilder();
 
+		private bool AnyMoverMovesVertex(VertexListElement el)
+		{
+			foreach ( VertexMover mover in vertexMovers_ )
+			{
+				if (mover.MovesVertexIndex(el))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public void ExtendRect(RectListElement originRect, float height, GridUVProviders.GridPosition movingGridPosition, GridUVProviders.GridPosition finalGridPosition)
 		{
+			if ( !AppManager.Instance.allowCloseMultiExtend )
+			{
+				bool alreadyExtending = false;
+				for ( int i = 0; i < 4; i++ )
+				{
+					if (AnyMoverMovesVertex(originRect.GetVertexElement(i)))
+					{
+						alreadyExtending = true;
+					}
+				}
+				if ( alreadyExtending )
+				{
+					if ( DEBUG_EXTENDRECT )
+					{
+						Debug.LogWarning ("Not extending "+originRect.DebugDescribe() +" because one of its vertices is in motion");
+					}
+					return;
+				}
+			}
 			if ( DEBUG_EXTENDRECT )
 			{
 				extendSB.Length =0;

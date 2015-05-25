@@ -64,6 +64,13 @@ namespace _MeshGen
 			return (direction_.magnitude == 0f)?(finalPosition_):(initialPosition_+direction_*distance_); 
 		}
 
+#region VertexMover
+
+		public override bool MovesVertexIndex(VertexListElement el)
+		{
+			return this.Vertex == el;
+		}
+
 		public override bool update(float elapsed)
 		{
 			bool changed = false;
@@ -103,4 +110,7 @@ namespace _MeshGen
 			return changed;
 		}
 	}
+
+#endregion VertexMover
+
 }

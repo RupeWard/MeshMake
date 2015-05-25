@@ -56,6 +56,14 @@ namespace _MeshGen
 			rect_.SetGridPosition(movingPosition);
 		}
 
+
+#region VertexMover
+
+		public override bool MovesVertexIndex(VertexListElement el)
+		{
+			return vertexMovers_[0].MovesVertexIndex(el) || vertexMovers_[1].MovesVertexIndex(el);
+		}
+
 		public override bool update(float elapsed)
 		{
 			bool changed = false;
@@ -91,4 +99,6 @@ namespace _MeshGen
 			return changed;
 		}
 	}
+#endregion VertexMover
+
 }

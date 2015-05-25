@@ -25,8 +25,9 @@ namespace _MeshGen
 			this.timeSoFar_ = 0f;
 		}
 
+
 //		protected abstract Vector3 FinalPosition ( );
 		public abstract bool update(float elapsed);
-
+		public abstract bool MovesVertexIndex(VertexListElement el);
 	}
 }
