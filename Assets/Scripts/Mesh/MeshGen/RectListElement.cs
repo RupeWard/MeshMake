@@ -18,6 +18,22 @@ namespace _MeshGen
 			triangles [ 1 ].SetGridPosition ( gp );
 		}
 
+		public int GetClosestVertexIndex(Vector3 position, float maxDistance)
+		{
+			int result = -1;
+			float closestDistance = float.MaxValue;
+			for ( int i = 0; i< 4; i++ )
+			{
+				float d = Vector3.Distance ( GetVertex(i), position);
+				if (d < closestDistance && d < maxDistance)
+				{
+					closestDistance = d;
+					result = GetVertexIndex(i);
+				}
+			}
+			return result;
+		}
+
 		public class EdgeDef :IDebugDescribable
 		{
 			private readonly int [] indices = new int[2];

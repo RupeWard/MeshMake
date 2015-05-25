@@ -75,6 +75,40 @@ namespace _MeshGen
 			return result;
 		}
 
+		public RectListElement GetClosestRect(Vector3 position)
+		{
+			RectListElement result = null;
+			float closestDistance = float.MaxValue;
+			for ( int i = 0; i< Count; i++ )
+			{
+				float d = GetRectAtIndex(i).DistanceFromCentre(position);
+				if (d < closestDistance)
+				{
+					closestDistance = d;
+					result = GetRectAtIndex(i);
+				}
+			}
+			return result;
+		}
+		
+
+		public void RemoveRectWithVertexReplace( RectListElement toReplace, RectListElement match)
+		{
+			for (int i = 0; i<4; i++)
+			{
+				int indexToReplace = toReplace.GetVertexIndex(i);
+				int newIndex = match.GetClosestVertexIndex( toReplace.GetVertex(i), MeshGenerator.POSITION_TELRANCE * 2f );
+				if (newIndex != -1)
+				{
+					ReplaceVertexIndex( indexToReplace, newIndex);
+				}
+				else
+				{
+					Debug.LogError ("newIndex=-1");
+			    }
+			}
+		}
+
 		public void RemoveRect(RectListElement t)
 		{
 			Debug.Log ( "Removing rect: " + t.DebugDescribe ( ) );

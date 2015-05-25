@@ -25,12 +25,15 @@ namespace _MeshGen
 			private int targetIndex0;
 			private int targetIndex1;
 
+		private VertexListElement []vertexElementsToProtect = new VertexListElement[0];
+
 		private GridUVProviders.GridPosition movingPosition = MeshGenerator.greyRectGridPosition;
 
 		public VertexMoverRectCollapser( MeshGenRectList rectList,
 		                                RectListElement rle, 
 			                                int o0, int t0,
 			                                int o1, int t1,
+		                                VertexListElement[] vtp,
 		                                GridUVProviders.GridPosition mp,
 		                                float t):base(t)
 		{
@@ -45,6 +48,7 @@ namespace _MeshGen
 			this.target0 = rectList_.vertexList.GetElement(t0);
 			this.target1 = rectList_.vertexList.GetElement(t1);
 			this.rect_ = rle;
+			this.vertexElementsToProtect = vtp;
 			if (mp!=null)
 			{
 				this.movingPosition = mp;
@@ -61,7 +65,27 @@ namespace _MeshGen
 
 		public override bool MovesVertexIndex(VertexListElement el)
 		{
-			return vertexMovers_[0].MovesVertexIndex(el) || vertexMovers_[1].MovesVertexIndex(el);
+			if ( vertexMovers_ [ 0 ].MovesVertexIndex ( el ) || vertexMovers_ [ 1 ].MovesVertexIndex ( el ) )
+			{
+				return true;
+			}
+			/*
+			if ( target0 == el || target1 == el)
+			{
+				return true;
+			}
+			if (vertexElementsToProtect != null)
+			{
+				foreach (VertexListElement vli in vertexElementsToProtect)
+				{
+					if (vli == el)
+					{
+						return true;
+					}
+				}
+			}
+			*/
+			return false;
 		}
 
 		public override bool update(float elapsed)

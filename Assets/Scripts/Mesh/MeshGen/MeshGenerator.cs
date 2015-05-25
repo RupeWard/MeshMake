@@ -188,7 +188,7 @@ namespace _MeshGen
 				isDirty_ = false;
 				MakeMesh ( );
 			}
-			if ( Input.GetMouseButtonDown (0 ) )
+			if ( AppManager.Instance.Mode != AppManager.EMode.InternalCamera && Input.GetMouseButtonDown (0 ) )
 			{
 				Debug.Log("Mouse");
 				Ray ray = Camera.main.ScreenPointToRay ( Input.mousePosition );
@@ -262,7 +262,8 @@ namespace _MeshGen
 	
 		private void RemoveDuplicateRects()
 		{
-			List < RectListElement > dupes = new List<RectListElement> ( );
+			List < RectListElement[] > dupesSame = new List<RectListElement [] > ( );
+			List < RectListElement > dupesOpposite = new List<RectListElement> ( );
 			List < RectListElement > individuals = new List<RectListElement> ( );
 			for ( int i = 0; i < rectList_.Count; i++ )
 			{
@@ -280,18 +281,33 @@ namespace _MeshGen
 				if (matchingIndividual != null)
 				{
 					individuals.Remove(matchingIndividual);
-					dupes.Add(matchingIndividual);
-					dupes.Add (rle);
+					if ( rle.AngleFromNormalsRadians( matchingIndividual.GetNormal()) * Mathf.Rad2Deg < 1f )
+					{
+			//			dupesSame.Add (rle);
+						dupesSame.Add (new RectListElement[]{ matchingIndividual, rle });
+					}
+					else
+					{
+						dupesOpposite.Add(matchingIndividual);
+						dupesOpposite.Add (rle);
+					}
 				}
 				else
 				{
 					individuals.Add(rle);
 				}
 			}
-			Debug.Log ("Found "+individuals.Count+" individual and "+dupes.Count+" dupe rects (should be even)");
-			foreach ( RectListElement rle in dupes )
+			Debug.Log ("Found inds = "+individuals.Count+", dupesSame =  "+dupesSame.Count+" dupesOppos = "+dupesOpposite.Count+"  (should be even)");
+			foreach ( RectListElement rle in dupesOpposite )
 			{
 				rectList_.RemoveRect(rle);
+			}
+
+			foreach ( RectListElement[] rles in dupesSame )
+			{
+//				rectList_.RemoveRectWithVertexReplace(rles[0], rles[1]);
+				rectList_.RemoveRect(rles[0]);
+//				rectList_.RemoveRect(rles[1]);
 			}
 		}
 
@@ -306,7 +322,7 @@ namespace _MeshGen
 			}
 			if (allow)
 			{
-				RectListElement rle = GetClosestRect(hit.point);
+				RectListElement rle = rectList_.GetClosestRect(hit.point);
 				if (rle == null)
 				{
 					Debug.LogError("Failed to find closest rect to hit!");
@@ -318,22 +334,6 @@ namespace _MeshGen
 					ExtendRect(rle, size_, yellowRectGridPosition, redRectGridPosition);
 				}
 			}
-		}
-
-		RectListElement GetClosestRect(Vector3 position)
-		{
-			RectListElement result = null;
-			float closestDistance = float.MaxValue;
-			for ( int i = 0; i< rectList_.Count; i++ )
-			{
-				float d = rectList_.GetRectAtIndex(i).DistanceFromCentre(position);
-				if (d < closestDistance)
-				{
-					closestDistance = d;
-					result = rectList_.GetRectAtIndex(i);
-				}
-			}
-			return result;
 		}
 
 		public void ExtendRandomRect()
@@ -375,7 +375,7 @@ namespace _MeshGen
 				bool alreadyExtending = false;
 				for ( int i = 0; i < 4; i++ )
 				{
-					if (AnyMoverMovesVertex(originRect.GetVertexElement(i)))
+					if ( AnyMoverMovesVertex ( originRect.GetVertexElement ( i ) ) )
 					{
 						alreadyExtending = true;
 					}
@@ -384,15 +384,15 @@ namespace _MeshGen
 				{
 					if ( DEBUG_EXTENDRECT )
 					{
-						Debug.LogWarning ("Not extending "+originRect.DebugDescribe() +" because one of its vertices is in motion");
+						Debug.LogWarning ( "Not extending " + originRect.DebugDescribe ( ) + " because one of its vertices is in motion" );
 					}
 					return;
 				}
 			}
 			if ( DEBUG_EXTENDRECT )
 			{
-				extendSB.Length =0;
-				Debug.Log( "ExtendRect " + originRect.DebugDescribe() );
+				extendSB.Length = 0;
+				Debug.Log ( "ExtendRect " + originRect.DebugDescribe() );
 			}
 			if ( movingGridPosition == null )
 			{
@@ -416,7 +416,6 @@ namespace _MeshGen
 
 			for ( int i=0; i<4; i++ )
 			{
-				/*
 				Vector3 newTarget = originVertices[i] + direction * size_;
 				float closest;
 				int vleIndex = vertexList_.GetIndexOfClosestElement(newTarget, size_/100f, out closest); 
@@ -424,16 +423,18 @@ namespace _MeshGen
 				if (vleIndex != -1)
 				{
 					Debug.LogWarning("Found close vertex to "+i+": "+newTarget+" "+vertexList_.GetElement(i).DebugDescribe()+"S="+size_+" D = "+closest);
-				//	newVertexIndices[i] = vleIndex;
-				//	newVertices[i] = vertexList_.GetVectorAtIndex(vleIndex);
+					if (AnyMoverMovesVertex( vertexList_.GetElement(vleIndex)))
+				    {
+						Debug.LogError ("Found moving vertex at target! aborting extend rect");
+						//return;
+					}
 				}
-				//else
-				*/
-				{
+			}
+		
+			for ( int i=0; i<4; i++ )
+			{
 					newVertices[i] = originVertices[i] + direction * POSITION_TELRANCE * 2f;
 					newVertexIndices[i] = vertexList_.AddVertex(newVertices[i]);
-				}
-
 			}
 
 			rectList_.RemoveRect( originRect);
@@ -648,6 +649,7 @@ namespace _MeshGen
 							                             edgeInfo.neighbourIndex0,
 							                             newVertexIndex1,
 							                             edgeInfo.neighbourIndex1,
+							                             null,
 							                             greenRectGridPosition,
 							                             AppManager.Instance.moveDuration);
 
@@ -675,7 +677,7 @@ namespace _MeshGen
 
 			for (int i =0; i<4; i++)
 			{
-				VertexMover newMover = new VertexMoverDirectionDistance( vertexList_.GetElement(newVertexIndices[i]), direction, height, AppManager.Instance.moveDuration, finalGridPosition);
+				VertexMover newMover = new VertexMoverDirectionDistance(vertexList_.GetElement(originVertexIndices[i]), vertexList_.GetElement(newVertexIndices[i]), direction, height, AppManager.Instance.moveDuration, finalGridPosition);
 				vertexMovers_.Add(newMover);
 				//FIXME log;
 
@@ -764,7 +766,7 @@ namespace _MeshGen
 				Vector3 direction = Vector3.Cross( v0-v1, v2-v0 );
 				direction.Normalize();
 				direction = -1f * direction;
-				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance( newVertex, direction, height, AppManager.Instance.moveDuration, null);
+				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance(null, newVertex, direction, height, AppManager.Instance.moveDuration, null);
 				vertexMovers_.Add(newMover);
 			}
 		}
@@ -820,7 +822,7 @@ namespace _MeshGen
 				}
 				if (allow)
 				{
-					RectListElement hitRect = GetClosestRect ( collision.contacts[0].point);
+					RectListElement hitRect = rectList_.GetClosestRect ( collision.contacts[0].point);
 					Debug.Log ( "Collision-extending "+hitRect.DebugDescribe()+" as Ball "+collision.gameObject.name+" hit "+gameObject.name );
 					ExtendRect(hitRect, size_, purpleRectGridPosition, mauveRectGridPosition);
 				}

@@ -15,6 +15,7 @@ namespace _MeshGen
 			}
 		}
 
+		private VertexListElement originVertex_ = null;
 
 		private VertexListElement vertex_ = null;
 		public VertexListElement Vertex
@@ -30,9 +31,10 @@ namespace _MeshGen
 
 		private GridUVProviders.GridPosition finalGridPosition_ = _MeshGen.MeshGenerator.redRectGridPosition;
 
-		public VertexMoverDirectionDistance( VertexListElement v, Vector3 direction, float dist, float t, GridUVProviders.GridPosition fp): base(t)
+		public VertexMoverDirectionDistance(VertexListElement o, VertexListElement v, Vector3 direction, float dist, float t, GridUVProviders.GridPosition fp): base(t)
 		{
 //			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+direction.ToString()+" "+dist+" "+t);
+			this.originVertex_ = o;
 			this.vertex_ = v;
 			this.initialPosition_ = v.GetVector();
 			this.direction_ = direction;
@@ -45,9 +47,10 @@ namespace _MeshGen
 			}
 		}
 
-		public VertexMoverDirectionDistance( VertexListElement v, Vector3 final, float t, GridUVProviders.GridPosition fp):base(t)
+		public VertexMoverDirectionDistance(VertexListElement o,  VertexListElement v, Vector3 final, float t, GridUVProviders.GridPosition fp):base(t)
 		{
 //			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+final.ToString()+" "+t);
+			this.originVertex_ = o;
 			this.vertex_ = v;
 			this.initialPosition_ = v.GetVector();
 			this.finalPosition_ = final;
@@ -68,7 +71,7 @@ namespace _MeshGen
 
 		public override bool MovesVertexIndex(VertexListElement el)
 		{
-			return this.Vertex == el;
+			return this.Vertex == el;// || (this.originVertex_ != null && this.originVertex_ == el);
 		}
 
 		public override bool update(float elapsed)
