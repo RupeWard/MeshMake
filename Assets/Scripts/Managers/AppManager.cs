@@ -10,6 +10,8 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	public float camerabuffer = 2f;
 
+	public bool allowMultiExtend = false;
+
 	private _MeshGen.MeshGenerator currentGenerator_ = null;
 
 	public float moveDuration = 2f;

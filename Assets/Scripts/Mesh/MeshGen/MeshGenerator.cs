@@ -17,7 +17,10 @@ namespace _MeshGen
 		static public readonly GridUVProviders.GridPosition blackRectGridPosition = new GridUVProviders.GridPosition( 2,1);// black in color3x3
 		static public readonly GridUVProviders.GridPosition blueRectGridPosition = new GridUVProviders.GridPosition( 2,2);// blue in color3x3
 
-		public static bool allowMultiMovement = false;
+		public bool allowMultiExtend
+		{
+			get { return AppManager.Instance.allowMultiExtend; }
+		}
 
 		public static readonly float POSITION_TELRANCE = 0.001f;
 		public static bool DEBUG_MESHMAKE = false;
@@ -295,16 +298,25 @@ namespace _MeshGen
 		public void OnClicked(RaycastHit hit)
 		{
 			Debug.Log ( "Clicked on the thing at "+hit.point );
-
-			RectListElement rle = GetClosestRect(hit.point);
-			if (rle == null)
+			bool allow = true;
+			if ( !allowMultiExtend && vertexMovers_.Count > 0 )
 			{
-				Debug.LogError("Failed to find closest rect to hit!");
+				Debug.Log ("Not extending Rect because movers exist");
+				allow = false;
 			}
-			else
+			if (allow)
 			{
-				Debug.Log ("Clicked on "+rle.DebugDescribe());
-				ExtendRect(rle, size_, yellowRectGridPosition, redRectGridPosition);
+				RectListElement rle = GetClosestRect(hit.point);
+				if (rle == null)
+				{
+					Debug.LogError("Failed to find closest rect to hit!");
+				}
+				else
+				{
+					
+					Debug.Log ("Click-Extending "+rle.DebugDescribe());
+					ExtendRect(rle, size_, yellowRectGridPosition, redRectGridPosition);
+				}
 			}
 		}
 
@@ -327,7 +339,7 @@ namespace _MeshGen
 		public void ExtendRandomRect()
 		{
 			bool allow = true;
-			if ( !allowMultiMovement && vertexMovers_.Count > 0 )
+			if ( !allowMultiExtend && vertexMovers_.Count > 0 )
 			{
 				Debug.Log ("Not extending Rect because movers exist");
 				allow = false;
@@ -336,6 +348,7 @@ namespace _MeshGen
 			{
 				int i = UnityEngine.Random.Range( 0, rectList_.Count);
 				RectListElement t = rectList_.GetRectAtIndex(i);
+				Debug.Log ("Rand-extending "+t.DebugDescribe());
 				ExtendRect( t, size_, blueRectGridPosition, greyRectGridPosition);
 			}
 
@@ -676,7 +689,7 @@ namespace _MeshGen
 		public void SplitRandomTriangle()
 		{
 			bool allow = true;
-			if ( !allowMultiMovement && vertexMovers_.Count > 0 )
+			if ( !allowMultiExtend && vertexMovers_.Count > 0 )
 			{
 				Debug.Log ("Not splitting triangle because movers exist");
 				allow = false;
@@ -752,9 +765,18 @@ namespace _MeshGen
 			PhysBall ball = collision.gameObject.GetComponent< PhysBall > ( );
 			if ( ball != null )
 			{
-				Debug.Log ( "Ball "+collision.gameObject.name+" hit "+gameObject.name );
-				RectListElement hitRect = GetClosestRect ( collision.contacts[0].point);
-				ExtendRect(hitRect, size_, purpleRectGridPosition, mauveRectGridPosition);
+				bool allow = true;
+				if ( !allowMultiExtend && vertexMovers_.Count > 0 )
+				{
+					Debug.Log ("Not extending Rect because movers exist");
+					allow = false;
+				}
+				if (allow)
+				{
+					RectListElement hitRect = GetClosestRect ( collision.contacts[0].point);
+					Debug.Log ( "Collision-extending "+hitRect.DebugDescribe()+" as Ball "+collision.gameObject.name+" hit "+gameObject.name );
+					ExtendRect(hitRect, size_, purpleRectGridPosition, mauveRectGridPosition);
+				}
 			}
 			else
 			{
