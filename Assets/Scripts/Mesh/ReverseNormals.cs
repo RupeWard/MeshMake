@@ -27,7 +27,7 @@ public class ReverseNormals : MonoBehaviour
 		}
 	}
 
-	public void SetState (EState newState)
+	public bool SetState (EState newState)
 	{
 		if ( cachedState != newState )
 		{
@@ -35,11 +35,13 @@ public class ReverseNormals : MonoBehaviour
 			Reverse ( );
 			state = newState;
 			cachedState = newState;
+			return true;
 		}
 		else
 		{
 //			Debug.LogError("No change: "+newState);
 		}
+		return false;
 	}
 
 	void Update()

@@ -54,7 +54,7 @@ namespace _MeshGen
 		}
 
 		private bool isDirty_ = false;
-		protected void SetDirty()
+		public void SetDirty()
 		{
 			isDirty_ = true;
 		}
@@ -180,7 +180,7 @@ namespace _MeshGen
 //			rigidBody_.isKinematic = false;
 
 		}
-
+		
 		void Update()
 		{
 			if ( isDirty_ )
