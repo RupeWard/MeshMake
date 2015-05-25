@@ -21,6 +21,7 @@ namespace _MeshGen
 
 		public static readonly float POSITION_TELRANCE = 0.001f;
 		public static bool DEBUG_MESHMAKE = false;
+		public static bool DEBUG_EXTENDRECT = false;
 
 		protected MeshGenVertexList vertexList_ = null;
 		public MeshGenVertexList VertexList
@@ -117,6 +118,7 @@ namespace _MeshGen
 				Debug.LogError( "Can't make mesh with "+vertexList_.Count+" verts, "+rectList_.Count+"rects and "+triangleList_.Count+" tris");
 				return;
 			}
+			gameObject.tag = "Thing";
 
 			Mesh mesh = meshFilter_.sharedMesh;
 			if ( mesh == null )
@@ -166,6 +168,8 @@ namespace _MeshGen
 
 			meshCollider_.sharedMesh = null;
 			meshCollider_.sharedMesh = meshFilter_.sharedMesh;
+
+			reverseNormals_.SetState( (AppManager.Instance.Mode == AppManager.EMode.InternalCamera)?(ReverseNormals.EState.Inside):(ReverseNormals.EState.Outside) );
 			if (DEBUG_MESHMAKE)
 			{
 				Debug.Log("Finish making "+this.DebugDescribe());
@@ -189,7 +193,7 @@ namespace _MeshGen
 			
 				if ( Physics.Raycast ( ray,  out hit ) )
 				{
-					Debug.Log("Hit");
+//					Debug.Log("Hit");
 
 					if ( hit.collider == meshCollider_ )
 					{
@@ -337,14 +341,19 @@ namespace _MeshGen
 
 		}
 
+		private System.Text.StringBuilder extendSB = new System.Text.StringBuilder();
+
 		public void ExtendRect(RectListElement originRect, float height, GridUVProviders.GridPosition movingGridPosition, GridUVProviders.GridPosition finalGridPosition)
 		{
-			Debug.Log ( "ExtendRect " + originRect.DebugDescribe() );
+			if ( DEBUG_EXTENDRECT )
+			{
+				extendSB.Length =0;
+				Debug.Log( "ExtendRect " + originRect.DebugDescribe() );
+			}
 			if ( movingGridPosition == null )
 			{
 				movingGridPosition = greyRectGridPosition;
 			}
-			Debug.Log ( "ExtendRect" );
 			int[] originVertexIndices = new int[4];
 			Vector3[] originVertices = new Vector3[4];
 
@@ -388,19 +397,27 @@ namespace _MeshGen
 
 			bool pruned = false;
 
-			System.Text.StringBuilder sb = new System.Text.StringBuilder();
-			sb.Append ("ANALYSIS: origin = ").Append (originRect.DebugDescribe())
-				.Append (" Norm = ").Append(originRectNormalNormed)
-					.Append(" dirn = ").Append (direction);
+			if (DEBUG_EXTENDRECT)
+			{
+				extendSB.Append ("ANALYSIS: origin = ").Append (originRect.DebugDescribe())
+					.Append (" Norm = ").Append(originRectNormalNormed)
+						.Append(" dirn = ").Append (direction);
+			}
 			if (totalRectsSharingEdges > 0)
 			{
-				sb.Append ("\n "+totalRectsSharingEdges+" RectSharing edges:");
+				if (DEBUG_EXTENDRECT)
+				{
+					extendSB.Append ("\n "+totalRectsSharingEdges+" RectSharing edges:");
+				}
 				for (int i = 0; i<4; i++)
 				{
-					sb.Append ("\n  Edge ").Append (i)
-						.Append(" (" ).Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
-							.Append (", ").Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
-							.Append (" ): ").Append (rectsSharingEdges[i].Count);
+					if (DEBUG_EXTENDRECT)
+					{
+						extendSB.Append ("\n  Edge ").Append (i)
+							.Append(" (" ).Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
+								.Append (", ").Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
+								.Append (" ): ").Append (rectsSharingEdges[i].Count);
+					}
 					List< MeshGenRectList.RectsSharingEdgeInfo > toRemove = new List<MeshGenRectList.RectsSharingEdgeInfo>();
 					foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
 					{
@@ -408,34 +425,42 @@ namespace _MeshGen
 						{
 							string error = "This rect shouldn't have shares = "+sharingEdgeInfo.shareOrder+": "+sharingEdgeInfo.rle.DebugDescribe();
 							Debug.LogError(error);
-							sb.Append(error);
+							if (DEBUG_EXTENDRECT)
+							{
+								extendSB.Append(error);
+							}
 						}
 						else
 						{
 							Vector3 rleNormalNormed = sharingEdgeInfo.rle.GetNormal();
 							rleNormalNormed.Normalize();
-							sb.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
-							sb.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
-								.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
-									.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
-									.Append (rleNormalNormed);
 							sharingEdgeInfo.dirnAway0.Normalize();
 							sharingEdgeInfo.dirnAway1.Normalize();
-							sb.Append(" Dirns Away: ").Append(sharingEdgeInfo.dirnAway0);
-							if (sharingEdgeInfo.dirnAway0 == direction)
+							if (DEBUG_EXTENDRECT)
 							{
-								sb.Append(" !!!! ");
+								extendSB.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
+								extendSB.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
+									.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
+										.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
+										.Append (rleNormalNormed);
+								extendSB.Append(" Dirns Away: ").Append(sharingEdgeInfo.dirnAway0);
+								if (sharingEdgeInfo.dirnAway0 == direction)
+								{
+									extendSB.Append(" !!!! ");
+								}
 							}
-							else
+							if (sharingEdgeInfo.dirnAway0 != direction)
 							{
 								toRemove.Add(sharingEdgeInfo);
 							}
-							sb.Append (" ").Append(sharingEdgeInfo.dirnAway1);
-							if (sharingEdgeInfo.dirnAway1 == direction)
+							if (DEBUG_EXTENDRECT)
 							{
-								sb.Append(" !!!! ");
+								extendSB.Append (" ").Append(sharingEdgeInfo.dirnAway1);
+								if (sharingEdgeInfo.dirnAway1 == direction)
+								{
+									extendSB.Append(" !!!! ");
+								}
 							}
-
 						}
 					}
 					foreach( MeshGenRectList.RectsSharingEdgeInfo rsi in toRemove)
@@ -444,48 +469,51 @@ namespace _MeshGen
 						rectsSharingEdges[i].Remove(rsi);
 					}
 				}
-				if (pruned)
+				if (DEBUG_EXTENDRECT)
 				{
-					if (totalRectsSharingEdges > 0)
+					if (pruned)
 					{
-						sb.Append ("\nAfterPruning...");
-						sb.Append ("\n ").Append (totalRectsSharingEdges).Append (" RectSharing edges:");
-						for (int i = 0; i<4; i++)
+						if (totalRectsSharingEdges > 0)
 						{
-							sb.Append ("\n  Edge ").Append (i)
-								.Append(" (" ).Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
-									.Append (", ").Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
-									.Append (" ): ").Append (rectsSharingEdges[i].Count);
-							foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
+							extendSB.Append ("\nAfterPruning...");
+							extendSB.Append ("\n ").Append (totalRectsSharingEdges).Append (" RectSharing edges:");
+							for (int i = 0; i<4; i++)
 							{
-								if (sharingEdgeInfo.shareOrder * sharingEdgeInfo.shareOrder != 1)
+								extendSB.Append ("\n  Edge ").Append (i)
+									.Append(" (" ).Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
+										.Append (", ").Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
+										.Append (" ): ").Append (rectsSharingEdges[i].Count);
+								foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
 								{
-									string error = "This rect shouldn't have shares = "+sharingEdgeInfo.shareOrder+": "+sharingEdgeInfo.rle.DebugDescribe();
-									Debug.LogError(error);
-									sb.Append(error);
-								}
-								else
-								{
-									Vector3 rleNormalNormed = sharingEdgeInfo.rle.GetNormal();
-									rleNormalNormed.Normalize();
-									sb.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
-									sb.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
-										.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
-											.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
-											.Append (rleNormalNormed);
-									sharingEdgeInfo.dirnAway0.Normalize();
-									sharingEdgeInfo.dirnAway1.Normalize();
-									sb.Append(" Dirns Away: ").Append(sharingEdgeInfo.dirnAway0);
-									if (sharingEdgeInfo.dirnAway0 == direction)
+									if (sharingEdgeInfo.shareOrder * sharingEdgeInfo.shareOrder != 1)
 									{
-										sb.Append(" !!!! ");
+										string error = "This rect shouldn't have shares = "+sharingEdgeInfo.shareOrder+": "+sharingEdgeInfo.rle.DebugDescribe();
+										Debug.LogError(error);
+										extendSB.Append(error);
 									}
-									sb.Append (" ").Append(sharingEdgeInfo.dirnAway1);
-									if (sharingEdgeInfo.dirnAway1 == direction)
+									else
 									{
-										sb.Append(" !!!! ");
+										Vector3 rleNormalNormed = sharingEdgeInfo.rle.GetNormal();
+										rleNormalNormed.Normalize();
+										extendSB.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
+										extendSB.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
+											.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
+												.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
+												.Append (rleNormalNormed);
+										sharingEdgeInfo.dirnAway0.Normalize();
+										sharingEdgeInfo.dirnAway1.Normalize();
+										extendSB.Append(" Dirns Away: ").Append(sharingEdgeInfo.dirnAway0);
+										if (sharingEdgeInfo.dirnAway0 == direction)
+										{
+											extendSB.Append(" !!!! ");
+										}
+										extendSB.Append (" ").Append(sharingEdgeInfo.dirnAway1);
+										if (sharingEdgeInfo.dirnAway1 == direction)
+										{
+											extendSB.Append(" !!!! ");
+										}
+										
 									}
-									
 								}
 							}
 						}
@@ -496,7 +524,7 @@ namespace _MeshGen
 			}
 			else
 			{
-				sb.Append ("\n NO RectSharing edges:");
+				extendSB.Append ("\n NO RectSharing edges:");
 			}
 
 
@@ -593,7 +621,10 @@ namespace _MeshGen
 
 			}
 			rigidBody_.mass = rigidBody_.mass +1f;
-			Debug.Log(sb.ToString());
+			if (DEBUG_EXTENDRECT)
+			{
+				Debug.Log(extendSB.ToString());
+			}
 		}
 
 		/*

@@ -31,6 +31,10 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	}
 
 	private EMode mode_ = EMode.NONE;
+	public EMode Mode
+	{
+		get { return mode_; }
+	}
 
 	protected override void PostAwake()
 	{
@@ -60,6 +64,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 					tetheredCamera.enabled = true;
 					shipCamera.enabled = false;
 					internalCamera.enabled = false;
+					SetThingMode(ReverseNormals.EState.Outside);
 					break;
 				}
 				case EMode.ShipCamera:
@@ -67,6 +72,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 					shipCamera.enabled = true;
 					tetheredCamera.enabled = false;
 					internalCamera.enabled = false;
+					SetThingMode(ReverseNormals.EState.Outside);
 					break;
 				}
 				case EMode.InternalCamera:
@@ -74,10 +80,30 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 					shipCamera.enabled = false;
 					tetheredCamera.enabled = false;
 					internalCamera.enabled = true;
+					SetThingMode(ReverseNormals.EState.Inside);
 					break;
 				}
 			}
 			HudManager.Instance.HandleModeChange(mode_);
+		}
+	}
+
+	private void SetThingMode(ReverseNormals.EState state)
+	{
+		GameObject[] gos = GameObject.FindGameObjectsWithTag ( "Thing" );
+//		Debug.LogWarning("Found "+gos.Length+" Things");
+		foreach( GameObject go in gos)
+		{
+			ReverseNormals rn = go.GetComponent< ReverseNormals >();
+			if (rn != null)
+			{
+//				Debug.LogWarning("Thing '"+go.name+"' SetState "+state);
+				rn.SetState(state);
+			}
+			else
+			{
+				Debug.LogError("Thing '"+go.name+"' has no ReverseNormals");
+			}
 		}
 	}
 

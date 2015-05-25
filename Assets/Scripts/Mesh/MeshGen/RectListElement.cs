@@ -239,7 +239,7 @@ namespace _MeshGen
 				{
 					directionaway0 = GetVertex( indexOfNextToEdgeIndex0 ) - GetVertex( edgeIndex0 );
 					directionaway1 = GetVertex( indexOfNextToEdgeIndex1 ) - GetVertex( edgeIndex1 );
-					Debug.LogWarning("shares edge: "+this.DebugDescribe()+" "+index0+", "+index1+" "+shareOrder+" neighbours = "+otherNeighbour0+", "+otherNeighbour1);
+//					Debug.LogWarning("shares edge: "+this.DebugDescribe()+" "+index0+", "+index1+" "+shareOrder+" neighbours = "+otherNeighbour0+", "+otherNeighbour1);
 				}
 			}
 			return shareOrder;

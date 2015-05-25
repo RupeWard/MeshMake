@@ -13,6 +13,11 @@ public class ReverseNormals : MonoBehaviour
 	public EState state = EState.Outside;
 	private EState cachedState = EState.Outside;
 
+	public void Init(EState s)
+	{
+		state = EState.Inside;
+	}
+
 	void Start () 
 	{
 		cachedState = state;
@@ -26,9 +31,14 @@ public class ReverseNormals : MonoBehaviour
 	{
 		if ( cachedState != newState )
 		{
-			Reverse();
+//			Debug.LogWarning ( "State change from " + cachedState + " to " + newState );
+			Reverse ( );
 			state = newState;
 			cachedState = newState;
+		}
+		else
+		{
+//			Debug.LogError("No change: "+newState);
 		}
 	}
 
@@ -37,6 +47,7 @@ public class ReverseNormals : MonoBehaviour
 #if UNITY_EDITOR
 		if ( cachedState != state )
 		{
+			Debug.LogError ("Detecetd state change");
 			SetState(state);
 		}
 #endif
