@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CameraMover : MonoBehaviour 
+public class TetheredCameraMover : MonoBehaviour 
 {
 	private static readonly bool DEBUG_CAMERAMOVER = false; 
 
