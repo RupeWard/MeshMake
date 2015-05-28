@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace _MeshGen
+namespace MG
 {
 	public class RectElement : IDebugDescribable
 	{

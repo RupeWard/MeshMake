@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace _MeshGen
+namespace MG
 {
 	public class TriangleList // : MeshGenList < TriangleListElement >  
 	{

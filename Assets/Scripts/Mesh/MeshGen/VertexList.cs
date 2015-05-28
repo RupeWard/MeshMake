@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace _MeshGen
+namespace MG
 {
 	public class VertexList // : MeshGenList < VertexListElement >  
 	{
@@ -46,7 +46,7 @@ namespace _MeshGen
 
 		public VertexElement FindElement(Vector3 pos)
 		{
-			return GetClosestElement ( pos, _MeshGen.MeshGenerator.POSITION_TELRANCE );
+			return GetClosestElement ( pos, MG.MeshGenerator.POSITION_TELRANCE );
 		}
 
 		public VertexElement AddElement(Vector3 pos)

@@ -14,7 +14,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	public bool allowCloseMultiExtend = false;
 	public bool denyFacing =false;
 
-	private _MeshGen.MeshGenerator currentGenerator_ = null;
+	private MG.MeshGenerator currentGenerator_ = null;
 
 	public float moveDuration = 2f;
 
@@ -104,7 +104,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 //				Debug.LogWarning("Thing '"+go.name+"' SetState "+state);
 				if (rn.SetState(state))
 				{
-					rn.GetComponent< _MeshGen.MeshGenerator >().SetDirty();
+					rn.GetComponent< MG.MeshGenerator >().SetDirty();
 				}
 			}
 			else
@@ -134,7 +134,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	{
 		if ( currentGenerator_ != null )
 		{
-			_MeshGen.TetrahedronGenerator tetGenerator = currentGenerator_ as _MeshGen.TetrahedronGenerator;
+			MG.TetrahedronGenerator tetGenerator = currentGenerator_ as MG.TetrahedronGenerator;
 			if ( tetGenerator == null )
 			{
 				GameObject.Destroy ( currentGenerator_.gameObject );
@@ -147,7 +147,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 		}
 
 		{
-			_MeshGen.TetrahedronGenerator tetGenerator = _MeshGen.TetrahedronGenerator.Create ("Tet", Vector3.zero, 10f);
+			MG.TetrahedronGenerator tetGenerator = MG.TetrahedronGenerator.Create ("Tet", Vector3.zero, 10f);
 			tetGenerator.SetMaterial(defaultMaterial);
 			tetGenerator.MakeMesh();
 			
@@ -159,7 +159,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	{
 		if ( currentGenerator_ != null )
 		{
-			_MeshGen.CubeGenerator cubeGenerator = currentGenerator_ as _MeshGen.CubeGenerator;
+			MG.CubeGenerator cubeGenerator = currentGenerator_ as MG.CubeGenerator;
 			if (cubeGenerator == null)
 			{
 				GameObject.Destroy (currentGenerator_.gameObject);
@@ -171,7 +171,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 			}
 		}
 		{
-			_MeshGen.CubeGenerator cubeGenerator = _MeshGen.CubeGenerator.Create ("Cub", Vector3.zero, 10f);
+			MG.CubeGenerator cubeGenerator = MG.CubeGenerator.Create ("Cub", Vector3.zero, 10f);
 			cubeGenerator.SetMaterial(defaultMaterial);
 			cubeGenerator.MakeMesh();
 			

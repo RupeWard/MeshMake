@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace _MeshGen
+namespace MG
 {
 	public class VertexMoverTarget : VertexMover
 	{

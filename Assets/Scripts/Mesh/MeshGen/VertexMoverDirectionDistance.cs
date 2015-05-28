@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace _MeshGen
+namespace MG
 {
 	public class VertexMoverDirectionDistance : VertexMover
 	{
@@ -29,7 +29,7 @@ namespace _MeshGen
 		private Vector3 direction_ = Vector3.zero;
 		private float distance_;
 
-		private GridUVProviders.GridPosition finalGridPosition_ = _MeshGen.MeshGenerator.redRectGridPosition;
+		private GridUVProviders.GridPosition finalGridPosition_ = MG.MeshGenerator.redRectGridPosition;
 
 		public VertexMoverDirectionDistance(VertexElement o, 
 		                                    VertexElement v, 
