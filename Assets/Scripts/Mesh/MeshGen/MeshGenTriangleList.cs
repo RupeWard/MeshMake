@@ -7,7 +7,7 @@ namespace _MeshGen
 	public class MeshGenTriangleList // : MeshGenList < TriangleListElement >  
 	{
 		private MeshGenVertexList vertexList_;
-		private List < TriangleListElement > triangles_ = null;
+		private List < TriangleElement > triangles_ = null;
 
 		public int Count
 		{
@@ -17,39 +17,39 @@ namespace _MeshGen
 		public MeshGenTriangleList(  MeshGenVertexList vl)
 		{
 			vertexList_ = vl;
-			triangles_ = new List< TriangleListElement >();
+			triangles_ = new List< TriangleElement >();
 		}
 
 		public void TurnInsideOut()
 		{
-			foreach ( TriangleListElement t in triangles_ )
+			foreach ( TriangleElement t in triangles_ )
 			{
 				t.flipOrientation();
 			}
 		}
 
-		public int AddTriangle(TriangleListElement t)
+		public int AddTriangle(TriangleElement t)
 		{
 			int result = -1;
 			result = triangles_.Count;
 			triangles_.Add ( t );
 			for ( int i = 0; i <3; i++)
 			{
-				vertexList_.ConnectVertexToTriangle( t.GetVertexIndex(i), t );
+				t.GetVertex(i).ConnectToTriangle( t );
 			}
 			return result;
 		}
 
-		public void RemoveTriangle(TriangleListElement t)
+		public void RemoveTriangle(TriangleElement t)
 		{
 			for ( int i = 0; i <3; i++)
 			{
-				vertexList_.DisconnectVertexFromTriangle( t.GetVertexIndex(i), t );
+				t.GetVertex(i).DisconnectFromTriangle( t );
 			}
 			triangles_.Remove ( t );
 		}
 
-		public TriangleListElement GetTriAtIndex(int i)
+		public TriangleElement GetTriAtIndex(int i)
 		{
 			if ( i < 0 || i >= triangles_.Count )
 			{
@@ -59,12 +59,12 @@ namespace _MeshGen
 			return triangles_ [ i ];
 		}
 
-		public Vector3 GetCentre(TriangleListElement t)
+		public Vector3 GetCentre(TriangleElement t)
 		{
 			Vector3 result = Vector3.zero;
 			for (int i = 0; i<3; i++)
 			{
-				result = result + vertexList_.GetVectorAtIndex( t.GetVertexIndex(i) );
+				result = result + t.GetVertex(i).GetVector();
 			}
 			result = result /3f;
 			return result;

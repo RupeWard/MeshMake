@@ -13,40 +13,40 @@ namespace _MeshGen
 
 		private VertexMoverTarget[] vertexMovers_ = new VertexMoverTarget[2]{null,null};
 
-		private RectListElement rect_;
-		private VertexListElement origin0;
-		private VertexListElement origin1;
-		private VertexListElement target0;
-		private VertexListElement target1;
+		private RectElement rect_;
+		private VertexElement origin0;
+		private VertexElement origin1;
+		private VertexElement target0;
+		private VertexElement target1;
 		private MeshGenRectList rectList_;
 
-			private int originIndex0;
-			private int originIndex1;
-			private int targetIndex0;
-			private int targetIndex1;
+//			private int originIndex0;
+//			private int originIndex1;
+//			private int targetIndex0;
+//			private int targetIndex1;
 
-		private VertexListElement []vertexElementsToProtect = new VertexListElement[0];
+		private VertexElement []vertexElementsToProtect = new VertexElement[0];
 
 		private GridUVProviders.GridPosition movingPosition = MeshGenerator.greyRectGridPosition;
 
 		public VertexMoverRectCollapser( MeshGenRectList rectList,
-		                                RectListElement rle, 
-			                                int o0, int t0,
-			                                int o1, int t1,
-		                                VertexListElement[] vtp,
+		                                RectElement rle, 
+		                                VertexElement o0, VertexElement t0,
+		                                VertexElement o1, VertexElement t1,
+		                                VertexElement[] vtp,
 		                                GridUVProviders.GridPosition mp,
 		                                float t):base(t)
 		{
 			Debug.Log ("Creating RectCollapser: ");
 			this.rectList_ = rectList;
-			this.originIndex0 = o0;
-			this.originIndex1 = o1;
-			this.targetIndex0 = t0;
-			this.targetIndex1 = t1;
-			this.origin0 = rectList_.vertexList.GetElement(o0);
-			this.origin1 = rectList_.vertexList.GetElement(o1);
-			this.target0 = rectList_.vertexList.GetElement(t0);
-			this.target1 = rectList_.vertexList.GetElement(t1);
+//			this.originIndex0 = o0;
+//			this.originIndex1 = o1;
+//			this.targetIndex0 = t0;
+//			this.targetIndex1 = t1;
+			this.origin0 = o0;
+			this.origin1 = o1;
+			this.target0 = t0;
+			this.target1 = t1;
 			this.rect_ = rle;
 			this.vertexElementsToProtect = vtp;
 			if (mp!=null)
@@ -63,9 +63,9 @@ namespace _MeshGen
 
 #region VertexMover
 
-		public override bool MovesVertexIndex(VertexListElement el)
+		public override bool MovesVertexElement(VertexElement el)
 		{
-			if ( vertexMovers_ [ 0 ].MovesVertexIndex ( el ) || vertexMovers_ [ 1 ].MovesVertexIndex ( el ) )
+			if ( vertexMovers_ [ 0 ].MovesVertexElement ( el ) || vertexMovers_ [ 1 ].MovesVertexElement ( el ) )
 			{
 				return true;
 			}

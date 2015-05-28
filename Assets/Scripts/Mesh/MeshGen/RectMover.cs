@@ -5,7 +5,7 @@ namespace _MeshGen
 {
 	public class RectMover
 	{
-		private VertexListElement vertex_ = null;
+		private VertexElement vertex_ = null;
 		private Vector3 initialPosition_;
 		private Vector3 direction_;
 		private float timeTaken_;
@@ -21,7 +21,7 @@ namespace _MeshGen
 			get { return finished_; }
 		}
 
-		public RectMover( VertexListElement v, Vector3 direction, float dist, float t)
+		public RectMover( VertexElement v, Vector3 direction, float dist, float t)
 		{
 			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+direction.ToString()+" "+dist+" "+t);
 			this.vertex_ = v;

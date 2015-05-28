@@ -12,14 +12,14 @@ namespace _MeshGen
 			get { return vertexList_; }
 		}
 
-		private List < RectListElement > rects_ = null;
+		private List < RectElement > rects_ = null;
 
-		public Vector3 GetVertex(int i)
+		public Vector3 GetVector(int i)
 		{
 			return vertexList_.GetVectorAtIndex(i);
 		}
 
-		public VertexListElement GetVertexElement(int i)
+		public VertexElement GetVertexElement(int i)
 		{
 			return vertexList_.GetElement(i);
 		}
@@ -32,17 +32,17 @@ namespace _MeshGen
 		public MeshGenRectList(  MeshGenVertexList vl)
 		{
 			vertexList_ = vl;
-			rects_ = new List< RectListElement >();
+			rects_ = new List< RectElement >();
 		}
 
 		public void TurnInsideOut()
 		{
-			foreach ( RectListElement t in rects_ )
+			foreach ( RectElement t in rects_ )
 			{
 				t.flipOrientation();
 			}
 		}
-
+		/*
 		public int ReplaceVertexIndex( int oldIndex, int newIndex)
 		{
 			int numReplaced = 0;
@@ -62,22 +62,43 @@ namespace _MeshGen
 			}
 			return numReplaced;
 		}
+		*/
 
-		public int AddRect(RectListElement t)
+		public int ReplaceVertex( VertexElement vle0, VertexElement vle1)
+		{
+			int numReplaced = 0;
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			foreach (RectElement rle in rects_)
+			{
+				if (rle.ReplaceVertex(vle0, vle1))
+				{
+					sb.Append("Replaced ").Append (vle0.DebugDescribe()).Append (" with ").Append(vle1.DebugDescribe()).Append (" in ").Append (rle.DebugDescribe()+"\n");
+					vle0.DisconnectFromRect(rle);
+					numReplaced++;
+				}
+			}
+			if (sb.Length > 0)
+			{
+				Debug.Log (sb.ToString());
+			}
+			return numReplaced;
+		}
+
+		public int AddRect(RectElement t)
 		{
 			int result = -1;
 			result = rects_.Count;
 			rects_.Add ( t );
 			for ( int i = 0; i <4; i++)
 			{
-				vertexList_.ConnectVertexToRect( t.GetVertexIndex(i), t );
+				t.GetVertexElement(i).ConnectToRect( t );
 			}
 			return result;
 		}
 
-		public RectListElement GetClosestRect(Vector3 position)
+		public RectElement GetClosestRect(Vector3 position)
 		{
-			RectListElement result = null;
+			RectElement result = null;
 			float closestDistance = float.MaxValue;
 			for ( int i = 0; i< Count; i++ )
 			{
@@ -92,34 +113,34 @@ namespace _MeshGen
 		}
 		
 
-		public void RemoveRectWithVertexReplace( RectListElement toReplace, RectListElement match)
+		public void RemoveRectWithVertexReplace( RectElement toReplace, RectElement match)
 		{
 			for (int i = 0; i<4; i++)
 			{
-				int indexToReplace = toReplace.GetVertexIndex(i);
-				int newIndex = match.GetClosestVertexIndex( toReplace.GetVertex(i), MeshGenerator.POSITION_TELRANCE * 2f );
-				if (newIndex != -1)
+				VertexElement vleToReplace = toReplace.GetVertexElement(i);
+				VertexElement newVle = match.GetClosestVertex( toReplace.GetVertexElement(i).GetVector(), MeshGenerator.POSITION_TELRANCE * 2f );
+				if (newVle != null)
 				{
-					ReplaceVertexIndex( indexToReplace, newIndex);
+					ReplaceVertex( vleToReplace, newVle);
 				}
 				else
 				{
-					Debug.LogError ("newIndex=-1");
+					Debug.LogError ("newVle = null");
 			    }
 			}
 		}
 
-		public void RemoveRect(RectListElement t)
+		public void RemoveRect(RectElement t)
 		{
 			Debug.Log ( "Removing rect: " + t.DebugDescribe ( ) );
 			for ( int i = 0; i <4; i++)
 			{
-				vertexList_.DisconnectVertexFromRect( t.GetVertexIndex(i), t );
+				t.GetVertexElement(i).DisconnectFromRect(t );
 			}
 			rects_.Remove ( t );
 		}
 
-		public RectListElement GetRectAtIndex(int i)
+		public RectElement GetRectAtIndex(int i)
 		{
 			if ( i < 0 || i >= rects_.Count )
 			{
@@ -129,61 +150,44 @@ namespace _MeshGen
 			return rects_ [ i ];
 		}
 
-		public Vector3 GetCentre(RectListElement t)
-		{
-			Vector3 result = Vector3.zero;
-			for (int i = 0; i<4; i++)
-			{
-				result = result + t.GetVertex(i);
-			}
-			result = result /4f;
-			return result;
-		}
-
-		public Vector3 GetNormal(RectListElement t)
-		{
-			return Vector3.Cross(	
-					t.GetVertex(0) - t.GetVertex(2),
-					t.GetVertex(1) - t.GetVertex(3));
-		}
-
 		public class RectsSharingEdgeInfo
 		{
-			public int index0;
-			public int index1;
+			public VertexElement vle0;
+			public VertexElement vle1;
 
-			public RectListElement originRle;
-			public RectListElement rle;
+			public RectElement originRle;
+			public RectElement rle;
 			public int shareOrder;
 			public Vector3 dirnAway0;
 			public Vector3 dirnAway1;
-			public int neighbourIndex0;
-			public int neighbourIndex1;
+
+			public VertexElement neighbourVle0;
+			public VertexElement neighbourVle1;
 		}
 
 
-		public List< RectsSharingEdgeInfo > GetRectsSharingEdge( int index0, int index1, RectListElement o )
+		public List< RectsSharingEdgeInfo > GetRectsSharingEdge( VertexElement v0, VertexElement v1, RectElement o )
 		{
 			List< RectsSharingEdgeInfo > result = new List< RectsSharingEdgeInfo >  ();
-			foreach (RectListElement rle in rects_)
+			foreach (RectElement rle in rects_)
 			{
 				Vector3 dirnAway0 = Vector3.zero;
 				Vector3 dirnAway1 = Vector3.zero;
-				int otherNeighbourIndex0 = -1;
-				int otherNeighbourIndex1 = -1;
-				int shareOrder = rle.SharesEdge( index0, index1, ref dirnAway0, ref dirnAway1, ref otherNeighbourIndex0, ref otherNeighbourIndex1 );
+				VertexElement otherNeighbourVle0 = null;
+				VertexElement otherNeighbourVle1 = null;
+				int shareOrder = rle.SharesEdge( v0, v1, ref dirnAway0, ref dirnAway1, ref otherNeighbourVle0, ref otherNeighbourVle1 );
 				if (shareOrder != 0)
 				{
 					RectsSharingEdgeInfo info = new RectsSharingEdgeInfo();
-					info.index0 = index0;
-					info.index1 = index1;
+					info.vle0 = v0;
+					info.vle1 = v1;
 					info.rle = rle;
 					info.shareOrder = shareOrder;
 					info.dirnAway0 = dirnAway0;
 					info.dirnAway1 = dirnAway1;
 					info.originRle = o;
-					info.neighbourIndex0 = otherNeighbourIndex0;
-					info.neighbourIndex1 = otherNeighbourIndex1;
+					info.neighbourVle0 = otherNeighbourVle0;
+					info.neighbourVle1 = otherNeighbourVle1;
 					result.Add(info);
 				}
 			}

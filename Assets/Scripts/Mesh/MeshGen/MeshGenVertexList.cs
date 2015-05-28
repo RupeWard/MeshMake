@@ -6,13 +6,13 @@ namespace _MeshGen
 {
 	public class MeshGenVertexList // : MeshGenList < VertexListElement >  
 	{
-		private List< VertexListElement > vertices_ = new List< VertexListElement >();
+		private List< VertexElement > vertices_ = new List< VertexElement >();
 
-		public VertexListElement GetClosestElement(Vector3 pos, float max, out float closestDistance)
+		public VertexElement GetClosestElement(Vector3 pos, float max, out float closestDistance)
 		{
-			VertexListElement result = null;
+			VertexElement result = null;
 			closestDistance = float.MaxValue;
-			foreach ( VertexListElement v in vertices_ )
+			foreach ( VertexElement v in vertices_ )
 			{
 				float d = v.Distance(pos);
 				if (d < max && d < closestDistance)
@@ -24,6 +24,42 @@ namespace _MeshGen
 			return result;
 		}
 
+		public VertexElement GetClosestElement(Vector3 pos, float max)
+		{
+			float closestDistance = float.MaxValue;
+			VertexElement result = null;
+			foreach ( VertexElement v in vertices_ )
+			{
+				float d = v.Distance(pos);
+				if (d < max && d < closestDistance)
+				{
+					closestDistance = d;
+					result = v;
+				}
+			}
+			return result;
+		}
+
+		public VertexElement FindElement(Vector3 pos)
+		{
+			return GetClosestElement ( pos, _MeshGen.MeshGenerator.POSITION_TELRANCE );
+		}
+
+		public VertexElement AddVertexElement(Vector3 pos)
+		{
+			VertexElement result = FindElement ( pos );
+			if (result == null)
+			{
+				result = new VertexElement(pos);
+				vertices_.Add(result);
+			}
+			else
+			{
+				Debug.LogWarning("Alrready have an element at "+pos);
+			}
+			return result;
+		}
+		/*
 		public int GetIndexOfClosestElement(Vector3 pos, float max, out float closestDistance)
 		{
 			int result = -1;
@@ -39,13 +75,16 @@ namespace _MeshGen
 				}
 			}
 			return result;
-		}
+		}*/
 
 		public int Count
 		{
 			get { return vertices_.Count; }
 		}
 
+
+
+		/*
 		public void ConnectVertexToRect( int i, RectListElement t)
 		{
 			if ( i < 0 || i >= vertices_.Count )
@@ -70,7 +109,9 @@ namespace _MeshGen
 //				vertices_.RemoveAt(i);
 			}
 		}
-		
+		*/
+
+		/*
 		public void ConnectVertexToTriangle( int i, TriangleListElement t)
 		{
 			if ( i < 0 || i >= vertices_.Count )
@@ -95,8 +136,9 @@ namespace _MeshGen
 //				vertices_.RemoveAt(i);
 			}
 		}
+		*/
 		
-		public VertexListElement GetElement(int i)
+		public VertexElement GetElement(int i)
 		{
 			if ( i < 0 || i >= vertices_.Count )
 			{
@@ -116,6 +158,7 @@ namespace _MeshGen
 			return vertices_[i].GetVector();
 		}
 
+		/*
 		public int AddVertex( VertexListElement v )
 		{
 			int i = IndexOf (v.GetVector());
@@ -131,7 +174,7 @@ namespace _MeshGen
 			return i;
 		}
 
-		public int AddVertex( Vector3 v )
+		public VertexListElement AddVertexElement( Vector3 v )
 		{
 			int i = IndexOf (v);
 			if (i != -1) 
@@ -145,29 +188,13 @@ namespace _MeshGen
 			}
 			return i;
 		}
-
-		public int IndexOf( Vector3 v)
-		{
-			int result = -1;
-			if ( vertices_.Count > 0)
-			{
-				for (int i = 0; i < vertices_.Count; i++)
-				{
-					if (vertices_[i].GetVector().EqualsApprox(v, MeshGenerator.POSITION_TELRANCE))
-					{
-						result = i;
-						break;
-					}
-				}
-			}
-			return result;
-		}
+		
 
 
 		public bool Contains( Vector3 v)
 		{
 			return (IndexOf (v) != -1);
-		}
+		}*/
 	}
 }
 

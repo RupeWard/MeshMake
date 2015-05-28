@@ -5,13 +5,13 @@ namespace _MeshGen
 {
 	public class VertexMoverTarget : VertexMover
 	{
-		private VertexListElement vertex_ = null;
-		public VertexListElement Vertex
+		private VertexElement vertex_ = null;
+		public VertexElement Vertex
 		{
 			get { return vertex_; }
 		}
 
-		private VertexListElement target_ = null;
+		private VertexElement target_ = null;
 
 		protected Vector3 FinalPosition()
 		{
@@ -22,7 +22,7 @@ namespace _MeshGen
 		private Vector3 initialPosition_;
 
 
-		public VertexMoverTarget( VertexListElement v, VertexListElement targ, float t):base(t)
+		public VertexMoverTarget( VertexElement v, VertexElement targ, float t):base(t)
 		{
 			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+targ.GetVector().ToString());
 			this.vertex_ = v;
@@ -32,7 +32,7 @@ namespace _MeshGen
 
 #region VertexMover
 
-		public override bool MovesVertexIndex(VertexListElement el)
+		public override bool MovesVertexElement(VertexElement el)
 		{
 			return vertex_ == el || target_ == el;
 		}

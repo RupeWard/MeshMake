@@ -28,6 +28,6 @@ namespace _MeshGen
 
 //		protected abstract Vector3 FinalPosition ( );
 		public abstract bool update(float elapsed);
-		public abstract bool MovesVertexIndex(VertexListElement el);
+		public abstract bool MovesVertexElement(VertexElement el);
 	}
 }

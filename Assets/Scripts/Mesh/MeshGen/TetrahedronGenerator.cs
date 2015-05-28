@@ -50,20 +50,20 @@ namespace _MeshGen
 			double heightOfTetCentre = System.Math.Sqrt ( squareDistCentreToVertex * squareDistCentreToVertex
 			                                             - tetSideDistCentreToVertex * tetSideDistCentreToVertex);
 
-			VertexListElement base0 = new VertexListElement( new Vector3 ( 0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide ));
-			VertexListElement base1 = new VertexListElement( new Vector3 ( -0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide ));
-			VertexListElement base2 = new VertexListElement( new Vector3 (0f, -1f * (float)(heightOfTetCentre), -1f * (float)tetSideDistCentreToVertex)); 
-			VertexListElement apex = new VertexListElement( new Vector3 ( 0f, (float)squareSideDistCentreToVertex, 0f  ));
+			Vector3 base0 = new Vector3 ( 0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide );
+			Vector3 base1 = new Vector3 ( -0.5f * (float)tetSideLength, -1f * (float)(heightOfTetCentre) ,  (float)tetSideDistCentreToSide );
+			Vector3 base2 = new Vector3 (0f, -1f * (float)(heightOfTetCentre), -1f * (float)tetSideDistCentreToVertex); 
+			Vector3 apex = new Vector3 ( 0f, (float)squareSideDistCentreToVertex, 0f  );
 
-			int apexIndex = vertexList_.AddVertex( apex);
-			int base0Index = vertexList_.AddVertex( base0);
-			int base1Index = vertexList_.AddVertex( base1);
-			int base2Index = vertexList_.AddVertex( base2);
+			VertexElement apexElement = vertexList_.AddVertexElement( apex);
+			VertexElement base0Element = vertexList_.AddVertexElement( base0);
+			VertexElement base1Element = vertexList_.AddVertexElement( base1);
+			VertexElement base2Element = vertexList_.AddVertexElement( base2);
 
-			TriangleListElement baseTri = new TriangleListElement( base2Index, base0Index, base1Index);
-			TriangleListElement side0Tri = new TriangleListElement ( apexIndex, base0Index, base2Index);
-			TriangleListElement side1Tri = new TriangleListElement ( apexIndex, base1Index, base0Index);
-			TriangleListElement side2Tri = new TriangleListElement ( apexIndex, base2Index, base1Index);
+			TriangleElement baseTri = new TriangleElement( base2Element, base0Element, base1Element);
+			TriangleElement side0Tri = new TriangleElement ( apexElement, base0Element, base2Element);
+			TriangleElement side1Tri = new TriangleElement ( apexElement, base1Element, base0Element);
+			TriangleElement side2Tri = new TriangleElement ( apexElement, base2Element, base1Element);
 
 			triangleList_.AddTriangle(baseTri);
 			triangleList_.AddTriangle(side0Tri);

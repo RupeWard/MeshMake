@@ -1,14 +1,17 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace _MeshGen
 {
-	public class RectListElement : IDebugDescribable
+	public class RectElement : IDebugDescribable
 	{
 		private MeshGenRectList rectList_ = null;
 		private GridUVProviders uvProviders_ = null;
 		public GridUVProviders.GridPosition gridPosition;
+
+		VertexElement[] vertices = new VertexElement[4]{ null, null, null, null };
+		TriangleElement[] triangles = new TriangleElement[2] { null, null };
 
 		public void SetGridPosition(GridUVProviders.GridPosition gp)
 		{
@@ -18,20 +21,20 @@ namespace _MeshGen
 			triangles [ 1 ].SetGridPosition ( gp );
 		}
 
-		public int GetClosestVertexIndex(Vector3 position, float maxDistance)
+		public VertexElement GetClosestVertex(Vector3 position, float maxDistance)
 		{
-			int result = -1;
+			VertexElement vle = null;
 			float closestDistance = float.MaxValue;
 			for ( int i = 0; i< 4; i++ )
 			{
-				float d = Vector3.Distance ( GetVertex(i), position);
+				float d = Vector3.Distance ( GetVector(i), position);
 				if (d < closestDistance && d < maxDistance)
 				{
 					closestDistance = d;
-					result = GetVertexIndex(i);
+					vle = GetVertexElement(i);
 				}
 			}
-			return result;
+			return vle;
 		}
 
 		public class EdgeDef :IDebugDescribable
@@ -123,42 +126,39 @@ namespace _MeshGen
 			}
 		}
 
-		int[] vertexIndices_ = new int[4]{ -1, -1, -1, -1};
-		TriangleListElement[] triangles = new TriangleListElement[2] { null, null };
-
 		public float DistanceFromCentre(Vector3 position)
 		{
 			Vector3 centre = GetCentre ( );
 			return ( position - centre ).magnitude;
 		}
 
-		public RectListElement( MeshGenRectList rectList, int v0, int v1, int v2, int v3)
+		public RectElement( MeshGenRectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3)
 		{
 			rectList_ = rectList;
 
-			vertexIndices_[0] = v0;
-			vertexIndices_[1] = v1;
-			vertexIndices_[2] = v2;
-			vertexIndices_[3] = v3;
+			vertices[0] = v0;
+			vertices[1] = v1;
+			vertices[2] = v2;
+			vertices[3] = v3;
 
-			triangles[0] = new TriangleListElement( v0, v1, v3);
-			triangles[1] = new TriangleListElement( v1, v2, v3);
+			triangles[0] = new TriangleElement( v0, v1, v3);
+			triangles[1] = new TriangleElement( v1, v2, v3);
 
 		}
 
-		public RectListElement( MeshGenRectList rectList, int v0, int v1, int v2, int v3, GridUVProviders gup, GridUVProviders.GridPosition gp)
+		public RectElement( MeshGenRectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3, GridUVProviders gup, GridUVProviders.GridPosition gp)
 		{
 			uvProviders_ = gup;
 
 			rectList_ = rectList;
 			
-			vertexIndices_[0] = v0;
-			vertexIndices_[1] = v1;
-			vertexIndices_[2] = v2;
-			vertexIndices_[3] = v3;
+			vertices[0] = v0;
+			vertices[1] = v1;
+			vertices[2] = v2;
+			vertices[3] = v3;
 			
-			triangles[0] = new TriangleListElement( v0, v1, v3, uvProviders_.GetTriangleProviderForRect(gp, 0));
-			triangles[1] = new TriangleListElement( v1, v2, v3, uvProviders_.GetTriangleProviderForRect(gp, 1));
+			triangles[0] = new TriangleElement( v0, v1, v3, uvProviders_.GetTriangleProviderForRect(gp, 0));
+			triangles[1] = new TriangleElement( v1, v2, v3, uvProviders_.GetTriangleProviderForRect(gp, 1));
 			SetGridPosition(gp);
 
 		}
@@ -170,12 +170,20 @@ namespace _MeshGen
 
 		public Vector3 GetCentre()
 		{
-			return rectList_.GetCentre ( this );
+			Vector3 result = Vector3.zero;
+			for (int i = 0; i<4; i++)
+			{
+				result = result + GetVector(i);
+			}
+			result = result /4f;
+			return result;
 		}
 
 		public Vector3 GetNormal()
 		{
-			return rectList_.GetNormal ( this );
+			return Vector3.Cross(	
+			                     GetVector(0) - GetVector(2),
+			                     GetVector(1) - GetVector(3));
 		}
 
 		public float AngleFromNormalsRadians(Vector3 v)
@@ -184,17 +192,36 @@ namespace _MeshGen
 			return Mathf.Acos( Vector3.Dot (n0,v) / ( n0.magnitude * v.magnitude ) );
 		}
 
-		public static float AngleBetweenNormalsDegrees(RectListElement r0, RectListElement r1)
+		public static float AngleBetweenNormalsDegrees(RectElement r0, RectElement r1)
 		{
 			return Mathf.Rad2Deg * AngleBetweenNormalsRadians(r0, r1);
 		}
 		
 
-		static public float AngleBetweenNormalsRadians(RectListElement r0, RectListElement r1)
+		static public float AngleBetweenNormalsRadians(RectElement r0, RectElement r1)
 		{
 			return r0.AngleFromNormalsRadians(r1.GetNormal());
 		}
 
+		public bool ReplaceVertex( VertexElement oldVle, VertexElement newVle)
+		{
+			bool changed = false;
+			if (triangles[0].ReplaceVertex(oldVle, newVle))
+			{
+				changed = true;
+			}
+			if (triangles[1].ReplaceVertex(oldVle, newVle))
+			{
+				changed = true;
+			}
+			if (changed)
+			{
+				oldVle.DisconnectFromRect(this);
+			}
+			return changed;
+		}
+
+		/*
 		public bool ReplaceVertexIndex( int oldIndex, int newIndex)
 		{
 			bool changed = false;
@@ -212,17 +239,18 @@ namespace _MeshGen
 			}
 			return changed;
 		}
+		*/
 
-		public int SharesEdgeOld( int index0, int index1 )
+		public int SharesEdgeOld( VertexElement v0, VertexElement v1 )
 		{
 			int shares = 0;
 			for ( int edge = 0; edge < 4 && shares == 0; edge++)
 			{
-				if (vertexIndices_[ EdgeDefs.EdgeDef(edge).GetIndex(0)] == index0 &&  vertexIndices_[ EdgeDefs.EdgeDef(edge).GetIndex(1)] == index1)
+				if (vertices[ EdgeDefs.EdgeDef(edge).GetIndex(0)] == v0 &&  vertices[ EdgeDefs.EdgeDef(edge).GetIndex(1)] == v1)
 				{
 					shares = 1;
 				}
-				else if (vertexIndices_[ EdgeDefs.EdgeDef(edge).GetIndex(1)] == index0 &&  vertexIndices_[ EdgeDefs.EdgeDef(edge).GetIndex(0)] == index1)
+				else if (vertices[ EdgeDefs.EdgeDef(edge).GetIndex(1)] == v0 &&  vertices[ EdgeDefs.EdgeDef(edge).GetIndex(0)] == v1)
 				{
 					shares = -1;
 				}
@@ -230,7 +258,7 @@ namespace _MeshGen
 			return shares;
 		}
 
-		public int SharesEdge( int index0, int index1, ref Vector3 directionaway0, ref Vector3 directionaway1, ref int otherNeighbour0, ref int otherNeighbour1 )
+		public int SharesEdge( VertexElement v0, VertexElement v1, ref Vector3 directionaway0, ref Vector3 directionaway1, ref VertexElement otherNeighbour0, ref VertexElement otherNeighbour1 )
 		{
 			int shareOrder = 0;
 			for ( int edge = 0; edge < 4 && shareOrder == 0; edge++)
@@ -240,21 +268,21 @@ namespace _MeshGen
 				int indexOfNextToEdgeIndex0 = EdgeDefs.GetIndexOfNeighbouringPointFromEdge(EdgeDefs.EdgeDef(edge), edgeIndex0);
 				int indexOfNextToEdgeIndex1 = EdgeDefs.GetIndexOfNeighbouringPointFromEdge(EdgeDefs.EdgeDef(edge), edgeIndex1);
 
-				otherNeighbour0 = GetVertexIndex( indexOfNextToEdgeIndex0);
-				otherNeighbour1 = GetVertexIndex( indexOfNextToEdgeIndex1);
+				otherNeighbour0 = GetVertexElement( indexOfNextToEdgeIndex0);
+				otherNeighbour1 = GetVertexElement( indexOfNextToEdgeIndex1);
 
-				if (vertexIndices_[ edgeIndex0 ] == index0 &&  vertexIndices_[ edgeIndex1 ] == index1)
+				if (vertices[ edgeIndex0 ] == v0 &&  vertices[ edgeIndex1 ] == v1)
 				{
 					shareOrder = 1;
 				}
-				else if (vertexIndices_[ edgeIndex1] == index0 &&  vertexIndices_[ edgeIndex0] == index1)
+				else if (vertices[ edgeIndex1] == v0 &&  vertices[ edgeIndex0] == v1)
 				{
 					shareOrder = -1;
 				}
 				if (shareOrder != 0)
 				{
-					directionaway0 = GetVertex( indexOfNextToEdgeIndex0 ) - GetVertex( edgeIndex0 );
-					directionaway1 = GetVertex( indexOfNextToEdgeIndex1 ) - GetVertex( edgeIndex1 );
+					directionaway0 = GetVector( indexOfNextToEdgeIndex0 ) - GetVector( edgeIndex0 );
+					directionaway1 = GetVector( indexOfNextToEdgeIndex1 ) - GetVector( edgeIndex1 );
 //					Debug.LogWarning("shares edge: "+this.DebugDescribe()+" "+index0+", "+index1+" "+shareOrder+" neighbours = "+otherNeighbour0+", "+otherNeighbour1);
 				}
 			}
@@ -268,21 +296,22 @@ namespace _MeshGen
 			triangles[1].flipOrientation();
 		}
 
-		protected RectListElement(){}
+		protected RectElement(){}
 
+			/*
 		public int GetVertexIndex(int i)
 		{
-			return vertexIndices_[i];
-		}
+			return vertices[i];
+		}*/
 
-		public Vector3 GetVertex(int i)
+		public Vector3 GetVector(int i)
 		{
-			return rectList_.GetVertex ( vertexIndices_[i] );
+			return vertices[i].GetVector();
 		}
-
-		public VertexListElement GetVertexElement(int i)
+		
+		public VertexElement GetVertexElement(int i)
 		{
-			return rectList_.GetVertexElement ( vertexIndices_[i] );
+			return vertices[i];
 		}
 		
 
@@ -292,7 +321,7 @@ namespace _MeshGen
 			triangles[1].AddToMeshGenLists( gen, verts, uvs, triVerts );
 		}
 
-		public static bool IsSameRect(RectListElement t, RectListElement other)
+		public static bool IsSameRect(RectElement t, RectElement other)
 		{
 			int matches = 0;
 
@@ -300,7 +329,7 @@ namespace _MeshGen
 			{
 				for (int otherindex = 4; otherindex < 4; otherindex++)
 				{
-					if (t.GetVertexIndex(tindex) == other.GetVertexIndex(otherindex))
+					if (t.GetVertexElement(tindex) == other.GetVertexElement(otherindex))
 					{
 						matches++;
 						break;
@@ -317,7 +346,7 @@ namespace _MeshGen
 			for ( int i =0; i<4; i++ )
 			{
 				if (i >0 ) sb.Append(", ");
-				sb.Append(GetVertexIndex(i));
+				sb.Append(GetVertexElement(i).DebugDescribe());
 			}
 		}
 		#endregion IDebugDescribable

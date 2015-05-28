@@ -143,7 +143,7 @@ namespace _MeshGen
 				}
 				for (int i = 0; i < triangleList_.Count; i++)
 				{
-					TriangleListElement t = triangleList_.GetTriAtIndex(i);
+					TriangleElement t = triangleList_.GetTriAtIndex(i);
 					t.AddToMeshGenLists( this, verts, uvs, triVerts);
 				}
 			}
@@ -156,7 +156,7 @@ namespace _MeshGen
 				}
 				for (int i = 0; i < rectList_.Count; i++)
 				{
-					RectListElement t = rectList_.GetRectAtIndex(i);
+					RectElement t = rectList_.GetRectAtIndex(i);
 					t.AddToMeshGenLists( this, verts, uvs, triVerts);
 				}
 			}
@@ -232,15 +232,15 @@ namespace _MeshGen
 			}
 		}
 
-		public bool IsSameRect(RectListElement t, RectListElement other)
+		public bool IsSameRect(RectElement t, RectElement other)
 		{
 			int matches = 0;
 			for (int tindex = 0; tindex < 4; tindex++)
 			{
-				Vector3 tpos = t.GetVertex(tindex);
+				Vector3 tpos = t.GetVector(tindex);
 				for (int otherindex = 0; otherindex < 4; otherindex++)
 				{
-					Vector3 otherpos = other.GetVertex(otherindex);
+					Vector3 otherpos = other.GetVector(otherindex);
 
 					if (Vector3.Distance( tpos, otherpos ) <= POSITION_TELRANCE*2f)
 					{
@@ -262,15 +262,15 @@ namespace _MeshGen
 	
 		private void RemoveDuplicateRects()
 		{
-			List < RectListElement[] > dupesSame = new List<RectListElement [] > ( );
-			List < RectListElement > dupesOpposite = new List<RectListElement> ( );
-			List < RectListElement > individuals = new List<RectListElement> ( );
+			List < RectElement[] > dupesSame = new List<RectElement [] > ( );
+			List < RectElement > dupesOpposite = new List<RectElement> ( );
+			List < RectElement > individuals = new List<RectElement> ( );
 			for ( int i = 0; i < rectList_.Count; i++ )
 			{
-				RectListElement rle = rectList_.GetRectAtIndex(i);
+				RectElement rle = rectList_.GetRectAtIndex(i);
 
-				RectListElement matchingIndividual = null;
-				foreach (RectListElement ind in individuals)
+				RectElement matchingIndividual = null;
+				foreach (RectElement ind in individuals)
 				{
 					if (IsSameRect(ind,rle))
 					{
@@ -284,7 +284,7 @@ namespace _MeshGen
 					if ( rle.AngleFromNormalsRadians( matchingIndividual.GetNormal()) * Mathf.Rad2Deg < 1f )
 					{
 			//			dupesSame.Add (rle);
-						dupesSame.Add (new RectListElement[]{ matchingIndividual, rle });
+						dupesSame.Add (new RectElement[]{ matchingIndividual, rle });
 					}
 					else
 					{
@@ -298,12 +298,12 @@ namespace _MeshGen
 				}
 			}
 			Debug.Log ("Found inds = "+individuals.Count+", dupesSame =  "+dupesSame.Count+" dupesOppos = "+dupesOpposite.Count+"  (should be even)");
-			foreach ( RectListElement rle in dupesOpposite )
+			foreach ( RectElement rle in dupesOpposite )
 			{
 				rectList_.RemoveRect(rle);
 			}
 
-			foreach ( RectListElement[] rles in dupesSame )
+			foreach ( RectElement[] rles in dupesSame )
 			{
 //				rectList_.RemoveRectWithVertexReplace(rles[0], rles[1]);
 				rectList_.RemoveRect(rles[0]);
@@ -322,7 +322,7 @@ namespace _MeshGen
 			}
 			if (allow)
 			{
-				RectListElement rle = rectList_.GetClosestRect(hit.point);
+				RectElement rle = rectList_.GetClosestRect(hit.point);
 				if (rle == null)
 				{
 					Debug.LogError("Failed to find closest rect to hit!");
@@ -347,7 +347,7 @@ namespace _MeshGen
 			if (allow && rectList_.Count > 5 )
 			{
 				int i = UnityEngine.Random.Range( 0, rectList_.Count);
-				RectListElement t = rectList_.GetRectAtIndex(i);
+				RectElement t = rectList_.GetRectAtIndex(i);
 				Debug.Log ("Rand-extending "+t.DebugDescribe());
 				ExtendRect( t, size_, blueRectGridPosition, greyRectGridPosition);
 			}
@@ -356,11 +356,11 @@ namespace _MeshGen
 
 		private System.Text.StringBuilder extendSB = new System.Text.StringBuilder();
 
-		private bool AnyMoverMovesVertex(VertexListElement el)
+		private bool AnyMoverMovesVertex(VertexElement el)
 		{
 			foreach ( VertexMover mover in vertexMovers_ )
 			{
-				if (mover.MovesVertexIndex(el))
+				if (mover.MovesVertexElement(el))
 				{
 					return true;
 				}
@@ -368,7 +368,7 @@ namespace _MeshGen
 			return false;
 		}
 
-		public void ExtendRect(RectListElement originRect, float height, GridUVProviders.GridPosition movingGridPosition, GridUVProviders.GridPosition finalGridPosition)
+		public void ExtendRect(RectElement originRect, float height, GridUVProviders.GridPosition movingGridPosition, GridUVProviders.GridPosition finalGridPosition)
 		{
 			if ( !AppManager.Instance.allowCloseMultiExtend )
 			{
@@ -398,20 +398,23 @@ namespace _MeshGen
 			{
 				movingGridPosition = greyRectGridPosition;
 			}
-			int[] originVertexIndices = new int[4];
-			Vector3[] originVertices = new Vector3[4];
+
+//			int[] originVertexIndices = new int[4];
+			Vector3[] originVectors = new Vector3[4];
 
 			for ( int i=0; i<4; i++ )
 			{
-				originVertexIndices[i] = originRect.GetVertexIndex ( i );
-				originVertices[i] = originRect.GetVertex ( i );
+//				originVertexIndices[i] = originRect.GetVertexIndex ( i );
+				originVectors[i] = originRect.GetVector ( i );
 			}
+
 			Vector3 originCentre = originRect.GetCentre ( );
-			
-			Vector3 direction = Vector3.Cross( originVertices[0]-originVertices[2], originVertices[1]-originVertices[3]);
+	
+			Vector3 direction = originRect.GetNormal();
+//			Vector3 direction = Vector3.Cross( originVertices[0]-originVertices[2], originVertices[1]-originVertices[3]);
 			direction.Normalize();
 
-			int[] newVertexIndices = new int[4];
+			VertexElement[] newVertexElements = new VertexElement[4]{ null, null, null, null };
 			Vector3[] newVertices = new Vector3[4];
 
 
@@ -420,11 +423,11 @@ namespace _MeshGen
 				int found = 0;
 				for ( int i=0; i<4; i++ )
 				{
-					Vector3 newTarget = originVertices[i] + direction * size_;
+					Vector3 newTarget = originVectors[i] + direction * size_;
 					float closest;
-					int vleIndex = vertexList_.GetIndexOfClosestElement(newTarget, size_/100f, out closest); 
+					VertexElement vle = vertexList_.GetClosestElement(newTarget, size_/100f, out closest); 
 					
-					if (vleIndex != -1)
+					if (vle != null)
 					{
 						found++;
 						//					Debug.LogWarning("Found close vertex to "+i+": "+newTarget+" "+vertexList_.GetElement(i).DebugDescribe()+"S="+size_+" D = "+closest);
@@ -443,8 +446,8 @@ namespace _MeshGen
 		
 			for ( int i=0; i<4; i++ )
 			{
-					newVertices[i] = originVertices[i] + direction * POSITION_TELRANCE * 2f;
-					newVertexIndices[i] = vertexList_.AddVertex(newVertices[i]);
+					newVertices[i] = originVectors[i] + direction * POSITION_TELRANCE * 2f;
+					newVertexElements[i] = vertexList_.AddVertexElement(newVertices[i]);
 			}
 
 			rectList_.RemoveRect( originRect);
@@ -456,8 +459,8 @@ namespace _MeshGen
 			{
 				rectsSharingEdges[i] = rectList_.GetRectsSharingEdge
 					(
-						originVertexIndices[ RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ] ,
-						originVertexIndices[ RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1)],
+						originRect.GetVertexElement(RectElement.EdgeDefs.EdgeDef(i).GetIndex(0)),
+						originRect.GetVertexElement(RectElement.EdgeDefs.EdgeDef(i).GetIndex(1)),
 						originRect
 					);
 				totalRectsSharingEdges += rectsSharingEdges[i].Count; 
@@ -485,8 +488,8 @@ namespace _MeshGen
 					if (DEBUG_EXTENDRECT)
 					{
 						extendSB.Append ("\n  Edge ").Append (i)
-							.Append(" (" ).Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
-								.Append (", ").Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
+							.Append(" (" ).Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
+								.Append (", ").Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
 								.Append (" ): ").Append (rectsSharingEdges[i].Count);
 					}
 					List< MeshGenRectList.RectsSharingEdgeInfo > toRemove = new List<MeshGenRectList.RectsSharingEdgeInfo>();
@@ -510,8 +513,8 @@ namespace _MeshGen
 							if (DEBUG_EXTENDRECT)
 							{
 								extendSB.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
-								extendSB.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
-									.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
+								extendSB.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
+									.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
 										.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
 										.Append (rleNormalNormed);
 								extendSB.Append(" Dirns Away: ").Append(sharingEdgeInfo.dirnAway0);
@@ -551,8 +554,8 @@ namespace _MeshGen
 							for (int i = 0; i<4; i++)
 							{
 								extendSB.Append ("\n  Edge ").Append (i)
-									.Append(" (" ).Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
-										.Append (", ").Append(originRect.GetVertexIndex( RectListElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
+									.Append(" (" ).Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
+										.Append (", ").Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
 										.Append (" ): ").Append (rectsSharingEdges[i].Count);
 								foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
 								{
@@ -567,8 +570,8 @@ namespace _MeshGen
 										Vector3 rleNormalNormed = sharingEdgeInfo.rle.GetNormal();
 										rleNormalNormed.Normalize();
 										extendSB.Append ("\n   ").Append(sharingEdgeInfo.rle.DebugDescribe());
-										extendSB.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
-											.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectListElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
+										extendSB.Append( " angle = ").Append(sharingEdgeInfo.shareOrder * RectElement.AngleBetweenNormalsDegrees(sharingEdgeInfo.rle, originRect))
+											.Append ( " = ").Append(sharingEdgeInfo.shareOrder * RectElement.AngleBetweenNormalsDegrees(originRect, sharingEdgeInfo.rle))
 												.Append (" (").Append (sharingEdgeInfo.shareOrder).Append (") norm = ")
 												.Append (rleNormalNormed);
 										sharingEdgeInfo.dirnAway0.Normalize();
@@ -611,7 +614,7 @@ namespace _MeshGen
 			// if there's no shared edge, do as before...
 
 			// create all movers?
-			RectListElement newTopRect = new RectListElement(rectList_, newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3], MeshGenerator.gridUVProviders, movingGridPosition);
+			RectElement newTopRect = new RectElement(rectList_, newVertexElements[0], newVertexElements[1], newVertexElements[2], newVertexElements[3], MeshGenerator.gridUVProviders, movingGridPosition);
 			rectList_.AddRect( newTopRect);
 
 			bool[] moverMadeForVertex = new bool[4]
@@ -621,7 +624,7 @@ namespace _MeshGen
 
 			for (int edgeIndex = 0; edgeIndex < 4; edgeIndex ++)
 			{
-				RectListElement.EdgeDef edgeDef = RectListElement.EdgeDefs.EdgeDef(edgeIndex);
+				RectElement.EdgeDef edgeDef = RectElement.EdgeDefs.EdgeDef(edgeIndex);
 
 				List < MeshGenRectList.RectsSharingEdgeInfo > rectsSharingEdge = rectsSharingEdges[edgeIndex];
 				if (rectsSharingEdge != null && rectsSharingEdge.Count > 0)
@@ -631,34 +634,34 @@ namespace _MeshGen
 					MeshGenRectList.RectsSharingEdgeInfo edgeInfo = rectsSharingEdge[0];
 					if (edgeInfo != null)
 					{
-						int newVertexIndex0 = -1;
-						int newVertexIndex1 = -1;
+						VertexElement newVertexElement0 = null;
+						VertexElement newVertexElement1 = null;
 						for (int i =0; i<4; i++)
 						{
-							if (originVertexIndices[i] == edgeInfo.index0)
+							if (originRect.GetVertexElement(i) == edgeInfo.vle0)
 							{
-								newVertexIndex0 = newVertexIndices[i];
+								newVertexElement0 = newVertexElements[i];
 							}
-							if (originVertexIndices[i] == edgeInfo.index1)
+							if (originRect.GetVertexElement(i) == edgeInfo.vle1)
 							{
-								newVertexIndex1 = newVertexIndices[i];
+								newVertexElement1 = newVertexElements[i];
 							}
 						}
-						if (newVertexIndex0 == -1 || newVertexIndex1 == -1)
+						if (newVertexElement0 == null || newVertexElement1 == null)
 						{
 							Debug.LogError("Couldn't find matchign old/new vertices");
 						}
 
-						edgeInfo.rle.ReplaceVertexIndex(edgeInfo.index0, newVertexIndex0);
-						edgeInfo.rle.ReplaceVertexIndex(edgeInfo.index1, newVertexIndex1);
+						edgeInfo.rle.ReplaceVertex(edgeInfo.vle0, newVertexElement0);
+						edgeInfo.rle.ReplaceVertex(edgeInfo.vle1, newVertexElement1);
 
 						VertexMoverRectCollapser newMover = 
 							new VertexMoverRectCollapser( rectList_,
 							                             edgeInfo.rle,
-							                             newVertexIndex0,
-							                             edgeInfo.neighbourIndex0,
-							                             newVertexIndex1,
-							                             edgeInfo.neighbourIndex1,
+							                             newVertexElement0,
+							                             edgeInfo.neighbourVle0,
+							                             newVertexElement1,
+							                             edgeInfo.neighbourVle1,
 							                             null,
 							                             greenRectGridPosition,
 							                             AppManager.Instance.moveDuration);
@@ -672,12 +675,12 @@ namespace _MeshGen
 				}
 				else
 				{
-					RectListElement newRect = 
-						new RectListElement(rectList_, 
-						                    originVertexIndices[ edgeDef.GetIndex(0) ], 
-						                    originVertexIndices[ edgeDef.GetIndex(1) ],
-						                    newVertexIndices[ edgeDef.GetIndex(1) ],
-						                    newVertexIndices[ edgeDef.GetIndex(0) ], 
+					RectElement newRect = 
+						new RectElement(rectList_, 
+						                    originRect.GetVertexElement( edgeDef.GetIndex(0)), 
+						                    originRect.GetVertexElement( edgeDef.GetIndex(1)),
+						                            newVertexElements[ edgeDef.GetIndex(1)],
+						                    		newVertexElements [edgeDef.GetIndex(0)], 
 						                    MeshGenerator.gridUVProviders, movingGridPosition );
 					rectList_.AddRect( newRect);
 					//FIXME log;
@@ -687,7 +690,13 @@ namespace _MeshGen
 
 			for (int i =0; i<4; i++)
 			{
-				VertexMover newMover = new VertexMoverDirectionDistance(vertexList_.GetElement(originVertexIndices[i]), vertexList_.GetElement(newVertexIndices[i]), direction, height, AppManager.Instance.moveDuration, finalGridPosition);
+				VertexMover newMover = 
+					new VertexMoverDirectionDistance(originRect.GetVertexElement(i),
+
+					                                 newVertexElements[i], 
+					                                 direction, height, 
+					                                 AppManager.Instance.moveDuration, 
+					                                 finalGridPosition);
 				vertexMovers_.Add(newMover);
 				//FIXME log;
 
@@ -757,15 +766,15 @@ namespace _MeshGen
 			if ( allow && triangleList_.Count > 3 )
 			{
 				int i = UnityEngine.Random.Range( 0, triangleList_.Count);
-				TriangleListElement t = triangleList_.GetTriAtIndex(i);
+				TriangleElement t = triangleList_.GetTriAtIndex(i);
 
 				// TODO Check distance from centre of triangle to obstacle
 				// this is lower bound for mover distance
-				VertexListElement newVertex = SplitTriangle( t);
+				VertexElement newVertex = SplitTriangle( t);
 
-				Vector3 v0 = vertexList_.GetVectorAtIndex(t.GetVertexIndex(0));
-				Vector3 v1 = vertexList_.GetVectorAtIndex(t.GetVertexIndex(1));
-				Vector3 v2 = vertexList_.GetVectorAtIndex(t.GetVertexIndex(2));
+				Vector3 v0 = t.GetVertex(0).GetVector();
+				Vector3 v1 = t.GetVertex(1).GetVector();
+				Vector3 v2 = t.GetVertex(2).GetVector();
 				// get dist as mean of the 3 edges
 				float tetEdge = ( 
 				              Vector3.Distance( v0,v1)
@@ -781,18 +790,17 @@ namespace _MeshGen
 			}
 		}
 
-		VertexListElement SplitTriangle(TriangleListElement t)
+		VertexElement SplitTriangle(TriangleElement t)
 		{
-			Vector3 newVector = triangleList_.GetCentre ( t );
-			int newVectorIndex = vertexList_.AddVertex( newVector );
+			VertexElement newVertex = vertexList_.AddVertexElement(triangleList_.GetCentre ( t ));
+
+			Vector3 v0 = t.GetVertex(0).GetVector();
+			Vector3 v1 = t.GetVertex(1).GetVector();
+			Vector3 v2 = t.GetVertex(2).GetVector();
 			
-			Vector3 v0 = vertexList_.GetVectorAtIndex( t.GetVertexIndex(0) );
-			Vector3 v1 = vertexList_.GetVectorAtIndex( t.GetVertexIndex(1) );
-			Vector3 v2 = vertexList_.GetVectorAtIndex( t.GetVertexIndex(2) );
-			
-			TriangleListElement t0 = new TriangleListElement( t.GetVertexIndex(0), t.GetVertexIndex(1), newVectorIndex);
-			TriangleListElement t1 = new TriangleListElement( t.GetVertexIndex(1), t.GetVertexIndex(2), newVectorIndex);
-			TriangleListElement t2 = new TriangleListElement( newVectorIndex, t.GetVertexIndex(2), t.GetVertexIndex(0));
+			TriangleElement t0 = new TriangleElement( t.GetVertex(0), t.GetVertex(1), newVertex);
+			TriangleElement t1 = new TriangleElement( t.GetVertex(1), t.GetVertex(2), newVertex);
+			TriangleElement t2 = new TriangleElement( newVertex, t.GetVertex(2), t.GetVertex(0));
 			
 			triangleList_.AddTriangle(t0);
 			triangleList_.AddTriangle(t1);
@@ -808,7 +816,7 @@ namespace _MeshGen
 			
 			SetDirty();
 			
-			return vertexList_.GetElement( newVectorIndex);
+			return newVertex;
 		}
 		
 
@@ -832,7 +840,7 @@ namespace _MeshGen
 				}
 				if (allow)
 				{
-					RectListElement hitRect = rectList_.GetClosestRect ( collision.contacts[0].point);
+					RectElement hitRect = rectList_.GetClosestRect ( collision.contacts[0].point);
 					Debug.Log ( "Collision-extending "+hitRect.DebugDescribe()+" as Ball "+collision.gameObject.name+" hit "+gameObject.name );
 					ExtendRect(hitRect, size_, purpleRectGridPosition, mauveRectGridPosition);
 				}
