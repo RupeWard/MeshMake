@@ -6,7 +6,7 @@ namespace _MeshGen
 {
 	public class RectElement : IDebugDescribable
 	{
-		private MeshGenRectList rectList_ = null;
+		private RectList rectList_ = null;
 		private GridUVProviders uvProviders_ = null;
 		public GridUVProviders.GridPosition gridPosition;
 
@@ -132,7 +132,7 @@ namespace _MeshGen
 			return ( position - centre ).magnitude;
 		}
 
-		public RectElement( MeshGenRectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3)
+		public RectElement( RectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3)
 		{
 			rectList_ = rectList;
 
@@ -146,7 +146,7 @@ namespace _MeshGen
 
 		}
 
-		public RectElement( MeshGenRectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3, GridUVProviders gup, GridUVProviders.GridPosition gp)
+		public RectElement( RectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3, GridUVProviders gup, GridUVProviders.GridPosition gp)
 		{
 			uvProviders_ = gup;
 

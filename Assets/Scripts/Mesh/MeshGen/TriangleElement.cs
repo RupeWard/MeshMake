@@ -8,21 +8,21 @@ namespace _MeshGen
 	{
 		GridUVProvider uvProvider = null;
 
-		VertexElement[] vertices_ = new VertexElement[3]{ null, null, null };
+		VertexElement[] vertexElements_ = new VertexElement[3]{ null, null, null };
 
 		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2)
 		{
-			vertices_[0] = v0;
-			vertices_[1] = v1;
-			vertices_[2] = v2;
+			vertexElements_[0] = v0;
+			vertexElements_[1] = v1;
+			vertexElements_[2] = v2;
 		}
 
 		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, GridUVProvider iup)
 		{
 			uvProvider = iup;
-			vertices_[0] = v0;
-			vertices_[1] = v1;
-			vertices_[2] = v2;
+			vertexElements_[0] = v0;
+			vertexElements_[1] = v1;
+			vertexElements_[2] = v2;
 		}
 
 		public void SetGridPosition(GridUVProviders.GridPosition pos)
@@ -35,39 +35,37 @@ namespace _MeshGen
 
 		public void flipOrientation()
 		{
-			VertexElement tmp = vertices_ [ 0 ];
-			vertices_[0] = vertices_[1];
-			vertices_[1] = tmp;
+			VertexElement tmp = vertexElements_ [ 0 ];
+			vertexElements_[0] = vertexElements_[1];
+			vertexElements_[1] = tmp;
 		}
+
+		public Vector3 GetCentre()
+		{
+			Vector3 result = Vector3.zero;
+			for (int i = 0; i<3; i++)
+			{
+				result = result + vertexElements_[ i].GetVector();
+			}
+			result = result /4f;
+			return result;
+		}
+
 
 		protected TriangleElement(){}
 
 		public VertexElement GetVertex(int i)
 		{
-			return vertices_[i];
+			return vertexElements_[i];
 		}
-		/*
-		public bool ReplaceVertexIndex( int oldIndex, int newIndex)
-		{
-			for (int i = 0; i< 3; i++)
-			{
-				if (vertexIndices_[i] == oldIndex)
-				{
-					vertexIndices_[i] = newIndex;
-					return true;
-				}
-			}
-			return false;
-		}
-		*/
 
 		public bool ReplaceVertex( VertexElement oldVle, VertexElement newVle)
 		{
 			for (int i = 0; i< 3; i++)
 			{
-				if (vertices_[i] == oldVle)
+				if (vertexElements_[i] == oldVle)
 				{
-					vertices_[i] = newVle;
+					vertexElements_[i] = newVle;
 					return true;
 				}
 			}
@@ -79,7 +77,7 @@ namespace _MeshGen
 			int firstIndex = verts.Count;
 			for (int v=0; v<3; v++)
 			{
-				verts.Add ( vertices_[v].GetVector() );
+				verts.Add ( vertexElements_[v].GetVector() );
 				triVerts.Add ( firstIndex + v);
 				if (uvProvider != null)
 				{

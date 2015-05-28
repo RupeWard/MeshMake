@@ -8,7 +8,7 @@ namespace _MeshGen
 		public override void OnFinish()
 		{
 			Debug.LogWarning ( "Collapser finished. Removing Rect "+rect_.DebugDescribe() );
-			rectList_.RemoveRect ( rect_ );
+			rectList_.RemoveElement ( rect_ );
 		}
 
 		private VertexMoverTarget[] vertexMovers_ = new VertexMoverTarget[2]{null,null};
@@ -18,7 +18,7 @@ namespace _MeshGen
 		private VertexElement origin1;
 		private VertexElement target0;
 		private VertexElement target1;
-		private MeshGenRectList rectList_;
+		private RectList rectList_;
 
 //			private int originIndex0;
 //			private int originIndex1;
@@ -29,7 +29,7 @@ namespace _MeshGen
 
 		private GridUVProviders.GridPosition movingPosition = MeshGenerator.greyRectGridPosition;
 
-		public VertexMoverRectCollapser( MeshGenRectList rectList,
+		public VertexMoverRectCollapser( RectList rectList,
 		                                RectElement rle, 
 		                                VertexElement o0, VertexElement t0,
 		                                VertexElement o1, VertexElement t1,

@@ -43,15 +43,15 @@ namespace _MeshGen
 			Vector3 top3 = new Vector3 ( halfSide, halfSide, -1f * halfSide );
 			
 
-			VertexElement b0 = vertexList_.AddVertexElement( base0);
-			VertexElement b1 = vertexList_.AddVertexElement( base1);
-			VertexElement b2 = vertexList_.AddVertexElement( base2);
-			VertexElement b3 = vertexList_.AddVertexElement( base3);
+			VertexElement b0 = vertexList_.AddElement( base0);
+			VertexElement b1 = vertexList_.AddElement( base1);
+			VertexElement b2 = vertexList_.AddElement( base2);
+			VertexElement b3 = vertexList_.AddElement( base3);
 
-			VertexElement t0 = vertexList_.AddVertexElement( top0);
-			VertexElement t1 = vertexList_.AddVertexElement( top1);
-			VertexElement t2 = vertexList_.AddVertexElement( top2);
-			VertexElement t3 = vertexList_.AddVertexElement( top3);
+			VertexElement t0 = vertexList_.AddElement( top0);
+			VertexElement t1 = vertexList_.AddElement( top1);
+			VertexElement t2 = vertexList_.AddElement( top2);
+			VertexElement t3 = vertexList_.AddElement( top3);
 
 
 /*
@@ -81,12 +81,12 @@ namespace _MeshGen
 			RectElement leftRect = new RectElement(rectList_,  b3, b0, t0, t3, MeshGenerator.gridUVProviders, gp);
 			RectElement rightRect = new RectElement(rectList_,  b1, b2, t2, t1, MeshGenerator.gridUVProviders, gp);
 
-			rectList_.AddRect(baseRect);
-			rectList_.AddRect(topRect);
-			rectList_.AddRect(frontRect);
-			rectList_.AddRect(arseRect);
-			rectList_.AddRect(leftRect);
-			rectList_.AddRect(rightRect);
+			rectList_.AddElement(baseRect);
+			rectList_.AddElement(topRect);
+			rectList_.AddElement(frontRect);
+			rectList_.AddElement(arseRect);
+			rectList_.AddElement(leftRect);
+			rectList_.AddElement(rightRect);
 
 			SetDirty();
 		}

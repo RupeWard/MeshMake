@@ -26,13 +26,13 @@ namespace _MeshGen
 		public static bool DEBUG_MESHMAKE = false;
 		public static bool DEBUG_EXTENDRECT = false;
 
-		protected MeshGenVertexList vertexList_ = null;
-		public MeshGenVertexList VertexList
+		protected VertexList vertexList_ = null;
+		public VertexList VertexList
 		{
 			get { return vertexList_; }
 		}
-		protected MeshGenTriangleList triangleList_ = null;
-		protected MeshGenRectList rectList_ = null;
+		protected TriangleList triangleList_ = null;
+		protected RectList rectList_ = null;
 
 		private MeshFilter meshFilter_;
 		private MeshRenderer meshRenderer_;
@@ -61,9 +61,9 @@ namespace _MeshGen
 
 		void Awake()
 		{
-			vertexList_ = new MeshGenVertexList ( );
-			triangleList_ = new MeshGenTriangleList ( vertexList_ );
-			rectList_ = new MeshGenRectList ( vertexList_ );
+			vertexList_ = new VertexList ( );
+			triangleList_ = new TriangleList ( );
+			rectList_ = new RectList (  );
 
 			meshFilter_ = gameObject.GetComponent< MeshFilter > ( );
 			if ( meshFilter_ == null )
@@ -143,7 +143,7 @@ namespace _MeshGen
 				}
 				for (int i = 0; i < triangleList_.Count; i++)
 				{
-					TriangleElement t = triangleList_.GetTriAtIndex(i);
+					TriangleElement t = triangleList_.GetElement(i);
 					t.AddToMeshGenLists( this, verts, uvs, triVerts);
 				}
 			}
@@ -154,10 +154,9 @@ namespace _MeshGen
 				{
 					Debug.Log("Adding "+rectList_.Count+" rects");
 				}
-				for (int i = 0; i < rectList_.Count; i++)
+				foreach (RectElement r in rectList_.Elements)
 				{
-					RectElement t = rectList_.GetRectAtIndex(i);
-					t.AddToMeshGenLists( this, verts, uvs, triVerts);
+					r.AddToMeshGenLists( this, verts, uvs, triVerts);
 				}
 			}
 
@@ -265,10 +264,8 @@ namespace _MeshGen
 			List < RectElement[] > dupesSame = new List<RectElement [] > ( );
 			List < RectElement > dupesOpposite = new List<RectElement> ( );
 			List < RectElement > individuals = new List<RectElement> ( );
-			for ( int i = 0; i < rectList_.Count; i++ )
+			foreach (RectElement rle in rectList_.Elements )
 			{
-				RectElement rle = rectList_.GetRectAtIndex(i);
-
 				RectElement matchingIndividual = null;
 				foreach (RectElement ind in individuals)
 				{
@@ -300,13 +297,13 @@ namespace _MeshGen
 			Debug.Log ("Found inds = "+individuals.Count+", dupesSame =  "+dupesSame.Count+" dupesOppos = "+dupesOpposite.Count+"  (should be even)");
 			foreach ( RectElement rle in dupesOpposite )
 			{
-				rectList_.RemoveRect(rle);
+				rectList_.RemoveElement(rle);
 			}
 
 			foreach ( RectElement[] rles in dupesSame )
 			{
 //				rectList_.RemoveRectWithVertexReplace(rles[0], rles[1]);
-				rectList_.RemoveRect(rles[0]);
+				rectList_.RemoveElement(rles[0]);
 //				rectList_.RemoveRect(rles[1]);
 			}
 		}
@@ -322,7 +319,7 @@ namespace _MeshGen
 			}
 			if (allow)
 			{
-				RectElement rle = rectList_.GetClosestRect(hit.point);
+				RectElement rle = rectList_.GetClosestElement(hit.point);
 				if (rle == null)
 				{
 					Debug.LogError("Failed to find closest rect to hit!");
@@ -346,8 +343,7 @@ namespace _MeshGen
 			}
 			if (allow && rectList_.Count > 5 )
 			{
-				int i = UnityEngine.Random.Range( 0, rectList_.Count);
-				RectElement t = rectList_.GetRectAtIndex(i);
+				RectElement t = rectList_.GetRandomElement();
 				Debug.Log ("Rand-extending "+t.DebugDescribe());
 				ExtendRect( t, size_, blueRectGridPosition, greyRectGridPosition);
 			}
@@ -447,13 +443,13 @@ namespace _MeshGen
 			for ( int i=0; i<4; i++ )
 			{
 					newVertices[i] = originVectors[i] + direction * POSITION_TELRANCE * 2f;
-					newVertexElements[i] = vertexList_.AddVertexElement(newVertices[i]);
+					newVertexElements[i] = vertexList_.AddElement(newVertices[i]);
 			}
 
-			rectList_.RemoveRect( originRect);
+			rectList_.RemoveElement( originRect);
 
 			// Don't add new ones till analysed
-			List < MeshGenRectList.RectsSharingEdgeInfo >[] rectsSharingEdges = new List < MeshGenRectList.RectsSharingEdgeInfo >[4];
+			List < RectList.RectsSharingEdgeInfo >[] rectsSharingEdges = new List < RectList.RectsSharingEdgeInfo >[4];
 			int totalRectsSharingEdges = 0;
 			for (int i = 0; i<4; i++)
 			{
@@ -492,8 +488,8 @@ namespace _MeshGen
 								.Append (", ").Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
 								.Append (" ): ").Append (rectsSharingEdges[i].Count);
 					}
-					List< MeshGenRectList.RectsSharingEdgeInfo > toRemove = new List<MeshGenRectList.RectsSharingEdgeInfo>();
-					foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
+					List< RectList.RectsSharingEdgeInfo > toRemove = new List<RectList.RectsSharingEdgeInfo>();
+					foreach (RectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
 					{
 						if (sharingEdgeInfo.shareOrder * sharingEdgeInfo.shareOrder != 1)
 						{
@@ -537,7 +533,7 @@ namespace _MeshGen
 							}
 						}
 					}
-					foreach( MeshGenRectList.RectsSharingEdgeInfo rsi in toRemove)
+					foreach( RectList.RectsSharingEdgeInfo rsi in toRemove)
 					{
 						pruned = true;
 						rectsSharingEdges[i].Remove(rsi);
@@ -557,7 +553,7 @@ namespace _MeshGen
 									.Append(" (" ).Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
 										.Append (", ").Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
 										.Append (" ): ").Append (rectsSharingEdges[i].Count);
-								foreach (MeshGenRectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
+								foreach (RectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
 								{
 									if (sharingEdgeInfo.shareOrder * sharingEdgeInfo.shareOrder != 1)
 									{
@@ -615,7 +611,7 @@ namespace _MeshGen
 
 			// create all movers?
 			RectElement newTopRect = new RectElement(rectList_, newVertexElements[0], newVertexElements[1], newVertexElements[2], newVertexElements[3], MeshGenerator.gridUVProviders, movingGridPosition);
-			rectList_.AddRect( newTopRect);
+			rectList_.AddElement( newTopRect);
 
 			bool[] moverMadeForVertex = new bool[4]
 			{
@@ -626,12 +622,12 @@ namespace _MeshGen
 			{
 				RectElement.EdgeDef edgeDef = RectElement.EdgeDefs.EdgeDef(edgeIndex);
 
-				List < MeshGenRectList.RectsSharingEdgeInfo > rectsSharingEdge = rectsSharingEdges[edgeIndex];
+				List < RectList.RectsSharingEdgeInfo > rectsSharingEdge = rectsSharingEdges[edgeIndex];
 				if (rectsSharingEdge != null && rectsSharingEdge.Count > 0)
 				{
 					//FIXME check length & log;
 
-					MeshGenRectList.RectsSharingEdgeInfo edgeInfo = rectsSharingEdge[0];
+					RectList.RectsSharingEdgeInfo edgeInfo = rectsSharingEdge[0];
 					if (edgeInfo != null)
 					{
 						VertexElement newVertexElement0 = null;
@@ -682,7 +678,7 @@ namespace _MeshGen
 						                            newVertexElements[ edgeDef.GetIndex(1)],
 						                    		newVertexElements [edgeDef.GetIndex(0)], 
 						                    MeshGenerator.gridUVProviders, movingGridPosition );
-					rectList_.AddRect( newRect);
+					rectList_.AddElement( newRect);
 					//FIXME log;
 
 				}
@@ -766,7 +762,7 @@ namespace _MeshGen
 			if ( allow && triangleList_.Count > 3 )
 			{
 				int i = UnityEngine.Random.Range( 0, triangleList_.Count);
-				TriangleElement t = triangleList_.GetTriAtIndex(i);
+				TriangleElement t = triangleList_.GetElement(i);
 
 				// TODO Check distance from centre of triangle to obstacle
 				// this is lower bound for mover distance
@@ -792,7 +788,7 @@ namespace _MeshGen
 
 		VertexElement SplitTriangle(TriangleElement t)
 		{
-			VertexElement newVertex = vertexList_.AddVertexElement(triangleList_.GetCentre ( t ));
+			VertexElement newVertex = vertexList_.AddElement(t.GetCentre ());
 
 			Vector3 v0 = t.GetVertex(0).GetVector();
 			Vector3 v1 = t.GetVertex(1).GetVector();
@@ -802,11 +798,11 @@ namespace _MeshGen
 			TriangleElement t1 = new TriangleElement( t.GetVertex(1), t.GetVertex(2), newVertex);
 			TriangleElement t2 = new TriangleElement( newVertex, t.GetVertex(2), t.GetVertex(0));
 			
-			triangleList_.AddTriangle(t0);
-			triangleList_.AddTriangle(t1);
-			triangleList_.AddTriangle(t2);
+			triangleList_.AddElement(t0);
+			triangleList_.AddElement(t1);
+			triangleList_.AddElement(t2);
 			
-			triangleList_.RemoveTriangle(t);
+			triangleList_.RemoveElement(t);
 			
 			Debug.Log ("Split triangle: Lost "+t.DebugDescribe()
 			           +"\nGained "+t0.DebugDescribe()
@@ -840,7 +836,7 @@ namespace _MeshGen
 				}
 				if (allow)
 				{
-					RectElement hitRect = rectList_.GetClosestRect ( collision.contacts[0].point);
+					RectElement hitRect = rectList_.GetClosestElement ( collision.contacts[0].point);
 					Debug.Log ( "Collision-extending "+hitRect.DebugDescribe()+" as Ball "+collision.gameObject.name+" hit "+gameObject.name );
 					ExtendRect(hitRect, size_, purpleRectGridPosition, mauveRectGridPosition);
 				}

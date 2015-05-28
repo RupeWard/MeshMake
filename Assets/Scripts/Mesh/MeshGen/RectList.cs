@@ -4,71 +4,42 @@ using System.Collections.Generic;
 
 namespace _MeshGen
 {
-	public class MeshGenRectList // : MeshGenList < TriangleListElement >  
+	public class RectList // : MeshGenList < TriangleListElement >  
 	{
-		private MeshGenVertexList vertexList_;
-		public MeshGenVertexList vertexList
+		private List < RectElement > elements_ = new List< RectElement >();
+		public List < RectElement > Elements
 		{
-			get { return vertexList_; }
-		}
-
-		private List < RectElement > rects_ = null;
-
-		public Vector3 GetVector(int i)
-		{
-			return vertexList_.GetVectorAtIndex(i);
-		}
-
-		public VertexElement GetVertexElement(int i)
-		{
-			return vertexList_.GetElement(i);
+			get { return elements_; }
 		}
 
 		public int Count
 		{
-			get { return rects_.Count; }
+			get { return elements_.Count; }
 		}
 
-		public MeshGenRectList(  MeshGenVertexList vl)
+		public RectList( )
 		{
-			vertexList_ = vl;
-			rects_ = new List< RectElement >();
+		}
+
+		public RectElement GetRandomElement()
+		{
+			int i = UnityEngine.Random.Range( 0, Count);
+			return elements_[i];
 		}
 
 		public void TurnInsideOut()
 		{
-			foreach ( RectElement t in rects_ )
+			foreach ( RectElement t in elements_ )
 			{
 				t.flipOrientation();
 			}
 		}
-		/*
-		public int ReplaceVertexIndex( int oldIndex, int newIndex)
-		{
-			int numReplaced = 0;
-			System.Text.StringBuilder sb = new System.Text.StringBuilder();
-			foreach (RectListElement rle in rects_)
-			{
-				if (rle.ReplaceVertexIndex(oldIndex, newIndex))
-				{
-					sb.Append("Replaced ").Append (oldIndex).Append (" with ").Append(newIndex).Append (" in ").Append (rle.DebugDescribe()+"\n");
-					vertexList_.DisconnectVertexFromRect(oldIndex, rle);
-					numReplaced++;
-				}
-			}
-			if (sb.Length > 0)
-			{
-				Debug.Log (sb.ToString());
-			}
-			return numReplaced;
-		}
-		*/
 
-		public int ReplaceVertex( VertexElement vle0, VertexElement vle1)
+		public int ReplaceVertexElement( VertexElement vle0, VertexElement vle1)
 		{
 			int numReplaced = 0;
 			System.Text.StringBuilder sb = new System.Text.StringBuilder();
-			foreach (RectElement rle in rects_)
+			foreach (RectElement rle in elements_)
 			{
 				if (rle.ReplaceVertex(vle0, vle1))
 				{
@@ -84,11 +55,11 @@ namespace _MeshGen
 			return numReplaced;
 		}
 
-		public int AddRect(RectElement t)
+		public int AddElement(RectElement t)
 		{
 			int result = -1;
-			result = rects_.Count;
-			rects_.Add ( t );
+			result = elements_.Count;
+			elements_.Add ( t );
 			for ( int i = 0; i <4; i++)
 			{
 				t.GetVertexElement(i).ConnectToRect( t );
@@ -96,24 +67,24 @@ namespace _MeshGen
 			return result;
 		}
 
-		public RectElement GetClosestRect(Vector3 position)
+		public RectElement GetClosestElement(Vector3 position)
 		{
 			RectElement result = null;
 			float closestDistance = float.MaxValue;
-			for ( int i = 0; i< Count; i++ )
+			foreach (RectElement r in elements_ )
 			{
-				float d = GetRectAtIndex(i).DistanceFromCentre(position);
+				float d = r.DistanceFromCentre(position);
 				if (d < closestDistance)
 				{
 					closestDistance = d;
-					result = GetRectAtIndex(i);
+					result = r;
 				}
 			}
 			return result;
 		}
 		
 
-		public void RemoveRectWithVertexReplace( RectElement toReplace, RectElement match)
+		public void RemoveElementWithVertexReplace( RectElement toReplace, RectElement match)
 		{
 			for (int i = 0; i<4; i++)
 			{
@@ -121,7 +92,7 @@ namespace _MeshGen
 				VertexElement newVle = match.GetClosestVertex( toReplace.GetVertexElement(i).GetVector(), MeshGenerator.POSITION_TELRANCE * 2f );
 				if (newVle != null)
 				{
-					ReplaceVertex( vleToReplace, newVle);
+					ReplaceVertexElement( vleToReplace, newVle);
 				}
 				else
 				{
@@ -130,24 +101,14 @@ namespace _MeshGen
 			}
 		}
 
-		public void RemoveRect(RectElement t)
+		public void RemoveElement(RectElement t)
 		{
 			Debug.Log ( "Removing rect: " + t.DebugDescribe ( ) );
 			for ( int i = 0; i <4; i++)
 			{
 				t.GetVertexElement(i).DisconnectFromRect(t );
 			}
-			rects_.Remove ( t );
-		}
-
-		public RectElement GetRectAtIndex(int i)
-		{
-			if ( i < 0 || i >= rects_.Count )
-			{
-				Debug.LogError ("Can't get rect at index "+i+" from "+rects_.Count);
-				return null;
-			}
-			return rects_ [ i ];
+			elements_.Remove ( t );
 		}
 
 		public class RectsSharingEdgeInfo
@@ -165,11 +126,21 @@ namespace _MeshGen
 			public VertexElement neighbourVle1;
 		}
 
+		/*
+		public RectElement GetElement(int i)
+		{
+			if ( i < 0 || i >= rectElements_.Count )
+			{
+				Debug.LogError ("Can't get rect at index "+i+" from "+rectElements_.Count);
+				return null;
+			}
+			return rectElements_ [ i ];
+		}*/
 
 		public List< RectsSharingEdgeInfo > GetRectsSharingEdge( VertexElement v0, VertexElement v1, RectElement o )
 		{
 			List< RectsSharingEdgeInfo > result = new List< RectsSharingEdgeInfo >  ();
-			foreach (RectElement rle in rects_)
+			foreach (RectElement rle in elements_)
 			{
 				Vector3 dirnAway0 = Vector3.zero;
 				Vector3 dirnAway1 = Vector3.zero;
