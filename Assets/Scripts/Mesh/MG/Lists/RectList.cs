@@ -4,27 +4,10 @@ using System.Collections.Generic;
 
 namespace MG
 {
-	public class RectList // : MeshGenList < TriangleListElement >  
+	public class RectList : ElementList < RectElement >  
 	{
-		private List < RectElement > elements_ = new List< RectElement >();
-		public List < RectElement > Elements
+		public RectList( ): base()
 		{
-			get { return elements_; }
-		}
-
-		public int Count
-		{
-			get { return elements_.Count; }
-		}
-
-		public RectList( )
-		{
-		}
-
-		public RectElement GetRandomElement()
-		{
-			int i = UnityEngine.Random.Range( 0, Count);
-			return elements_[i];
 		}
 
 		public void TurnInsideOut()

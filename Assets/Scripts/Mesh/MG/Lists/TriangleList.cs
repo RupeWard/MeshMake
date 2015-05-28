@@ -4,21 +4,9 @@ using System.Collections.Generic;
 
 namespace MG
 {
-	public class TriangleList // : MeshGenList < TriangleListElement >  
+	public class TriangleList : ElementList < TriangleElement >  
 	{
-		private List < TriangleElement > elements_ = new List< TriangleElement >();
-
-		public List < TriangleElement > Elements
-		{
-			get { return elements_; }
-		}
-
-		public int Count
-		{
-			get { return elements_.Count; }
-		}
-
-		public TriangleList(  )
+		public TriangleList(  ): base()
 		{
 		}
 
@@ -51,16 +39,6 @@ namespace MG
 			elements_.Remove ( t );
 		}
 
-		public TriangleElement GetElement(int i)
-		{
-			if ( i < 0 || i >= elements_.Count )
-			{
-				Debug.LogError ("Can't get triangle at index "+i+" from "+elements_.Count);
-				return null;
-			}
-			return elements_ [ i ];
-		}
-		
 	}
 }
 

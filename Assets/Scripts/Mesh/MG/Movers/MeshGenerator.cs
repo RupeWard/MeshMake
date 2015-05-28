@@ -141,9 +141,8 @@ namespace MG
 				{
 					Debug.Log("Adding "+triangleList_.Count+" tris");
 				}
-				for (int i = 0; i < triangleList_.Count; i++)
+				foreach (TriangleElement t in triangleList_.Elements)
 				{
-					TriangleElement t = triangleList_.GetElement(i);
 					t.AddToMeshGenLists( this, verts, uvs, triVerts);
 				}
 			}
@@ -761,8 +760,7 @@ namespace MG
 
 			if ( allow && triangleList_.Count > 3 )
 			{
-				int i = UnityEngine.Random.Range( 0, triangleList_.Count);
-				TriangleElement t = triangleList_.GetElement(i);
+				TriangleElement t = triangleList_.GetRandomElement();
 
 				// TODO Check distance from centre of triangle to obstacle
 				// this is lower bound for mover distance
