@@ -8,7 +8,7 @@ namespace MG
 	{
 		private int triangleNumber_ = -1;
 
-		public RectTriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state, UV.I_UVProvider iup, int trNum)
+		public RectTriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state, UV.I_RectUVProvider iup, int trNum)
 				: base ( v0, v1, v2, state, iup)
 		{
 			triangleNumber_ = trNum;

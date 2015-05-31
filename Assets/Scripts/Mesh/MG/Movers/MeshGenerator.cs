@@ -454,7 +454,7 @@ namespace MG
 				}
 				if (numFoundFacingVertex > 3)
 				{
-					Debug.LogError("On extending rect, all 4 target vertices exist, with "
+					Debug.LogWarning("On extending rect, all 4 target vertices exist, with "
 					               +numProtectedEdges+" protected edges"+"\n"+originRect.DebugDescribe());
 //					return;
 				}

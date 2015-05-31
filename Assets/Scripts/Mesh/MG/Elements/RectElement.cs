@@ -13,7 +13,7 @@ namespace MG
 		RectTriangleElement[] triangles = new RectTriangleElement[2] { null, null };
 
 		private ElementStates.EState state_ =  ElementStates.EState.NONE;
-		private UV.I_UVProvider uvProvider_;
+		private UV.I_RectUVProvider uvProvider_;
 
 		public void SetState(ElementStates.EState state)
 		{
@@ -47,7 +47,7 @@ namespace MG
 			return ( position - centre ).magnitude;
 		}
 
-		public RectElement( RectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3, ElementStates.EState state, UV.I_UVProvider uvp)
+		public RectElement( RectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3, ElementStates.EState state, UV.I_RectUVProvider uvp)
 		{
 			rectList_ = rectList;
 			uvProvider_ = uvp;
@@ -172,7 +172,7 @@ namespace MG
 			triangles[1].flipOrientation();
 		}
 
-		protected RectElement(UV.I_UVProvider uvp)
+		protected RectElement(UV.I_RectUVProvider uvp)
 		{
 			uvProvider_ = uvp;
 		}

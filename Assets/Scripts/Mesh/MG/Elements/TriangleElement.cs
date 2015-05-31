@@ -6,7 +6,7 @@ namespace MG
 {
 	public class TriangleElement : IDebugDescribable
 	{
-		protected UV.I_UVProvider uvProvider_ = null;
+		protected UV.I_RectUVProvider uvProvider_ = null;
 
 		protected VertexElement[] vertexElements_ = new VertexElement[3]{ null, null, null };
 
@@ -32,7 +32,7 @@ namespace MG
 
 		}
 
-		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state, UV.I_UVProvider iup)
+		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state, UV.I_RectUVProvider iup)
 		{
 			state_ = state;
 			uvProvider_ = iup;

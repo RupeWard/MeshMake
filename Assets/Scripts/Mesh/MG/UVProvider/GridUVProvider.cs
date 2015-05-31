@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MG.UV
 {
-	public class GridUVProvider : I_UVProvider
+	public class GridUVProvider : I_RectUVProvider
 	{
 		static public readonly UV.GridPosition cyanRectGridPosition = new UV.GridPosition ( 0,0 );
 		static public readonly UV.GridPosition greyRectGridPosition = new UV.GridPosition( 1,0);// grey in color3x3
