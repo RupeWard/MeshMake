@@ -6,8 +6,15 @@ namespace MG
 {
 	public class RectList : ElementList < RectElement >  
 	{
-		public RectList( ): base()
+		VertexList vertexList_ = null;
+		public void DisconnectVertexFromRect(VertexElement vle, RectElement rle)
 		{
+			vertexList_.DisconnectVertexFromRect ( vle, rle );
+		}
+
+		public RectList(VertexList vl ): base()
+		{
+			vertexList_ = vl;
 		}
 
 		public void TurnInsideOut()
@@ -27,7 +34,7 @@ namespace MG
 				if (rle.ReplaceVertex(vle0, vle1))
 				{
 					sb.Append("Replaced ").Append (vle0.DebugDescribe()).Append (" with ").Append(vle1.DebugDescribe()).Append (" in ").Append (rle.DebugDescribe()+"\n");
-					vle0.DisconnectFromRect(rle);
+					DisconnectVertexFromRect(vle0,rle);
 					numReplaced++;
 				}
 			}
@@ -90,7 +97,7 @@ namespace MG
 //			Debug.Log ( "Removing rect: " + t.DebugDescribe ( ) );
 			for ( int i = 0; i <4; i++)
 			{
-				t.GetVertexElement(i).DisconnectFromRect(t );
+				DisconnectVertexFromRect(t.GetVertexElement(i), t );
 			}
 			elements_.Remove ( t );
 		}

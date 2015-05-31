@@ -134,7 +134,7 @@ namespace MG
 		{
 
 			vertexList_ = new VertexList ( );
-			rectList_ = new RectList (  );
+			rectList_ = new RectList ( vertexList_ );
 
 			meshFilter_ = gameObject.GetComponent< MeshFilter > ( );
 			if ( meshFilter_ == null )

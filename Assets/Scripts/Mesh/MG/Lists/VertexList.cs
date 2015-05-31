@@ -61,7 +61,15 @@ namespace MG
 			}
 			return result;
 		}
-		
+
+		public void DisconnectVertexFromRect(VertexElement vle, RectElement rle)
+		{
+			if (vle.DisconnectFromRect(rle) == 0)
+			{
+//				Debug.LogWarning("Removing unconnected vertex "+vle);
+				elements_.Remove(vle);
+			}
+		}
 	}
 }
 

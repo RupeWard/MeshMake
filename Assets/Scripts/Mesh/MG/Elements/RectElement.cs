@@ -111,7 +111,7 @@ namespace MG
 			}
 			if (changed)
 			{
-				oldVle.DisconnectFromRect(this);
+				rectList_.DisconnectVertexFromRect(oldVle, this);
 			}
 			return changed;
 		}
