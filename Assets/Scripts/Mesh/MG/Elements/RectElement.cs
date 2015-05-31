@@ -188,10 +188,10 @@ namespace MG
 		}
 		
 
-		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs, List < int > triVerts )
+		public void AddToMeshGenLists( List < Vector3 > verts, List < Vector2 > uvs, List < int > triVerts )
 		{
-			triangles[0].AddToMeshGenLists( gen, verts, uvs, triVerts);
-			triangles[1].AddToMeshGenLists( gen, verts, uvs, triVerts);
+			triangles[0].AddToMeshGenLists( verts, uvs, triVerts);
+			triangles[1].AddToMeshGenLists( verts, uvs, triVerts);
 		}
 
 		public static bool IsSameRect(RectElement t, RectElement other)

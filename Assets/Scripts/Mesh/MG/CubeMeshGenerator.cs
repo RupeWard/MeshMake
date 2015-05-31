@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MG
 {
-	public class MeshGenerator : MonoBehaviour, IDebugDescribable
+	public class CubeMeshGenerator : MonoBehaviour, IDebugDescribable
 	{
 		static public int gridWidth=3;
 		static public int gridHeight=3;
@@ -25,7 +25,6 @@ namespace MG
 		{
 			get { return vertexList_; }
 		}
-		protected TriangleList triangleList_ = null;
 		protected RectList rectList_ = null;
 
 		private MeshFilter meshFilter_;
@@ -58,7 +57,6 @@ namespace MG
 			gridUvProvider_ = new MG.UV.GridUVProvider (gridHeight, gridWidth );
 
 			vertexList_ = new VertexList ( );
-			triangleList_ = new TriangleList ( );
 			rectList_ = new RectList (  );
 
 			meshFilter_ = gameObject.GetComponent< MeshFilter > ( );
@@ -112,9 +110,9 @@ namespace MG
 				Debug.Log("Making mesh");
 			}
 
-			if (vertexList_.Count == 0 || (triangleList_.Count == 0 && rectList_.Count == 0))
+			if (vertexList_.Count == 0 || rectList_.Count == 0)
 			{
-				Debug.LogError( "Can't make mesh with "+vertexList_.Count+" verts, "+rectList_.Count+"rects and "+triangleList_.Count+" tris");
+				Debug.LogError( "Can't make mesh with "+vertexList_.Count+" verts, "+rectList_.Count+"rects");
 				return;
 			}
 			gameObject.tag = "Thing";
@@ -130,18 +128,6 @@ namespace MG
 			List < Vector3 > verts = new List< Vector3 >();
 			List < Vector2 > uvs = new List< Vector2 >();
 			List< int > triVerts = new List< int >();
-
-			if (triangleList_ != null)
-			{
-				if ( DEBUG_MESHMAKE )
-				{
-					Debug.Log("Adding "+triangleList_.Count+" tris");
-				}
-				foreach (TriangleElement t in triangleList_.Elements)
-				{
-					t.AddToMeshGenLists( this, verts, uvs, triVerts, 0);
-				}
-			}
 
 			if (rectList_ != null)
 			{
@@ -752,77 +738,11 @@ namespace MG
 			}
 		}
 
-#region Old Triangle Stuff		
-
-		public void SplitRandomTriangle()
-		{
-			bool allow = true;
-			if ( !allowMultiExtend && vertexMovers_.Count > 0 )
-			{
-				Debug.Log ("Not splitting triangle because movers exist");
-				allow = false;
-			}
-
-			if ( allow && triangleList_.Count > 3 )
-			{
-				TriangleElement t = triangleList_.GetRandomElement();
-
-				// TODO Check distance from centre of triangle to obstacle
-				// this is lower bound for mover distance
-				VertexElement newVertex = SplitTriangle( t, ElementStates.EState.GrowingRand);
-
-				Vector3 v0 = t.GetVertex(0).GetVector();
-				Vector3 v1 = t.GetVertex(1).GetVector();
-				Vector3 v2 = t.GetVertex(2).GetVector();
-				// get dist as mean of the 3 edges
-				float tetEdge = ( 
-				              Vector3.Distance( v0,v1)
-				              + Vector3.Distance( v1,v2)
-				              + Vector3.Distance( v2,v0)
-				              ) / 3f;
-				float height = tetEdge * Mathf.Sqrt (2f/3f);
-				Vector3 direction = Vector3.Cross( v0-v1, v2-v0 );
-				direction.Normalize();
-				direction = -1f * direction;
-				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance(null, newVertex, direction, height, AppManager.Instance.moveDuration, ElementStates.EState.NONE);
-				vertexMovers_.Add(newMover);
-			}
-		}
-
-		VertexElement SplitTriangle(TriangleElement t, ElementStates.EState state)
-		{
-			VertexElement newVertex = vertexList_.AddElement(t.GetCentre ());
-
-			Vector3 v0 = t.GetVertex(0).GetVector();
-			Vector3 v1 = t.GetVertex(1).GetVector();
-			Vector3 v2 = t.GetVertex(2).GetVector();
-			
-			TriangleElement t0 = new TriangleElement( t.GetVertex(0), t.GetVertex(1), newVertex, state);
-			TriangleElement t1 = new TriangleElement( t.GetVertex(1), t.GetVertex(2), newVertex, state);
-			TriangleElement t2 = new TriangleElement( newVertex, t.GetVertex(2), t.GetVertex(0), state);
-			
-			triangleList_.AddElement(t0);
-			triangleList_.AddElement(t1);
-			triangleList_.AddElement(t2);
-			
-			triangleList_.RemoveElement(t);
-			
-			Debug.Log ("Split triangle: Lost "+t.DebugDescribe()
-			           +"\nGained "+t0.DebugDescribe()
-			           +"\n       "+t1.DebugDescribe()
-			           +"\n       "+t2.DebugDescribe()
-			           );
-			
-			SetDirty();
-			
-			return newVertex;
-		}
-#endregion Old Triangle Stuff		
 
 #region IDebugDescribable
 		public virtual void DebugDescribe(System.Text.StringBuilder sb)
 		{
-			sb.Append ("MeshGen: "+vertexList_.Count+" verts, "+triangleList_.Count+" tris, "+rectList_.Count+" rects");
+			sb.Append ("CMG: "+vertexList_.Count+" verts, "+rectList_.Count+" rects");
 		}
 #endregion IDebugDescribable
 

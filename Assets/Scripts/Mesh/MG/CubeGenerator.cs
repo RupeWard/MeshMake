@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace MG
 {
-	public class CubeGenerator : MeshGenerator
+	public class CubeGenerator : CubeMeshGenerator
 	{
 		Vector3 centre_ = Vector3.zero;
 

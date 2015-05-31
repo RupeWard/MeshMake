@@ -24,7 +24,7 @@ namespace MG
 
 		}
 
-		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs,  List < int > triVerts)
+		public void AddToMeshGenLists( List < Vector3 > verts, List < Vector2 > uvs,  List < int > triVerts)
 		{
 			#if UNITY_EDITOR
 			if (uvsDirty_)

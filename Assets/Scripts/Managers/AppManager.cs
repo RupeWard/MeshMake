@@ -14,7 +14,8 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	public bool allowSameVertexMultiExtend = false;
 	public bool denyFacing =true;
 
-	private MG.MeshGenerator currentGenerator_ = null;
+	private MG.CubeMeshGenerator currentCubeGenerator_ = null;
+	private MG.TetrahedronGenerator currentTetGenerator_ = null;
 
 	public float moveDuration = 2f;
 
@@ -132,12 +133,12 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	public void OnTetButtonClicked()
 	{
-		if ( currentGenerator_ != null )
+		if ( currentTetGenerator_ != null )
 		{
-			MG.TetrahedronGenerator tetGenerator = currentGenerator_ as MG.TetrahedronGenerator;
+			MG.TetrahedronGenerator tetGenerator = currentTetGenerator_ as MG.TetrahedronGenerator;
 			if ( tetGenerator == null )
 			{
-				GameObject.Destroy ( currentGenerator_.gameObject );
+				GameObject.Destroy ( currentTetGenerator_.gameObject );
 			}
 			else
 			{
@@ -145,24 +146,24 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 				return;
 			}
 		}
-
+		else
 		{
 			MG.TetrahedronGenerator tetGenerator = MG.TetrahedronGenerator.Create ("Tet", Vector3.zero, 10f);
 			tetGenerator.SetMaterial(defaultMaterial);
 			tetGenerator.MakeMesh();
 			
-			currentGenerator_ = tetGenerator;
+			currentTetGenerator_ = tetGenerator;
 		}
 	}
 
 	public void OnCubeButtonClicked()
 	{
-		if ( currentGenerator_ != null )
+		if ( currentCubeGenerator_ != null )
 		{
-			MG.CubeGenerator cubeGenerator = currentGenerator_ as MG.CubeGenerator;
+			MG.CubeGenerator cubeGenerator = currentCubeGenerator_ as MG.CubeGenerator;
 			if (cubeGenerator == null)
 			{
-				GameObject.Destroy (currentGenerator_.gameObject);
+				GameObject.Destroy (currentCubeGenerator_.gameObject);
 			}
 			else
 			{
@@ -175,7 +176,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 			cubeGenerator.SetMaterial(defaultMaterial);
 			cubeGenerator.MakeMesh();
 			
-			currentGenerator_ = cubeGenerator;
+			currentCubeGenerator_ = cubeGenerator;
 		}
 	}
 
