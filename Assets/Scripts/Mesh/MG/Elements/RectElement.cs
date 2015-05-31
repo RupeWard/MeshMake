@@ -10,7 +10,7 @@ namespace MG
 		private RectList rectList_ = null;
 
 		VertexElement[] vertices = new VertexElement[4]{ null, null, null, null };
-		TriangleElement[] triangles = new TriangleElement[2] { null, null };
+		RectTriangleElement[] triangles = new RectTriangleElement[2] { null, null };
 
 		private ElementStates.EState state_ =  ElementStates.EState.NONE;
 		private UV.I_UVProvider uvProvider_;
@@ -54,8 +54,8 @@ namespace MG
 			vertices[2] = v2;
 			vertices[3] = v3;
 			
-			triangles[0] = new TriangleElement( v0, v1, v3, state, uvp);
-			triangles[1] = new TriangleElement( v1, v2, v3, state, uvp);
+			triangles[0] = new RectTriangleElement( v0, v1, v3, state, uvp, 0);
+			triangles[1] = new RectTriangleElement( v1, v2, v3, state, uvp, 1);
 			SetState(state);
 
 		}
@@ -187,8 +187,8 @@ namespace MG
 
 		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs, List < int > triVerts )
 		{
-			triangles[0].AddToMeshGenLists( gen, verts, uvs, triVerts, 0 );
-			triangles[1].AddToMeshGenLists( gen, verts, uvs, triVerts, 1 );
+			triangles[0].AddToMeshGenLists( gen, verts, uvs, triVerts);
+			triangles[1].AddToMeshGenLists( gen, verts, uvs, triVerts);
 		}
 
 		public static bool IsSameRect(RectElement t, RectElement other)

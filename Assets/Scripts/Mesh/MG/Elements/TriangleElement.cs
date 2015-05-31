@@ -6,11 +6,11 @@ namespace MG
 {
 	public class TriangleElement : IDebugDescribable
 	{
-		UV.I_UVProvider uvProvider = null;
+		protected UV.I_UVProvider uvProvider_ = null;
 
-		VertexElement[] vertexElements_ = new VertexElement[3]{ null, null, null };
+		protected VertexElement[] vertexElements_ = new VertexElement[3]{ null, null, null };
 
-		private ElementStates.EState state_ =  ElementStates.EState.NONE;
+		protected ElementStates.EState state_ =  ElementStates.EState.NONE;
 
 		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state)
 		{
@@ -23,7 +23,7 @@ namespace MG
 		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state, UV.I_UVProvider iup)
 		{
 			state_ = state;
-			uvProvider = iup;
+			uvProvider_ = iup;
 			vertexElements_[0] = v0;
 			vertexElements_[1] = v1;
 			vertexElements_[2] = v2;
@@ -73,16 +73,16 @@ namespace MG
 			return false;
 		}
 
-		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs,  List < int > triVerts, int triangleNumber )
+		public virtual void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs,  List < int > triVerts, int triangleNumber )
 		{
 			int firstIndex = verts.Count;
 			for (int v=0; v<3; v++)
 			{
 				verts.Add ( vertexElements_[v].GetVector() );
 				triVerts.Add ( firstIndex + v);
-				if (uvProvider != null)
+				if (uvProvider_ != null)
 				{
-					uvs.Add( uvProvider.GetUVForState(triangleNumber, v, state_) );
+					uvs.Add( uvProvider_.GetUVForState(triangleNumber, v, state_) );
 				}
 			}
 		}
