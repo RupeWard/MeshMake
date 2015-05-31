@@ -22,6 +22,7 @@ namespace MG.UV
 		public Material material;
 		public int numColumns;
 		public int numRows;
+		public int buffer = 0;
 
 		private MG.UV.GridPosition[] gridPositions_;
 
@@ -59,7 +60,13 @@ namespace MG.UV
 
 		void Awake()
 		{
-			gridUvProvider_ = new NewGridUVProvider(numColumns, numRows, new GridPosition(0,0));
+			float uvBuffer = 0f;
+			if ( material.mainTexture != null )
+			{
+				uvBuffer = Mathf.Max( (float)buffer / (float)material.mainTexture.width, 
+				                     (float)buffer/(float)material.mainTexture.height);
+			}
+			gridUvProvider_ = new NewGridUVProvider(numColumns, numRows, new GridPosition(0,0), uvBuffer);
 			foreach ( StatePosition statePos in statePositions )
 			{
 				PositionDefinition pd = positionForStatePosition(statePos);

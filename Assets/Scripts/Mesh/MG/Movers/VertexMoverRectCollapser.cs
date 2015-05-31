@@ -7,7 +7,7 @@ namespace MG
 	{
 		public override void OnFinish()
 		{
-			Debug.LogWarning ( "Collapser finished. Removing Rect "+rect_.DebugDescribe() );
+//			Debug.LogWarning ( "Collapser finished. Removing Rect "+rect_.DebugDescribe() );
 			rectList_.RemoveElement ( rect_ );
 		}
 

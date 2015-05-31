@@ -311,7 +311,7 @@ namespace MG
 			}
 			if (matches == 4)
 			{
-				Debug.Log ("Same Rect : "+t.DebugDescribe()+" "+other.DebugDescribe());
+//				Debug.Log ("Same Rect : "+t.DebugDescribe()+" "+other.DebugDescribe());
 			}
 			return ( matches == 4 );
 		}

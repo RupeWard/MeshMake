@@ -25,8 +25,8 @@ namespace MG
 		{
 			rects.Remove (t);
 			if ( NumConnections <= 0 )
-			{
-				Debug.Log("Vertex now has no connections "+this.DebugDescribe());
+			{//FIXME remove?
+//				Debug.Log("Vertex now has no connections "+this.DebugDescribe());
 				//				vertices_.RemoveAt(i);
 			}
 			return NumConnections;

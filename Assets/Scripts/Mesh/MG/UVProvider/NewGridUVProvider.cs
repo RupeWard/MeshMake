@@ -21,6 +21,7 @@ namespace MG.UV
 		
 		UV.GridPosition defaultRectGridPosition_;
 
+		private float buffer_ = 0f;
 
 		public void SetState(ElementStates.EState state)
 		{
@@ -69,12 +70,13 @@ namespace MG.UV
 			return result;
 		}
 
-		public NewGridUVProvider(int c, int r, GridPosition d)
+		public NewGridUVProvider(int c, int r, GridPosition d, float bf)
 		{
 			defaultRectGridPosition_ = d;
 			position_ = defaultRectGridPosition_;
 			numRows_ = r;
 			numColumns_ = c;
+			buffer_ = bf;
 			baseUVset_ = new Vector2[][]
 			{
 				new Vector2[]{
@@ -132,10 +134,10 @@ namespace MG.UV
 		private void SetPosition(GridPosition pos)
 		{
 
-			bottom = (float)pos.row/(float) numRows_;
-			top = (float)( pos.row + 1 ) / (float)numRows_;
-			left = (float)pos.column / (float)numColumns_;
-			right = (float)( pos.column + 1 ) / (float)numColumns_;
+			bottom = buffer_+(float)pos.row/(float) numRows_;
+			top = -1f*buffer_+(float)( pos.row + 1 ) / (float)numRows_;
+			left = buffer_+(float)pos.column / (float)numColumns_;
+			right = -1f*buffer_+(float)( pos.column + 1 ) / (float)numColumns_;
 
 			if ( float.IsNaN ( bottom ) || float.IsNaN ( top ) || float.IsNaN ( left ) || float.IsNaN ( right ) )
 			{
