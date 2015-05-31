@@ -17,7 +17,7 @@ public class PhysBall : MonoBehaviour
 		//rigidBody_.AddForce(vel);
 		//rigidBody_.velocity = Vector3.zero;
 		rigidBody_.velocity = vel;
-		Debug.Log ( "Created PhysBall with pos = " + transform.localPosition + " v = " + vel + " or " +rigidBody_.velocity);
+//		Debug.Log ( "Created PhysBall with pos = " + transform.localPosition + " v = " + vel + " or " +rigidBody_.velocity);
 	}
 	private bool dead=false;
 	void FixedUpdate () 

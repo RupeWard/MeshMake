@@ -12,6 +12,8 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	public float camerabuffer = 2f;
 
+	public float minMeshUpdateWait = 0.05f;
+
 	public bool allowMultiExtend = false;
 	public bool allowSameVertexMultiExtend = false;
 	public bool denyFacing =true;
@@ -240,7 +242,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 		float dist = Ball.maxDistFromOrigin - go.transform.localScale.x;
 		
-		Debug.Log ("Making ball at dist "+dist);
+//		Debug.Log ("Making ball at dist "+dist);
 		
 		float xangle = Random.Range( 0, 2*Mathf.PI);
 		float yangle = Random.Range( 0, 2*Mathf.PI);

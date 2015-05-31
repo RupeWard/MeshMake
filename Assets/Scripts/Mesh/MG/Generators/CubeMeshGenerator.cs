@@ -236,13 +236,20 @@ namespace MG
 //			rigidBody_.isKinematic = false;
 
 		}
-		
+
+		private float lastUpdate = 0f;
+
 		void Update()
 		{
 			if ( isDirty_ )
 			{
-				isDirty_ = false;
-				MakeMesh ( );
+				float elapsed = Time.time - lastUpdate;
+				if (elapsed > AppManager.Instance.minMeshUpdateWait)
+				{
+					isDirty_ = false;
+					MakeMesh ( );
+					lastUpdate = Time.time;
+				}
 			}
 			if ( AppManager.Instance.Mode != AppManager.EMode.InternalCamera && Input.GetMouseButtonDown (0 ) )
 			{
@@ -510,16 +517,15 @@ namespace MG
 				}
 				if (numProtectedEdges > 0)
 				{
-					Debug.LogError("NOT extending rect, "+numFoundFacingVertex+ " target vertices exist, with "
+					Debug.LogWarning("NOT extending rect, "+numFoundFacingVertex+ " target vertices exist, with "
 					               +numProtectedEdges+" protected edges"+"\n"+originRect.DebugDescribe());
 					return;
 				}
-				if (numFoundFacingVertex > 3)
-				{
-					Debug.LogWarning("On extending rect, all 4 target vertices exist, with "
-					               +numProtectedEdges+" protected edges"+"\n"+originRect.DebugDescribe());
-//					return;
-				}
+//				if (numFoundFacingVertex > 3)
+//				{
+//					Debug.LogWarning("On extending rect, all 4 target vertices exist, with "
+//					               +numProtectedEdges+" protected edges"+"\n"+originRect.DebugDescribe());
+//				}
 			}
 		
 			for ( int i=0; i<4; i++ )
