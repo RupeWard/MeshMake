@@ -9,7 +9,7 @@ namespace MG
 		static public int gridWidth=3;
 		static public int gridHeight=3;
 
-		protected UV.GridUVProvider gridUvProvider_=null;
+		protected UV.I_RectUVProvider rectUvProvider_=null;
 
 		public bool allowMultiExtend
 		{
@@ -52,20 +52,22 @@ namespace MG
 			isDirty_ = true;
 		}
 
-		static public CubeMeshGenerator Create (string name, Vector3 centre, float size)
+		static public CubeMeshGenerator Create (string name, Vector3 centre, float size, UV.I_RectUVProvider rup)
 		{
 			GameObject go = new GameObject ( name );
 			CubeMeshGenerator tg = go.AddComponent< CubeMeshGenerator >();
-			tg.Init( size);
+			tg.Init( size, rup);
 			go.transform.localPosition = centre;
 			go.transform.parent = AppManager.Instance.world;
 			return tg;
 		}
 		
-		private void Init(float size) 
+		private void Init(float size, UV.I_RectUVProvider rup) 
 		{
 			//			Debug.Log ( "CubeGen: CTOR Start" );
 			this.size_ = size;
+			this.rectUvProvider_ = rup;
+
 			Create ( );
 			
 			Debug.Log ( "Created " + this.DebugDescribe ( ));
@@ -99,22 +101,22 @@ namespace MG
 			
 			RectElement baseRect = new RectElement(rectList_,  b3, b2, b1, b0, 
 			                                       ElementStates.EState.Original,
-			                                       gridUvProvider_);
+			                                       rectUvProvider_);
 			RectElement topRect = new RectElement(rectList_,  t1, t2, t3, t0, 
 			                                      ElementStates.EState.Original,
-			                                      gridUvProvider_);
+			                                      rectUvProvider_);
 			RectElement frontRect = new RectElement(rectList_,  b0, b1, t1, t0, 
 			                                        ElementStates.EState.Original,
-			                                        gridUvProvider_);
+			                                        rectUvProvider_);
 			RectElement arseRect = new RectElement(rectList_,  b2, b3, t3, t2, 
 			                                       ElementStates.EState.Original,
-			                                       gridUvProvider_);
+			                                       rectUvProvider_);
 			RectElement leftRect = new RectElement(rectList_,  b3, b0, t0, t3, 
 			                                       ElementStates.EState.Original,
-			                                       gridUvProvider_);
+			                                       rectUvProvider_);
 			RectElement rightRect = new RectElement(rectList_,  b1, b2, t2, t1, 
 			                                        ElementStates.EState.Original,
-			                                        gridUvProvider_);
+			                                        rectUvProvider_);
 			
 			rectList_.AddElement(baseRect);
 			rectList_.AddElement(topRect);
@@ -128,7 +130,6 @@ namespace MG
 
 		void Awake()
 		{
-			gridUvProvider_ = new MG.UV.GridUVProvider (gridHeight, gridWidth );
 
 			vertexList_ = new VertexList ( );
 			rectList_ = new RectList (  );
@@ -696,7 +697,7 @@ namespace MG
 			                                         newVertexElements[2], 
 			                                         newVertexElements[3], 
 			                                         growingState,
-			                                         gridUvProvider_);
+			                                         rectUvProvider_);
 			rectList_.AddElement( newTopRect);
 
 			bool[] moverMadeForVertex = new bool[4]
@@ -769,7 +770,7 @@ namespace MG
 						                            newVertexElements[ edgeDef.GetIndex(1)],
 						                    		newVertexElements [edgeDef.GetIndex(0)], 
 						                    		growingState,
-						                gridUvProvider_);
+						                rectUvProvider_);
 					rectList_.AddElement( newRect);
 					//FIXME log;
 //					moverMadeForVertex[ edgeDef.GetIndex(0) ] = true;
