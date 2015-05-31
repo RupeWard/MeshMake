@@ -131,6 +131,14 @@ namespace MG.UV
 			return baseV;
 		}
 
+		public void GetUVsForState( int triangleNumber, ElementStates.EState state, ref Vector2[] uvsOut)
+		{
+			for(int i=0; i<3; i++)
+			{
+				uvsOut[i] = GetUVForState(triangleNumber, i, state); 
+			}
+		}
+
 		public Vector2 GetUVForState (int triangleNumber, int vertexNumber, ElementStates.EState state )
 		{
 			Vector2 uv = Vector2.zero;

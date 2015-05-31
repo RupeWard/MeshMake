@@ -12,12 +12,24 @@ namespace MG
 
 		protected ElementStates.EState state_ =  ElementStates.EState.NONE;
 
+		protected Vector2 [] uvs_ = new Vector2[3] { Vector2.zero, Vector2.zero, Vector2.zero };
+
+		protected bool uvsDirty_ = false;
+
+#if UNITY_EDITOR
+		protected string d_uvsDirtyReason = string.Empty;
+#endif
 		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state)
 		{
 			state_ = state;
 			vertexElements_[0] = v0;
 			vertexElements_[1] = v1;
 			vertexElements_[2] = v2;
+			uvsDirty_ = true;
+			#if UNITY_EDITOR
+			d_uvsDirtyReason+="Ctor.";
+			#endif
+
 		}
 
 		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state, UV.I_UVProvider iup)
@@ -27,14 +39,25 @@ namespace MG
 			vertexElements_[0] = v0;
 			vertexElements_[1] = v1;
 			vertexElements_[2] = v2;
+			uvsDirty_ = true;
+			#if UNITY_EDITOR
+			d_uvsDirtyReason+="Ctor.";
+			#endif
 		}
 
 		public void SetState(ElementStates.EState s)
 		{
-			state_ = s;
+			if ( state_ != s )
+			{
+				state_ = s;
+				uvsDirty_ = true;
+				#if UNITY_EDITOR
+				d_uvsDirtyReason+="State.";
+				#endif
+			}
 		}
 
-		public void flipOrientation()
+		public virtual void flipOrientation()
 		{
 			VertexElement tmp = vertexElements_ [ 0 ];
 			vertexElements_[0] = vertexElements_[1];
@@ -75,6 +98,14 @@ namespace MG
 
 		public virtual void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs,  List < int > triVerts, int triangleNumber )
 		{
+			#if UNITY_EDITOR
+			if (uvsDirty_)
+			{
+				Debug.Log("UVsDirtyReason = "+d_uvsDirtyReason);
+				d_uvsDirtyReason = string.Empty;
+			}
+			#endif
+
 			int firstIndex = verts.Count;
 			for (int v=0; v<3; v++)
 			{
@@ -82,9 +113,14 @@ namespace MG
 				triVerts.Add ( firstIndex + v);
 				if (uvProvider_ != null)
 				{
-					uvs.Add( uvProvider_.GetUVForState(triangleNumber, v, state_) );
+					if (uvsDirty_)
+					{  
+						uvs_[v] = uvProvider_.GetUVForState(triangleNumber, v, state_);
+					}
+					uvs.Add( uvs_[v] );
 				}
 			}
+			uvsDirty_ = false;
 		}
 
 		public static bool HasSameVertices(TriangleElement t, TriangleElement other)

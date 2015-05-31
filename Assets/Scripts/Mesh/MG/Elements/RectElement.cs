@@ -17,9 +17,12 @@ namespace MG
 
 		public void SetState(ElementStates.EState state)
 		{
-			state_ = state;
-			triangles [ 0 ].SetState(state);
-			triangles [ 1 ].SetState(state);
+			if ( state_ != state )
+			{
+				state_ = state;
+				triangles [ 0 ].SetState(state);
+				triangles [ 1 ].SetState(state);
+			}
 		}
 
 		public VertexElement GetClosestVertex(Vector3 position, float maxDistance)
