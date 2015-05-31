@@ -22,7 +22,6 @@ namespace MG.UV
 		public Material material;
 		public int numColumns;
 		public int numRows;
-		public string[] subTextureNames;
 
 		private MG.UV.GridPosition[] gridPositions_;
 
@@ -60,19 +59,6 @@ namespace MG.UV
 
 		void Awake()
 		{
-			if ( subTextureNames.Length != numColumns * numRows )
-			{
-				Debug.LogError("UVProvider "+gameObject.name+" has wrong number of names"); 
-			}
-			/*
-			gridPositions_ = new MG.UV.GridPosition[ numColumns * numRows];
-			for ( int r=0; r<numRows; r++ )
-			{
-				for ( int c=0; c<numColumns; c++ )
-				{
-					gridPositions_[ c+r*numColumns] = new MG.UV.GridPosition(c,r);
-				}
-			}*/
 			gridUvProvider_ = new NewGridUVProvider(numColumns, numRows, new GridPosition(0,0));
 			foreach ( StatePosition statePos in statePositions )
 			{
@@ -80,28 +66,6 @@ namespace MG.UV
 
 				gridUvProvider_.AddPositionForState( statePos.state, new GridPosition(pd.column, pd.row));
 			}
-/*
-			gridUvProvider_.AddPositionForState(ElementStates.EState.Original, cyanRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.GrowingRand, redRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.GrowingClicked, greenRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.GrowingBall, mauveRectGridPosition);
-			
-			gridUvProvider_.AddPositionForState(ElementStates.EState.CollapsingRand, yellowRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.CollapsingClicked, yellowRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.CollapsingBall, yellowRectGridPosition);
-			
-			gridUvProvider_.AddPositionForState(ElementStates.EState.StaticRand, blackRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.StaticClicked, blueRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.StaticBall, purpleRectGridPosition);
-			
-			gridUvProvider_.AddPositionForState(ElementStates.EState.Rand, blackRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.Clicked, blackRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.Ball, blackRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.Collapsing, blackRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.Growing, blackRectGridPosition);
-			gridUvProvider_.AddPositionForState(ElementStates.EState.Static, blackRectGridPosition);
-
-*/
 		}
 
 		#region  RectUVProvider
