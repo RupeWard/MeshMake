@@ -160,7 +160,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	{
 		if ( currentCubeGenerator_ != null )
 		{
-			MG.CubeGenerator cubeGenerator = currentCubeGenerator_ as MG.CubeGenerator;
+			MG.CubeMeshGenerator cubeGenerator = currentCubeGenerator_ as MG.CubeMeshGenerator;
 			if (cubeGenerator == null)
 			{
 				GameObject.Destroy (currentCubeGenerator_.gameObject);
@@ -171,8 +171,9 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 				return;
 			}
 		}
+		else
 		{
-			MG.CubeGenerator cubeGenerator = MG.CubeGenerator.Create ("Cub", Vector3.zero, 10f);
+			MG.CubeMeshGenerator cubeGenerator = MG.CubeMeshGenerator.Create ("Cub", Vector3.zero, 10f);
 			cubeGenerator.SetMaterial(defaultMaterial);
 			cubeGenerator.MakeMesh();
 			
