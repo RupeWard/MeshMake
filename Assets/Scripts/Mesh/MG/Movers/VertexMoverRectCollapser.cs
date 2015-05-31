@@ -14,35 +14,39 @@ namespace MG
 		private VertexMoverTarget[] vertexMovers_ = new VertexMoverTarget[2]{null,null};
 
 		private RectElement rect_;
-		private VertexElement origin0;
-		private VertexElement origin1;
+		private VertexElement new0;
+		private VertexElement new1;
 		private VertexElement target0;
 		private VertexElement target1;
+		private readonly VertexElement origin0;
+		private readonly VertexElement origin1;
 		private RectList rectList_;
-
-		private VertexElement []vertexElementsToProtect = new VertexElement[0];
-
+		
 		private ElementStates.EState movingState = ElementStates.EState.NONE;
 
 		public VertexMoverRectCollapser( RectList rectList,
 		                                RectElement rle, 
-		                                VertexElement o0, VertexElement t0,
-		                                VertexElement o1, VertexElement t1,
-		                                VertexElement[] vtp,
+		                                VertexElement n0, VertexElement t0,
+		                                VertexElement n1, VertexElement t1,
+		                                VertexElement o0, VertexElement o1,
 		                                ElementStates.EState s,
 		                                float t):base(t)
 		{
-			Debug.Log ("Creating RectCollapser: ");
+//			Debug.Log ("Creating RectCollapser: ");
 			this.rectList_ = rectList;
-			this.origin0 = o0;
-			this.origin1 = o1;
+			this.new0 = n0;
+			this.new1 = n1;
 			this.target0 = t0;
 			this.target1 = t1;
+			this.origin0 = o0;
+			this.origin1 = o1;
 			this.rect_ = rle;
-			this.vertexElementsToProtect = vtp;
 			this.movingState  = s;
-			vertexMovers_[0]=new VertexMoverTarget( origin0, target0, timeTaken_);
-			vertexMovers_[1]=new VertexMoverTarget( origin1, target1, timeTaken_);
+			vertexMovers_[0]=new VertexMoverTarget( new0, target0, origin0, timeTaken_);
+			vertexMovers_[1]=new VertexMoverTarget( new1, target1, origin1, timeTaken_);
+
+			protectedEdges_.Add ( new VertexElement[]{ origin0, target0});
+			protectedEdges_.Add ( new VertexElement[]{ origin1, target1});
 
 			rect_.SetState(movingState);
 		}
@@ -84,7 +88,7 @@ namespace MG
 
 				if (finished_)
 				{
-					Debug.Log ("Finished RectCollapser "+timeSoFar_+" of "+timeTaken_);
+//					Debug.Log ("Finished RectCollapser "+timeSoFar_+" of "+timeTaken_);
 				}
 				else
 				{

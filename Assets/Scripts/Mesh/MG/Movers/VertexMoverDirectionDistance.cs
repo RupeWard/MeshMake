@@ -15,7 +15,7 @@ namespace MG
 			}
 		}
 
-		private VertexElement originVertex_ = null;
+		private readonly VertexElement originVertex_ = null;
 
 		private VertexElement vertex_ = null;
 		public VertexElement Vertex
@@ -96,11 +96,11 @@ namespace MG
 				{
 					if (direction_.magnitude==0f)
 					{
-						Debug.Log ("Finished Target move time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+finalPosition_);
+//						Debug.Log ("Finished Target move time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+finalPosition_);
 					}
 					else
 					{
-						Debug.Log ("Finished Direction move time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+FinalPosition()+" with dir = "+direction_+" and dist = "+distance_);
+//						Debug.Log ("Finished Direction move time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+FinalPosition()+" with dir = "+direction_+" and dist = "+distance_);
 					}
 				}
 				else

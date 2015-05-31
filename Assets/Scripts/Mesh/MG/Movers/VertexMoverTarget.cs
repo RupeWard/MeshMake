@@ -21,13 +21,17 @@ namespace MG
 
 		private Vector3 initialPosition_;
 
+		private readonly VertexElement origin_;
 
-		public VertexMoverTarget( VertexElement v, VertexElement targ, float t):base(t)
+		public VertexMoverTarget( VertexElement v, VertexElement targ, VertexElement o, float t):base(t)
 		{
-			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+targ.GetVector().ToString());
+//			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+targ.GetVector().ToString());
 			this.vertex_ = v;
 			this.target_ = targ;
+			this.origin_ = o;
 			this.initialPosition_ = v.GetVector();
+			protectedEdges_.Add(
+				new VertexElement[]{ origin_, target_ } );
 		}
 
 #region VertexMover
@@ -59,7 +63,7 @@ namespace MG
 				changed = true;
 				if (finished_)
 				{
-					Debug.Log ("Finished Target move time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+target_);
+//					Debug.Log ("Finished Target move time "+timeSoFar_+" of "+timeTaken_+" from "+initialPosition_+" to "+vertex_.GetVector()+" towards "+target_);
 				}
 				else
 				{

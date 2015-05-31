@@ -184,7 +184,7 @@ namespace MG
 			}
 			if ( AppManager.Instance.Mode != AppManager.EMode.InternalCamera && Input.GetMouseButtonDown (0 ) )
 			{
-				Debug.Log("Mouse");
+//				Debug.Log("Mouse");
 				Ray ray = Camera.main.ScreenPointToRay ( Input.mousePosition );
 				RaycastHit hit = new RaycastHit ( );
 			
@@ -302,7 +302,7 @@ namespace MG
 
 		public void OnClicked(RaycastHit hit)
 		{
-			Debug.Log ( "Clicked on the thing at "+hit.point );
+//			Debug.Log ( "Clicked on the thing at "+hit.point );
 			bool allow = true;
 			if ( !allowMultiExtend && vertexMovers_.Count > 0 )
 			{
@@ -319,7 +319,7 @@ namespace MG
 				else
 				{
 					
-					Debug.Log ("Click-Extending "+rle.DebugDescribe());
+//					Debug.Log ("Click-Extending "+rle.DebugDescribe());
 					ExtendRect(rle, size_, ElementStates.EState.GrowingClicked, ElementStates.EState.StaticClicked, ElementStates.EState.CollapsingClicked);
 				}
 			}
@@ -336,13 +336,14 @@ namespace MG
 			if (allow && rectList_.Count > 5 )
 			{
 				RectElement t = rectList_.GetRandomElement();
-				Debug.Log ("Rand-extending "+t.DebugDescribe());
+//				Debug.Log ("Rand-extending "+t.DebugDescribe());
 				ExtendRect( t, size_, ElementStates.EState.GrowingRand, ElementStates.EState.StaticRand, ElementStates.EState.CollapsingRand);
 			}
 
 		}
 
 		private System.Text.StringBuilder extendSB = new System.Text.StringBuilder();
+
 
 		private bool AnyMoverMovesVertex(VertexElement el)
 		{
@@ -356,9 +357,21 @@ namespace MG
 			return false;
 		}
 
+		private bool AnyMoverProtectsEdge(VertexElement vle0, VertexElement vle1)
+		{
+			foreach ( VertexMover mover in vertexMovers_ )
+			{
+				if (mover.IsProtectedEdge(vle0, vle1))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public void ExtendRect(RectElement originRect, float height, ElementStates.EState growingState, ElementStates.EState finalState, ElementStates.EState collapsingState)
 		{
-			if ( !AppManager.Instance.allowCloseMultiExtend )
+			if ( !AppManager.Instance.allowSameVertexMultiExtend )
 			{
 				bool alreadyExtending = false;
 				for ( int i = 0; i < 4; i++ )
@@ -399,9 +412,12 @@ namespace MG
 			Vector3[] newVertices = new Vector3[4];
 
 
+			VertexElement[] existingTargetElements = new VertexElement[4]{ null, null, null, null };
+
 			if (AppManager.Instance.denyFacing)
 			{
-				int found = 0;
+				int numFoundFacingVertex = 0;
+				int numProtectedEdges = 0;
 				for ( int i=0; i<4; i++ )
 				{
 					Vector3 newTarget = originVectors[i] + direction * size_;
@@ -410,18 +426,34 @@ namespace MG
 					
 					if (vle != null)
 					{
-						found++;
+						existingTargetElements[i] = vle;
+						numFoundFacingVertex++;
 						//					Debug.LogWarning("Found close vertex to "+i+": "+newTarget+" "+vertexList_.GetElement(i).DebugDescribe()+"S="+size_+" D = "+closest);
 						//					if (AnyMoverMovesVertex( vertexList_.GetElement(vleIndex)))
 						//				    {
 						//						found++;
 						//					}
+						if (AnyMoverProtectsEdge( originRect.GetVertexElement(i), vle))
+						{
+							numProtectedEdges++;
+						}
+						else
+						{
+//							Debug.Log("Found facing");
+						}
 					}
 				}
-				if (found > 3)
+				if (numProtectedEdges > 0)
 				{
-					Debug.LogError("Not extending rect "+originRect.DebugDescribe()+" because all 4 target vertices exist");
+					Debug.LogError("NOT extending rect, "+numFoundFacingVertex+ " target vertices exist, with "
+					               +numProtectedEdges+" protected edges"+"\n"+originRect.DebugDescribe());
 					return;
+				}
+				if (numFoundFacingVertex > 3)
+				{
+					Debug.LogError("On extending rect, all 4 target vertices exist, with "
+					               +numProtectedEdges+" protected edges"+"\n"+originRect.DebugDescribe());
+//					return;
 				}
 			}
 		
@@ -623,15 +655,19 @@ namespace MG
 					{
 						VertexElement newVertexElement0 = null;
 						VertexElement newVertexElement1 = null;
+						VertexElement originVertexElement0 = null;
+						VertexElement originVertexElement1 = null;
 						for (int i =0; i<4; i++)
 						{
 							if (originRect.GetVertexElement(i) == edgeInfo.vle0)
 							{
 								newVertexElement0 = newVertexElements[i];
+								originVertexElement0 = originRect.GetVertexElement(i);
 							}
 							if (originRect.GetVertexElement(i) == edgeInfo.vle1)
 							{
 								newVertexElement1 = newVertexElements[i];
+								originVertexElement1 = originRect.GetVertexElement(i);
 							}
 						}
 						if (newVertexElement0 == null || newVertexElement1 == null)
@@ -649,13 +685,14 @@ namespace MG
 							                             edgeInfo.neighbourVle0,
 							                             newVertexElement1,
 							                             edgeInfo.neighbourVle1,
-							                             null,
+							                             originVertexElement0,
+							                             originVertexElement1,
 							                             collapsingState,
 							                             AppManager.Instance.moveDuration);
 
 						vertexMovers_.Add(newMover);
-						moverMadeForVertex[ edgeDef.GetIndex(0) ] = true;
-						moverMadeForVertex[ edgeDef.GetIndex(1) ] = true;
+//						moverMadeForVertex[ edgeDef.GetIndex(0) ] = true;
+//						moverMadeForVertex[ edgeDef.GetIndex(1) ] = true;
 						// FIXME log;
 
 					}
@@ -672,22 +709,38 @@ namespace MG
 						                gridUvProvider_);
 					rectList_.AddElement( newRect);
 					//FIXME log;
+//					moverMadeForVertex[ edgeDef.GetIndex(0) ] = true;
+//					moverMadeForVertex[ edgeDef.GetIndex(1) ] = true;
 
 				}
 			}
 
 			for (int i =0; i<4; i++)
-			{
-				VertexMover newMover = 
-					new VertexMoverDirectionDistance(originRect.GetVertexElement(i),
+			{				
+				if (!moverMadeForVertex[i])
+				{
+					if (existingTargetElements[i] == null)
+					{
+						VertexMover newMover = 
+							new VertexMoverDirectionDistance(originRect.GetVertexElement(i),
+							                                 
+							                                 newVertexElements[i], 
+							                                 direction, height, 
+							                                 AppManager.Instance.moveDuration, 
+							                                 finalState);
+						vertexMovers_.Add(newMover);
+					}
+					else
+					{
+						VertexMoverTarget newMover=new VertexMoverTarget( newVertexElements[i], 
+						                                                 existingTargetElements[i], 
+						                                                 originRect.GetVertexElement(i), 
+						                                                 AppManager.Instance.moveDuration);
+						vertexMovers_.Add(newMover);
+					}
+				}
 
-					                                 newVertexElements[i], 
-					                                 direction, height, 
-					                                 AppManager.Instance.moveDuration, 
-					                                 finalState);
-				vertexMovers_.Add(newMover);
 				//FIXME log;
-
 			}
 			rigidBody_.mass = rigidBody_.mass +1f;
 			if (DEBUG_EXTENDRECT)

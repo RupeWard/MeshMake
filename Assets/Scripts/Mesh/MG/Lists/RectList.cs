@@ -82,11 +82,12 @@ namespace MG
 					Debug.LogError ("newVle = null");
 			    }
 			}
+			elements_.Remove(toReplace);
 		}
 
 		public void RemoveElement(RectElement t)
 		{
-			Debug.Log ( "Removing rect: " + t.DebugDescribe ( ) );
+//			Debug.Log ( "Removing rect: " + t.DebugDescribe ( ) );
 			for ( int i = 0; i <4; i++)
 			{
 				t.GetVertexElement(i).DisconnectFromRect(t );

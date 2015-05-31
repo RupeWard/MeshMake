@@ -11,8 +11,8 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 	public float camerabuffer = 2f;
 
 	public bool allowMultiExtend = false;
-	public bool allowCloseMultiExtend = false;
-	public bool denyFacing =false;
+	public bool allowSameVertexMultiExtend = false;
+	public bool denyFacing =true;
 
 	private MG.MeshGenerator currentGenerator_ = null;
 
