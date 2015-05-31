@@ -107,7 +107,7 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 //				Debug.LogWarning("Thing '"+go.name+"' SetState "+state);
 				if (rn.SetState(state))
 				{
-					rn.GetComponent< MG.MeshGenerator >().SetDirty();
+					rn.GetComponent< MG.CubeMeshGenerator >().SetDirty();
 				}
 			}
 			else

@@ -351,7 +351,7 @@ namespace MG
 					individuals.Add(rle);
 				}
 			}
-			Debug.Log ("Found inds = "+individuals.Count+", dupesSame =  "+dupesSame.Count+" dupesOppos = "+dupesOpposite.Count+"  (should be even)");
+//			Debug.Log ("Found inds = "+individuals.Count+", dupesSame =  "+dupesSame.Count+" dupesOppos = "+dupesOpposite.Count+"  (should be even)");
 			foreach ( RectElement rle in dupesOpposite )
 			{
 				rectList_.RemoveElement(rle);
@@ -837,7 +837,7 @@ namespace MG
 				if (allow)
 				{
 					RectElement hitRect = rectList_.GetClosestElement ( collision.contacts[0].point);
-					Debug.Log ( "Collision-extending "+hitRect.DebugDescribe()+" as Ball "+collision.gameObject.name+" hit "+gameObject.name );
+//					Debug.Log ( "Collision-extending "+hitRect.DebugDescribe()+" as Ball "+collision.gameObject.name+" hit "+gameObject.name );
 					ExtendRect(hitRect, size_, ElementStates.EState.GrowingBall, ElementStates.EState.StaticBall, ElementStates.EState.CollapsingBall);
 				}
 			}
