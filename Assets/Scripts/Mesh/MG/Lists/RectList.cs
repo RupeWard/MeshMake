@@ -109,17 +109,6 @@ namespace MG
 			public VertexElement neighbourVle1;
 		}
 
-		/*
-		public RectElement GetElement(int i)
-		{
-			if ( i < 0 || i >= rectElements_.Count )
-			{
-				Debug.LogError ("Can't get rect at index "+i+" from "+rectElements_.Count);
-				return null;
-			}
-			return rectElements_ [ i ];
-		}*/
-
 		public List< RectsSharingEdgeInfo > GetRectsSharingEdge( VertexElement v0, VertexElement v1, RectElement o )
 		{
 			List< RectsSharingEdgeInfo > result = new List< RectsSharingEdgeInfo >  ();

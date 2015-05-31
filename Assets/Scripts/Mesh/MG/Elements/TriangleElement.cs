@@ -6,31 +6,32 @@ namespace MG
 {
 	public class TriangleElement : IDebugDescribable
 	{
-		GridUVProvider uvProvider = null;
+		UV.I_UVProvider uvProvider = null;
 
 		VertexElement[] vertexElements_ = new VertexElement[3]{ null, null, null };
 
-		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2)
+		private ElementStates.EState state_ =  ElementStates.EState.NONE;
+
+		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state)
 		{
+			state_ = state;
 			vertexElements_[0] = v0;
 			vertexElements_[1] = v1;
 			vertexElements_[2] = v2;
 		}
 
-		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, GridUVProvider iup)
+		public TriangleElement( VertexElement v0, VertexElement v1, VertexElement v2, ElementStates.EState state, UV.I_UVProvider iup)
 		{
+			state_ = state;
 			uvProvider = iup;
 			vertexElements_[0] = v0;
 			vertexElements_[1] = v1;
 			vertexElements_[2] = v2;
 		}
 
-		public void SetGridPosition(GridUVProviders.GridPosition pos)
+		public void SetState(ElementStates.EState s)
 		{
-			if ( uvProvider != null )
-			{
-				uvProvider.SetGridPosition(pos);
-			}
+			state_ = s;
 		}
 
 		public void flipOrientation()
@@ -72,7 +73,7 @@ namespace MG
 			return false;
 		}
 
-		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs,  List < int > triVerts )
+		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs,  List < int > triVerts, int triangleNumber )
 		{
 			int firstIndex = verts.Count;
 			for (int v=0; v<3; v++)
@@ -81,7 +82,7 @@ namespace MG
 				triVerts.Add ( firstIndex + v);
 				if (uvProvider != null)
 				{
-					uvs.Add( uvProvider.GetUVForTriangleIndex(v) );
+					uvs.Add( uvProvider.GetUVForState(triangleNumber, v, state_) );
 				}
 			}
 		}

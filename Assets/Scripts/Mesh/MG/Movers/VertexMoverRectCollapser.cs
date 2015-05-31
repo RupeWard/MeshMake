@@ -20,44 +20,31 @@ namespace MG
 		private VertexElement target1;
 		private RectList rectList_;
 
-//			private int originIndex0;
-//			private int originIndex1;
-//			private int targetIndex0;
-//			private int targetIndex1;
-
 		private VertexElement []vertexElementsToProtect = new VertexElement[0];
 
-		private GridUVProviders.GridPosition movingPosition = MeshGenerator.greyRectGridPosition;
+		private ElementStates.EState movingState = ElementStates.EState.NONE;
 
 		public VertexMoverRectCollapser( RectList rectList,
 		                                RectElement rle, 
 		                                VertexElement o0, VertexElement t0,
 		                                VertexElement o1, VertexElement t1,
 		                                VertexElement[] vtp,
-		                                GridUVProviders.GridPosition mp,
+		                                ElementStates.EState s,
 		                                float t):base(t)
 		{
 			Debug.Log ("Creating RectCollapser: ");
 			this.rectList_ = rectList;
-//			this.originIndex0 = o0;
-//			this.originIndex1 = o1;
-//			this.targetIndex0 = t0;
-//			this.targetIndex1 = t1;
 			this.origin0 = o0;
 			this.origin1 = o1;
 			this.target0 = t0;
 			this.target1 = t1;
 			this.rect_ = rle;
 			this.vertexElementsToProtect = vtp;
-			if (mp!=null)
-			{
-				this.movingPosition = mp;
-			}
-
+			this.movingState  = s;
 			vertexMovers_[0]=new VertexMoverTarget( origin0, target0, timeTaken_);
 			vertexMovers_[1]=new VertexMoverTarget( origin1, target1, timeTaken_);
 
-			rect_.SetGridPosition(movingPosition);
+			rect_.SetState(movingState);
 		}
 
 
@@ -69,22 +56,6 @@ namespace MG
 			{
 				return true;
 			}
-			/*
-			if ( target0 == el || target1 == el)
-			{
-				return true;
-			}
-			if (vertexElementsToProtect != null)
-			{
-				foreach (VertexListElement vli in vertexElementsToProtect)
-				{
-					if (vli == el)
-					{
-						return true;
-					}
-				}
-			}
-			*/
 			return false;
 		}
 

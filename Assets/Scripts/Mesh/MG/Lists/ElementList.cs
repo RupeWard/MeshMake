@@ -49,18 +49,6 @@ namespace MG
 			}
 			return  default(TElement);
 		}
-		
-
-		/*
-		public VertexElement GetElement(int i)
-		{
-			if ( i < 0 || i >= elements_.Count )
-			{
-				Debug.LogError ("Can't get element of index "+i+" from "+vertexElements_.Count);
-				return null;
-			}
-			return vertexElements_[i];
-		}*/
 	}
 }
 

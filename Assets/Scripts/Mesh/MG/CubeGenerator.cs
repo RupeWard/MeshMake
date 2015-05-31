@@ -54,32 +54,24 @@ namespace MG
 			VertexElement t3 = vertexList_.AddElement( top3);
 
 
-/*
-			GridUVProviders.GridPosition gp0 = new GridUVProviders.GridPosition( 0,0); // cyan in color3x3
-			GridUVProviders.GridPosition gp1 = new GridUVProviders.GridPosition( 0,1);// mauve in color3x3
-			GridUVProviders.GridPosition gp2 = new GridUVProviders.GridPosition( 0,2 );// yellow in color3x3
-			GridUVProviders.GridPosition gp3 = new GridUVProviders.GridPosition( 1,1);// grey in color3x3
-			GridUVProviders.GridPosition gp4 = new GridUVProviders.GridPosition( 1,2);// purpkke in color3x3
-			GridUVProviders.GridPosition gp5 = new GridUVProviders.GridPosition( 1,2);// red in color3x3
-//			GridUVProviders.GridPosition gp6 = new GridUVProviders.GridPosition( 2,0);// green in color3x3
-//			GridUVProviders.GridPosition gp7 = new GridUVProviders.GridPosition( 2,1);// black in color3x3
-//			GridUVProviders.GridPosition gp8 = new GridUVProviders.GridPosition( 2,2);// blue in color3x3
-*/
-
-			GridUVProviders.GridPosition gp = MeshGenerator.cyanRectGridPosition;
-
-//			GridUVProviders.GridPosition gp1 = gp0;
-//			GridUVProviders.GridPosition gp2 = gp0;
-//			GridUVProviders.GridPosition gp3 = gp0;
-//			GridUVProviders.GridPosition gp4 = gp0;
-//			GridUVProviders.GridPosition gp5 = gp0;
-
-			RectElement baseRect = new RectElement(rectList_,  b3, b2, b1, b0, MeshGenerator.gridUVProviders, gp );
-			RectElement topRect = new RectElement(rectList_,  t1, t2, t3, t0, MeshGenerator.gridUVProviders, gp );
-			RectElement frontRect = new RectElement(rectList_,  b0, b1, t1, t0, MeshGenerator.gridUVProviders, gp );
-			RectElement arseRect = new RectElement(rectList_,  b2, b3, t3, t2, MeshGenerator.gridUVProviders, gp );
-			RectElement leftRect = new RectElement(rectList_,  b3, b0, t0, t3, MeshGenerator.gridUVProviders, gp);
-			RectElement rightRect = new RectElement(rectList_,  b1, b2, t2, t1, MeshGenerator.gridUVProviders, gp);
+			RectElement baseRect = new RectElement(rectList_,  b3, b2, b1, b0, 
+			                                       ElementStates.EState.Original,
+			                                       gridUvProvider_);
+			RectElement topRect = new RectElement(rectList_,  t1, t2, t3, t0, 
+			                                      ElementStates.EState.Original,
+			                                      gridUvProvider_);
+			RectElement frontRect = new RectElement(rectList_,  b0, b1, t1, t0, 
+			                                        ElementStates.EState.Original,
+			                                        gridUvProvider_);
+			RectElement arseRect = new RectElement(rectList_,  b2, b3, t3, t2, 
+			                                       ElementStates.EState.Original,
+			                                       gridUvProvider_);
+			RectElement leftRect = new RectElement(rectList_,  b3, b0, t0, t3, 
+			                                       ElementStates.EState.Original,
+			                                       gridUvProvider_);
+			RectElement rightRect = new RectElement(rectList_,  b1, b2, t2, t1, 
+			                                        ElementStates.EState.Original,
+			                                        gridUvProvider_);
 
 			rectList_.AddElement(baseRect);
 			rectList_.AddElement(topRect);

@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public interface I_UVProvider 
+namespace MG.UV
 {
-	Vector2 GetUVForTriangleIndex ( int i );
+	public interface I_UVProvider 
+	{
+		Vector2 GetUVForState ( int triangleNumber, int vertexNumber, ElementStates.EState state );
+
+	}
 }

@@ -6,19 +6,20 @@ namespace MG
 {
 	public class RectElement : IDebugDescribable
 	{
+
 		private RectList rectList_ = null;
-		private GridUVProviders uvProviders_ = null;
-		public GridUVProviders.GridPosition gridPosition;
 
 		VertexElement[] vertices = new VertexElement[4]{ null, null, null, null };
 		TriangleElement[] triangles = new TriangleElement[2] { null, null };
 
-		public void SetGridPosition(GridUVProviders.GridPosition gp)
-		{
-			gridPosition = gp;
+		private ElementStates.EState state_ =  ElementStates.EState.NONE;
+		private UV.I_UVProvider uvProvider_;
 
-			triangles [ 0 ].SetGridPosition ( gp );
-			triangles [ 1 ].SetGridPosition ( gp );
+		public void SetState(ElementStates.EState state)
+		{
+			state_ = state;
+			triangles [ 0 ].SetState(state);
+			triangles [ 1 ].SetState(state);
 		}
 
 		public VertexElement GetClosestVertex(Vector3 position, float maxDistance)
@@ -132,42 +133,22 @@ namespace MG
 			return ( position - centre ).magnitude;
 		}
 
-		public RectElement( RectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3)
+		public RectElement( RectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3, ElementStates.EState state, UV.I_UVProvider uvp)
 		{
 			rectList_ = rectList;
+			uvProvider_ = uvp;
 
 			vertices[0] = v0;
 			vertices[1] = v1;
 			vertices[2] = v2;
 			vertices[3] = v3;
-
-			triangles[0] = new TriangleElement( v0, v1, v3);
-			triangles[1] = new TriangleElement( v1, v2, v3);
-
-		}
-
-		public RectElement( RectList rectList, VertexElement v0, VertexElement v1, VertexElement v2, VertexElement v3, GridUVProviders gup, GridUVProviders.GridPosition gp)
-		{
-			uvProviders_ = gup;
-
-			rectList_ = rectList;
 			
-			vertices[0] = v0;
-			vertices[1] = v1;
-			vertices[2] = v2;
-			vertices[3] = v3;
-			
-			triangles[0] = new TriangleElement( v0, v1, v3, uvProviders_.GetTriangleProviderForRect(gp, 0));
-			triangles[1] = new TriangleElement( v1, v2, v3, uvProviders_.GetTriangleProviderForRect(gp, 1));
-			SetGridPosition(gp);
+			triangles[0] = new TriangleElement( v0, v1, v3, state, uvp);
+			triangles[1] = new TriangleElement( v1, v2, v3, state, uvp);
+			SetState(state);
 
 		}
-
-		public void SetUVProvider(GridUVProviders g)
-		{
-			uvProviders_ = g;
-		}
-
+		
 		public Vector3 GetCentre()
 		{
 			Vector3 result = Vector3.zero;
@@ -220,27 +201,7 @@ namespace MG
 			}
 			return changed;
 		}
-
 		/*
-		public bool ReplaceVertexIndex( int oldIndex, int newIndex)
-		{
-			bool changed = false;
-			if (triangles[0].ReplaceVertexIndex(oldIndex, newIndex))
-			{
-				changed = true;
-			}
-			if (triangles[1].ReplaceVertexIndex(oldIndex, newIndex))
-			{
-				changed = true;
-			}
-			if (changed)
-			{
-				rectList_.vertexList.DisconnectVertexFromRect(oldIndex, this);
-			}
-			return changed;
-		}
-		*/
-
 		public int SharesEdgeOld( VertexElement v0, VertexElement v1 )
 		{
 			int shares = 0;
@@ -257,6 +218,7 @@ namespace MG
 			}
 			return shares;
 		}
+		*/
 
 		public int SharesEdge( VertexElement v0, VertexElement v1, ref Vector3 directionaway0, ref Vector3 directionaway1, ref VertexElement otherNeighbour0, ref VertexElement otherNeighbour1 )
 		{
@@ -296,13 +258,10 @@ namespace MG
 			triangles[1].flipOrientation();
 		}
 
-		protected RectElement(){}
-
-			/*
-		public int GetVertexIndex(int i)
+		protected RectElement(UV.I_UVProvider uvp)
 		{
-			return vertices[i];
-		}*/
+			uvProvider_ = uvp;
+		}
 
 		public Vector3 GetVector(int i)
 		{
@@ -317,8 +276,8 @@ namespace MG
 
 		public void AddToMeshGenLists( MeshGenerator gen, List < Vector3 > verts, List < Vector2 > uvs, List < int > triVerts )
 		{
-			triangles[0].AddToMeshGenLists( gen, verts, uvs, triVerts );
-			triangles[1].AddToMeshGenLists( gen, verts, uvs, triVerts );
+			triangles[0].AddToMeshGenLists( gen, verts, uvs, triVerts, 0 );
+			triangles[1].AddToMeshGenLists( gen, verts, uvs, triVerts, 1 );
 		}
 
 		public static bool IsSameRect(RectElement t, RectElement other)

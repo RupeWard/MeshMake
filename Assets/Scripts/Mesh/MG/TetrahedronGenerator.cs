@@ -60,10 +60,10 @@ namespace MG
 			VertexElement base1Element = vertexList_.AddElement( base1);
 			VertexElement base2Element = vertexList_.AddElement( base2);
 
-			TriangleElement baseTri = new TriangleElement( base2Element, base0Element, base1Element);
-			TriangleElement side0Tri = new TriangleElement ( apexElement, base0Element, base2Element);
-			TriangleElement side1Tri = new TriangleElement ( apexElement, base1Element, base0Element);
-			TriangleElement side2Tri = new TriangleElement ( apexElement, base2Element, base1Element);
+			TriangleElement baseTri = new TriangleElement( base2Element, base0Element, base1Element, ElementStates.EState.Original);
+			TriangleElement side0Tri = new TriangleElement ( apexElement, base0Element, base2Element, ElementStates.EState.Original);
+			TriangleElement side1Tri = new TriangleElement ( apexElement, base1Element, base0Element, ElementStates.EState.Original);
+			TriangleElement side2Tri = new TriangleElement ( apexElement, base2Element, base1Element, ElementStates.EState.Original);
 
 			triangleList_.AddElement(baseTri);
 			triangleList_.AddElement(side0Tri);

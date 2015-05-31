@@ -11,7 +11,7 @@ namespace MG
 			HashSet< RectElement > rles = vertex_.rects;
 			foreach( RectElement rle in rles)
 			{
-				rle.SetGridPosition( finalGridPosition_ );
+				rle.SetState( finalState_ );
 			}
 		}
 
@@ -29,13 +29,13 @@ namespace MG
 		private Vector3 direction_ = Vector3.zero;
 		private float distance_;
 
-		private GridUVProviders.GridPosition finalGridPosition_ = MG.MeshGenerator.redRectGridPosition;
+		private ElementStates.EState finalState_ = ElementStates.EState.NONE;
 
 		public VertexMoverDirectionDistance(VertexElement o, 
 		                                    VertexElement v, 
 		                                    Vector3 direction, 
 		                                    float dist, float t, 
-		                                    GridUVProviders.GridPosition fp): base(t)
+		                                    ElementStates.EState fs): base(t)
 		{
 //			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+direction.ToString()+" "+dist+" "+t);
 			this.originVertex_ = o;
@@ -45,13 +45,10 @@ namespace MG
 			this.direction_.Normalize();
 			this.distance_ = dist;
 			this.finalPosition_ = this.initialPosition_;
-			if (fp != null)
-			{
-				finalGridPosition_ = fp;
-			}
+			this.finalState_ = fs;
 		}
 
-		public VertexMoverDirectionDistance(VertexElement o,  VertexElement v, Vector3 final, float t, GridUVProviders.GridPosition fp):base(t)
+		public VertexMoverDirectionDistance(VertexElement o,  VertexElement v, Vector3 final, float t, ElementStates.EState fs):base(t)
 		{
 //			Debug.Log ("Creating VertexMover: "+v.GetVector ().ToString()+" "+final.ToString()+" "+t);
 			this.originVertex_ = o;
@@ -60,10 +57,7 @@ namespace MG
 			this.finalPosition_ = final;
 			this.direction_ = Vector3.zero;
 			this.distance_ = (final - initialPosition_).magnitude;
-			if (fp != null)
-			{
-				finalGridPosition_ = fp;
-			}
+			this.finalState_ = fs;
 		}
 
 		protected Vector3 FinalPosition()

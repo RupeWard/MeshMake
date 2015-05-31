@@ -6,16 +6,10 @@ namespace MG
 {
 	public class MeshGenerator : MonoBehaviour, IDebugDescribable
 	{
-		static public readonly GridUVProviders gridUVProviders = new GridUVProviders ( 3,3);
-		static public readonly GridUVProviders.GridPosition cyanRectGridPosition = new GridUVProviders.GridPosition ( 0,0 );
-		static public readonly GridUVProviders.GridPosition mauveRectGridPosition = new GridUVProviders.GridPosition ( 0,1 );
-		static public readonly GridUVProviders.GridPosition yellowRectGridPosition = new GridUVProviders.GridPosition ( 0,2 );
-		static public readonly GridUVProviders.GridPosition greyRectGridPosition = new GridUVProviders.GridPosition( 1,0);// grey in color3x3
-		static public readonly GridUVProviders.GridPosition purpleRectGridPosition = new GridUVProviders.GridPosition( 1,1);// purpkke in color3x3
-		static public readonly GridUVProviders.GridPosition redRectGridPosition = new GridUVProviders.GridPosition( 1,2);// purpkke in color3x3
-		static public readonly GridUVProviders.GridPosition greenRectGridPosition = new GridUVProviders.GridPosition( 2,0);// green in color3x3
-		static public readonly GridUVProviders.GridPosition blackRectGridPosition = new GridUVProviders.GridPosition( 2,1);// black in color3x3
-		static public readonly GridUVProviders.GridPosition blueRectGridPosition = new GridUVProviders.GridPosition( 2,2);// blue in color3x3
+		static public int gridWidth=3;
+		static public int gridHeight=3;
+
+		protected UV.GridUVProvider gridUvProvider_=null;
 
 		public bool allowMultiExtend
 		{
@@ -61,6 +55,8 @@ namespace MG
 
 		void Awake()
 		{
+			gridUvProvider_ = new MG.UV.GridUVProvider (gridHeight, gridWidth );
+
 			vertexList_ = new VertexList ( );
 			triangleList_ = new TriangleList ( );
 			rectList_ = new RectList (  );
@@ -143,7 +139,7 @@ namespace MG
 				}
 				foreach (TriangleElement t in triangleList_.Elements)
 				{
-					t.AddToMeshGenLists( this, verts, uvs, triVerts);
+					t.AddToMeshGenLists( this, verts, uvs, triVerts, 0);
 				}
 			}
 
@@ -279,7 +275,6 @@ namespace MG
 					individuals.Remove(matchingIndividual);
 					if ( rle.AngleFromNormalsRadians( matchingIndividual.GetNormal()) * Mathf.Rad2Deg < 1f )
 					{
-			//			dupesSame.Add (rle);
 						dupesSame.Add (new RectElement[]{ matchingIndividual, rle });
 					}
 					else
@@ -301,9 +296,7 @@ namespace MG
 
 			foreach ( RectElement[] rles in dupesSame )
 			{
-//				rectList_.RemoveRectWithVertexReplace(rles[0], rles[1]);
 				rectList_.RemoveElement(rles[0]);
-//				rectList_.RemoveRect(rles[1]);
 			}
 		}
 
@@ -327,7 +320,7 @@ namespace MG
 				{
 					
 					Debug.Log ("Click-Extending "+rle.DebugDescribe());
-					ExtendRect(rle, size_, yellowRectGridPosition, redRectGridPosition);
+					ExtendRect(rle, size_, ElementStates.EState.GrowingClicked, ElementStates.EState.StaticClicked, ElementStates.EState.CollapsingClicked);
 				}
 			}
 		}
@@ -344,7 +337,7 @@ namespace MG
 			{
 				RectElement t = rectList_.GetRandomElement();
 				Debug.Log ("Rand-extending "+t.DebugDescribe());
-				ExtendRect( t, size_, blueRectGridPosition, greyRectGridPosition);
+				ExtendRect( t, size_, ElementStates.EState.GrowingRand, ElementStates.EState.StaticRand, ElementStates.EState.CollapsingRand);
 			}
 
 		}
@@ -363,7 +356,7 @@ namespace MG
 			return false;
 		}
 
-		public void ExtendRect(RectElement originRect, float height, GridUVProviders.GridPosition movingGridPosition, GridUVProviders.GridPosition finalGridPosition)
+		public void ExtendRect(RectElement originRect, float height, ElementStates.EState growingState, ElementStates.EState finalState, ElementStates.EState collapsingState)
 		{
 			if ( !AppManager.Instance.allowCloseMultiExtend )
 			{
@@ -389,24 +382,17 @@ namespace MG
 				extendSB.Length = 0;
 				Debug.Log ( "ExtendRect " + originRect.DebugDescribe() );
 			}
-			if ( movingGridPosition == null )
-			{
-				movingGridPosition = greyRectGridPosition;
-			}
 
-//			int[] originVertexIndices = new int[4];
 			Vector3[] originVectors = new Vector3[4];
 
 			for ( int i=0; i<4; i++ )
 			{
-//				originVertexIndices[i] = originRect.GetVertexIndex ( i );
 				originVectors[i] = originRect.GetVector ( i );
 			}
 
 			Vector3 originCentre = originRect.GetCentre ( );
 	
 			Vector3 direction = originRect.GetNormal();
-//			Vector3 direction = Vector3.Cross( originVertices[0]-originVertices[2], originVertices[1]-originVertices[3]);
 			direction.Normalize();
 
 			VertexElement[] newVertexElements = new VertexElement[4]{ null, null, null, null };
@@ -609,7 +595,13 @@ namespace MG
 			// if there's no shared edge, do as before...
 
 			// create all movers?
-			RectElement newTopRect = new RectElement(rectList_, newVertexElements[0], newVertexElements[1], newVertexElements[2], newVertexElements[3], MeshGenerator.gridUVProviders, movingGridPosition);
+			RectElement newTopRect = new RectElement(rectList_, 
+			                                         newVertexElements[0], 
+			                                         newVertexElements[1], 
+			                                         newVertexElements[2], 
+			                                         newVertexElements[3], 
+			                                         growingState,
+			                                         gridUvProvider_);
 			rectList_.AddElement( newTopRect);
 
 			bool[] moverMadeForVertex = new bool[4]
@@ -658,7 +650,7 @@ namespace MG
 							                             newVertexElement1,
 							                             edgeInfo.neighbourVle1,
 							                             null,
-							                             greenRectGridPosition,
+							                             collapsingState,
 							                             AppManager.Instance.moveDuration);
 
 						vertexMovers_.Add(newMover);
@@ -676,7 +668,8 @@ namespace MG
 						                    originRect.GetVertexElement( edgeDef.GetIndex(1)),
 						                            newVertexElements[ edgeDef.GetIndex(1)],
 						                    		newVertexElements [edgeDef.GetIndex(0)], 
-						                    MeshGenerator.gridUVProviders, movingGridPosition );
+						                    		growingState,
+						                gridUvProvider_);
 					rectList_.AddElement( newRect);
 					//FIXME log;
 
@@ -691,7 +684,7 @@ namespace MG
 					                                 newVertexElements[i], 
 					                                 direction, height, 
 					                                 AppManager.Instance.moveDuration, 
-					                                 finalGridPosition);
+					                                 finalState);
 				vertexMovers_.Add(newMover);
 				//FIXME log;
 
@@ -703,51 +696,7 @@ namespace MG
 			}
 		}
 
-		/*
-		public void ExtendRectOriginal(RectListElement originRect, float height)
-		{
-			int[] originVertexIndices = new int[4];
-			Vector3[] originVertices = new Vector3[4];
-			
-			for ( int i=0; i<4; i++ )
-			{
-				originVertexIndices[i] = originRect.GetVertexIndex ( i );
-				originVertices[i] = vertexList_.GetVectorAtIndex( originVertexIndices[i]);
-			}
-			Vector3 originCentre = originRect.GetCentre ( );
-			
-			Vector3 direction = Vector3.Cross( originVertices[0]-originVertices[2], originVertices[1]-originVertices[3]);
-			
-			int[] newVertexIndices = new int[4];
-			Vector3[] newVertices = new Vector3[4];
-			
-			for ( int i=0; i<4; i++ )
-			{
-				newVertices[i] = originVertices[i] + direction * POSITION_TELRANCE * 10f;
-				newVertexIndices[i] = vertexList_.AddVertex(newVertices[i]);
-			}
-			
-			RectListElement newTopRect = new RectListElement(rectList_, newVertexIndices[0], newVertexIndices[1], newVertexIndices[2], newVertexIndices[3]);
-			RectListElement newFrontRect = new RectListElement(rectList_,  originVertexIndices[0], originVertexIndices[1], newVertexIndices[1], newVertexIndices[0] );
-			RectListElement newArseRect = new RectListElement(rectList_,  originVertexIndices[2], originVertexIndices[3], newVertexIndices[3], newVertexIndices[2] );
-			RectListElement newLeftRect = new RectListElement(rectList_,  originVertexIndices[3], originVertexIndices[0], newVertexIndices[0], newVertexIndices[3]);
-			RectListElement newRightRect = new RectListElement(rectList_,  originVertexIndices[1], originVertexIndices[2], newVertexIndices[2], newVertexIndices[1]);
-
-			rectList_.AddRect( newTopRect);
-			rectList_.AddRect( newFrontRect);
-			rectList_.AddRect( newArseRect);
-			rectList_.AddRect( newLeftRect);
-			rectList_.AddRect( newRightRect);
-			
-			rectList_.RemoveRect( originRect);
-			
-			for (int i =0; i<4; i++)
-			{
-				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance( vertexList_.GetElement(newVertexIndices[i]), direction, height, 2f);
-				vertexMovers_.Add(newMover);
-			}
-		}
-		*/
+#region Old Triangle Stuff		
 
 		public void SplitRandomTriangle()
 		{
@@ -764,7 +713,7 @@ namespace MG
 
 				// TODO Check distance from centre of triangle to obstacle
 				// this is lower bound for mover distance
-				VertexElement newVertex = SplitTriangle( t);
+				VertexElement newVertex = SplitTriangle( t, ElementStates.EState.GrowingRand);
 
 				Vector3 v0 = t.GetVertex(0).GetVector();
 				Vector3 v1 = t.GetVertex(1).GetVector();
@@ -779,12 +728,12 @@ namespace MG
 				Vector3 direction = Vector3.Cross( v0-v1, v2-v0 );
 				direction.Normalize();
 				direction = -1f * direction;
-				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance(null, newVertex, direction, height, AppManager.Instance.moveDuration, null);
+				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance(null, newVertex, direction, height, AppManager.Instance.moveDuration, ElementStates.EState.NONE);
 				vertexMovers_.Add(newMover);
 			}
 		}
 
-		VertexElement SplitTriangle(TriangleElement t)
+		VertexElement SplitTriangle(TriangleElement t, ElementStates.EState state)
 		{
 			VertexElement newVertex = vertexList_.AddElement(t.GetCentre ());
 
@@ -792,9 +741,9 @@ namespace MG
 			Vector3 v1 = t.GetVertex(1).GetVector();
 			Vector3 v2 = t.GetVertex(2).GetVector();
 			
-			TriangleElement t0 = new TriangleElement( t.GetVertex(0), t.GetVertex(1), newVertex);
-			TriangleElement t1 = new TriangleElement( t.GetVertex(1), t.GetVertex(2), newVertex);
-			TriangleElement t2 = new TriangleElement( newVertex, t.GetVertex(2), t.GetVertex(0));
+			TriangleElement t0 = new TriangleElement( t.GetVertex(0), t.GetVertex(1), newVertex, state);
+			TriangleElement t1 = new TriangleElement( t.GetVertex(1), t.GetVertex(2), newVertex, state);
+			TriangleElement t2 = new TriangleElement( newVertex, t.GetVertex(2), t.GetVertex(0), state);
 			
 			triangleList_.AddElement(t0);
 			triangleList_.AddElement(t1);
@@ -812,7 +761,7 @@ namespace MG
 			
 			return newVertex;
 		}
-		
+#endregion Old Triangle Stuff		
 
 #region IDebugDescribable
 		public virtual void DebugDescribe(System.Text.StringBuilder sb)
@@ -836,7 +785,7 @@ namespace MG
 				{
 					RectElement hitRect = rectList_.GetClosestElement ( collision.contacts[0].point);
 					Debug.Log ( "Collision-extending "+hitRect.DebugDescribe()+" as Ball "+collision.gameObject.name+" hit "+gameObject.name );
-					ExtendRect(hitRect, size_, purpleRectGridPosition, mauveRectGridPosition);
+					ExtendRect(hitRect, size_, ElementStates.EState.GrowingBall, ElementStates.EState.StaticBall, ElementStates.EState.CollapsingBall);
 				}
 			}
 			else
