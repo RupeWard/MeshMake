@@ -19,7 +19,7 @@ namespace MG
 
 		private void Init(Vector3 centre, float size) 
 		{
-			Debug.Log ( "CubeGen: CTOR Start" );
+//			Debug.Log ( "CubeGen: CTOR Start" );
 			this.centre_ = centre;
 			this.size_ = size;
 
