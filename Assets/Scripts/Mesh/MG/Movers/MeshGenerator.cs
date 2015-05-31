@@ -302,25 +302,28 @@ namespace MG
 
 		public void OnClicked(RaycastHit hit)
 		{
-//			Debug.Log ( "Clicked on the thing at "+hit.point );
-			bool allow = true;
-			if ( !allowMultiExtend && vertexMovers_.Count > 0 )
+			if (!HudManager.Instance.eventSystem.IsPointerOverGameObject() )
 			{
-				Debug.Log ("Not extending Rect because movers exist");
-				allow = false;
-			}
-			if (allow)
-			{
-				RectElement rle = rectList_.GetClosestElement(hit.point);
-				if (rle == null)
+				//			Debug.Log ( "Clicked on the thing at "+hit.point );
+				bool allow = true;
+				if ( !allowMultiExtend && vertexMovers_.Count > 0 )
 				{
-					Debug.LogError("Failed to find closest rect to hit!");
+					Debug.Log ("Not extending Rect because movers exist");
+					allow = false;
 				}
-				else
+				if (allow)
 				{
-					
-//					Debug.Log ("Click-Extending "+rle.DebugDescribe());
-					ExtendRect(rle, size_, ElementStates.EState.GrowingClicked, ElementStates.EState.StaticClicked, ElementStates.EState.CollapsingClicked);
+					RectElement rle = rectList_.GetClosestElement(hit.point);
+					if (rle == null)
+					{
+						Debug.LogError("Failed to find closest rect to hit!");
+					}
+					else
+					{
+						
+						//					Debug.Log ("Click-Extending "+rle.DebugDescribe());
+						ExtendRect(rle, size_, ElementStates.EState.GrowingClicked, ElementStates.EState.StaticClicked, ElementStates.EState.CollapsingClicked);
+					}
 				}
 			}
 		}

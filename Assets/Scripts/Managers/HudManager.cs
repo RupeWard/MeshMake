@@ -1,11 +1,13 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 public class HudManager : SingletonApplicationLifetime< HudManager > 
 {
 	public GameObject tetheredCameraPanel;
 	public GameObject shipCameraPanel;
 	public GameObject internalCameraPanel;
+	public EventSystem eventSystem;
 
 	public void HandleModeChange(AppManager.EMode mode)
 	{
