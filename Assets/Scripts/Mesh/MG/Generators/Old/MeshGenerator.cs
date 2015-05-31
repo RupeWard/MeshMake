@@ -4,19 +4,18 @@ using System.Collections.Generic;
 
 namespace MG
 {
-	public class CubeMeshGenerator : MonoBehaviour, IDebugDescribable
+	public class MeshGenerator : MonoBehaviour, IDebugDescribable
 	{
 		static public int gridWidth=3;
 		static public int gridHeight=3;
 
-		protected UV.I_RectUVProvider rectUvProvider_=null;
+		protected UV.GridUVProvider gridUvProvider_=null;
 
 		public bool allowMultiExtend
 		{
 			get { return AppManager.Instance.allowMultiExtend; }
 		}
 
-		public static readonly float POSITION_TELRANCE = 0.001f;
 		public static bool DEBUG_MESHMAKE = false;
 		public static bool DEBUG_EXTENDRECT = false;
 
@@ -25,6 +24,7 @@ namespace MG
 		{
 			get { return vertexList_; }
 		}
+		protected TriangleList triangleList_ = null;
 		protected RectList rectList_ = null;
 
 		private MeshFilter meshFilter_;
@@ -44,7 +44,6 @@ namespace MG
 		public void SetMaterial(Material m)
 		{
 			meshRenderer_.material = m;
-			SetDirty ( );
 		}
 
 		private bool isDirty_ = false;
@@ -53,88 +52,12 @@ namespace MG
 			isDirty_ = true;
 		}
 
-		static public CubeMeshGenerator Create (string name, Vector3 centre, float size,
-		                                        Material mat, UV.I_RectUVProvider rup)
-		{
-			GameObject go = new GameObject ( name );
-			CubeMeshGenerator tg = go.AddComponent< CubeMeshGenerator >();
-			tg.Init( size, mat, rup);
-			go.transform.localPosition = centre;
-			go.transform.parent = AppManager.Instance.world;
-			return tg;
-		}
-		
-		private void Init(float size, Material mat, UV.I_RectUVProvider rup) 
-		{
-			//			Debug.Log ( "CubeGen: CTOR Start" );
-			this.size_ = size;
-			this.rectUvProvider_ = rup;
-			this.SetMaterial ( mat );
-			SetDirty();
-			Create ( );
-			
-			Debug.Log ( "Created " + this.DebugDescribe ( ));
-		}
-		
-		private void Create()
-		{
-			float halfSide = 0.5f * size_;
-			
-			Vector3 base0 = new Vector3 ( -1f * halfSide, -1f * halfSide, -1f * halfSide );
-			Vector3 base1 = new Vector3 ( -1f * halfSide, -1f * halfSide, halfSide );
-			Vector3 base2 = new Vector3 ( halfSide, -1f * halfSide, halfSide );
-			Vector3 base3 = new Vector3 ( halfSide, -1f * halfSide, -1f * halfSide );
-			
-			Vector3 top0 = new Vector3 ( -1f * halfSide, halfSide, -1f * halfSide );
-			Vector3 top1 = new Vector3 ( -1f * halfSide, halfSide, halfSide );
-			Vector3 top2 = new Vector3 ( halfSide, halfSide, halfSide );
-			Vector3 top3 = new Vector3 ( halfSide, halfSide, -1f * halfSide );
-			
-			
-			VertexElement b0 = vertexList_.AddElement( base0);
-			VertexElement b1 = vertexList_.AddElement( base1);
-			VertexElement b2 = vertexList_.AddElement( base2);
-			VertexElement b3 = vertexList_.AddElement( base3);
-			
-			VertexElement t0 = vertexList_.AddElement( top0);
-			VertexElement t1 = vertexList_.AddElement( top1);
-			VertexElement t2 = vertexList_.AddElement( top2);
-			VertexElement t3 = vertexList_.AddElement( top3);
-			
-			
-			RectElement baseRect = new RectElement(rectList_,  b3, b2, b1, b0, 
-			                                       ElementStates.EState.Original,
-			                                       rectUvProvider_);
-			RectElement topRect = new RectElement(rectList_,  t1, t2, t3, t0, 
-			                                      ElementStates.EState.Original,
-			                                      rectUvProvider_);
-			RectElement frontRect = new RectElement(rectList_,  b0, b1, t1, t0, 
-			                                        ElementStates.EState.Original,
-			                                        rectUvProvider_);
-			RectElement arseRect = new RectElement(rectList_,  b2, b3, t3, t2, 
-			                                       ElementStates.EState.Original,
-			                                       rectUvProvider_);
-			RectElement leftRect = new RectElement(rectList_,  b3, b0, t0, t3, 
-			                                       ElementStates.EState.Original,
-			                                       rectUvProvider_);
-			RectElement rightRect = new RectElement(rectList_,  b1, b2, t2, t1, 
-			                                        ElementStates.EState.Original,
-			                                        rectUvProvider_);
-			
-			rectList_.AddElement(baseRect);
-			rectList_.AddElement(topRect);
-			rectList_.AddElement(frontRect);
-			rectList_.AddElement(arseRect);
-			rectList_.AddElement(leftRect);
-			rectList_.AddElement(rightRect);
-			
-			SetDirty();
-		}
-
 		void Awake()
 		{
+			gridUvProvider_ = new MG.UV.GridUVProvider (gridHeight, gridWidth );
 
 			vertexList_ = new VertexList ( );
+			triangleList_ = new TriangleList ( );
 			rectList_ = new RectList (  );
 
 			meshFilter_ = gameObject.GetComponent< MeshFilter > ( );
@@ -178,6 +101,7 @@ namespace MG
 
 		void Start()
 		{
+			isDirty_ = false;
 		}
 
 		public void MakeMesh()
@@ -187,9 +111,9 @@ namespace MG
 				Debug.Log("Making mesh");
 			}
 
-			if (vertexList_.Count == 0 || rectList_.Count == 0)
+			if (vertexList_.Count == 0 || (triangleList_.Count == 0 && rectList_.Count == 0))
 			{
-				Debug.LogError( "Can't make mesh with "+vertexList_.Count+" verts, "+rectList_.Count+"rects");
+				Debug.LogError( "Can't make mesh with "+vertexList_.Count+" verts, "+rectList_.Count+"rects and "+triangleList_.Count+" tris");
 				return;
 			}
 			gameObject.tag = "Thing";
@@ -205,6 +129,18 @@ namespace MG
 			List < Vector3 > verts = new List< Vector3 >();
 			List < Vector2 > uvs = new List< Vector2 >();
 			List< int > triVerts = new List< int >();
+
+			if (triangleList_ != null)
+			{
+				if ( DEBUG_MESHMAKE )
+				{
+					Debug.Log("Adding "+triangleList_.Count+" tris");
+				}
+				foreach (TriangleElement t in triangleList_.Elements)
+				{
+					t.AddToMeshGenLists( this, verts, uvs, triVerts, 0);
+				}
+			}
 
 			if (rectList_ != null)
 			{
@@ -299,7 +235,7 @@ namespace MG
 				{
 					Vector3 otherpos = other.GetVector(otherindex);
 
-					if (Vector3.Distance( tpos, otherpos ) <= POSITION_TELRANCE*2f)
+					if (Vector3.Distance( tpos, otherpos ) <= MGSettings.POSITION_TOLERANCE*2f)
 					{
 						matches++;
 						break;
@@ -351,7 +287,7 @@ namespace MG
 					individuals.Add(rle);
 				}
 			}
-//			Debug.Log ("Found inds = "+individuals.Count+", dupesSame =  "+dupesSame.Count+" dupesOppos = "+dupesOpposite.Count+"  (should be even)");
+			Debug.Log ("Found inds = "+individuals.Count+", dupesSame =  "+dupesSame.Count+" dupesOppos = "+dupesOpposite.Count+"  (should be even)");
 			foreach ( RectElement rle in dupesOpposite )
 			{
 				rectList_.RemoveElement(rle);
@@ -525,7 +461,7 @@ namespace MG
 		
 			for ( int i=0; i<4; i++ )
 			{
-					newVertices[i] = originVectors[i] + direction * POSITION_TELRANCE * 2f;
+				newVertices[i] = originVectors[i] + direction * MGSettings.POSITION_TOLERANCE * 2f;
 					newVertexElements[i] = vertexList_.AddElement(newVertices[i]);
 			}
 
@@ -699,7 +635,7 @@ namespace MG
 			                                         newVertexElements[2], 
 			                                         newVertexElements[3], 
 			                                         growingState,
-			                                         rectUvProvider_);
+			                                         gridUvProvider_);
 			rectList_.AddElement( newTopRect);
 
 			bool[] moverMadeForVertex = new bool[4]
@@ -772,7 +708,7 @@ namespace MG
 						                            newVertexElements[ edgeDef.GetIndex(1)],
 						                    		newVertexElements [edgeDef.GetIndex(0)], 
 						                    		growingState,
-						                rectUvProvider_);
+						                gridUvProvider_);
 					rectList_.AddElement( newRect);
 					//FIXME log;
 //					moverMadeForVertex[ edgeDef.GetIndex(0) ] = true;
@@ -815,11 +751,77 @@ namespace MG
 			}
 		}
 
+#region Old Triangle Stuff		
+
+		public void SplitRandomTriangle()
+		{
+			bool allow = true;
+			if ( !allowMultiExtend && vertexMovers_.Count > 0 )
+			{
+				Debug.Log ("Not splitting triangle because movers exist");
+				allow = false;
+			}
+
+			if ( allow && triangleList_.Count > 3 )
+			{
+				TriangleElement t = triangleList_.GetRandomElement();
+
+				// TODO Check distance from centre of triangle to obstacle
+				// this is lower bound for mover distance
+				VertexElement newVertex = SplitTriangle( t, ElementStates.EState.GrowingRand);
+
+				Vector3 v0 = t.GetVertex(0).GetVector();
+				Vector3 v1 = t.GetVertex(1).GetVector();
+				Vector3 v2 = t.GetVertex(2).GetVector();
+				// get dist as mean of the 3 edges
+				float tetEdge = ( 
+				              Vector3.Distance( v0,v1)
+				              + Vector3.Distance( v1,v2)
+				              + Vector3.Distance( v2,v0)
+				              ) / 3f;
+				float height = tetEdge * Mathf.Sqrt (2f/3f);
+				Vector3 direction = Vector3.Cross( v0-v1, v2-v0 );
+				direction.Normalize();
+				direction = -1f * direction;
+				VertexMoverDirectionDistance newMover = new VertexMoverDirectionDistance(null, newVertex, direction, height, AppManager.Instance.moveDuration, ElementStates.EState.NONE);
+				vertexMovers_.Add(newMover);
+			}
+		}
+
+		VertexElement SplitTriangle(TriangleElement t, ElementStates.EState state)
+		{
+			VertexElement newVertex = vertexList_.AddElement(t.GetCentre ());
+
+			Vector3 v0 = t.GetVertex(0).GetVector();
+			Vector3 v1 = t.GetVertex(1).GetVector();
+			Vector3 v2 = t.GetVertex(2).GetVector();
+			
+			TriangleElement t0 = new TriangleElement( t.GetVertex(0), t.GetVertex(1), newVertex, state);
+			TriangleElement t1 = new TriangleElement( t.GetVertex(1), t.GetVertex(2), newVertex, state);
+			TriangleElement t2 = new TriangleElement( newVertex, t.GetVertex(2), t.GetVertex(0), state);
+			
+			triangleList_.AddElement(t0);
+			triangleList_.AddElement(t1);
+			triangleList_.AddElement(t2);
+			
+			triangleList_.RemoveElement(t);
+			
+			Debug.Log ("Split triangle: Lost "+t.DebugDescribe()
+			           +"\nGained "+t0.DebugDescribe()
+			           +"\n       "+t1.DebugDescribe()
+			           +"\n       "+t2.DebugDescribe()
+			           );
+			
+			SetDirty();
+			
+			return newVertex;
+		}
+#endregion Old Triangle Stuff		
 
 #region IDebugDescribable
 		public virtual void DebugDescribe(System.Text.StringBuilder sb)
 		{
-			sb.Append ("CMG: "+vertexList_.Count+" verts, "+rectList_.Count+" rects");
+			sb.Append ("MeshGen: "+vertexList_.Count+" verts, "+triangleList_.Count+" tris, "+rectList_.Count+" rects");
 		}
 #endregion IDebugDescribable
 
@@ -837,7 +839,7 @@ namespace MG
 				if (allow)
 				{
 					RectElement hitRect = rectList_.GetClosestElement ( collision.contacts[0].point);
-//					Debug.Log ( "Collision-extending "+hitRect.DebugDescribe()+" as Ball "+collision.gameObject.name+" hit "+gameObject.name );
+					Debug.Log ( "Collision-extending "+hitRect.DebugDescribe()+" as Ball "+collision.gameObject.name+" hit "+gameObject.name );
 					ExtendRect(hitRect, size_, ElementStates.EState.GrowingBall, ElementStates.EState.StaticBall, ElementStates.EState.CollapsingBall);
 				}
 			}

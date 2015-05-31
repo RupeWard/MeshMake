@@ -32,7 +32,7 @@ namespace MG
 	
 		public virtual TElement FindElement(Vector3 pos)
 		{
-			return GetClosestElement ( pos, MG.MeshGenerator.POSITION_TELRANCE );
+			return GetClosestElement ( pos, MG.MGSettings.POSITION_TOLERANCE );
 		}
 
 		public int Count

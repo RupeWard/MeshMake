@@ -72,7 +72,7 @@ namespace MG
 			for (int i = 0; i<4; i++)
 			{
 				VertexElement vleToReplace = toReplace.GetVertexElement(i);
-				VertexElement newVle = match.GetClosestVertex( toReplace.GetVertexElement(i).GetVector(), MeshGenerator.POSITION_TELRANCE * 2f );
+				VertexElement newVle = match.GetClosestVertex( toReplace.GetVertexElement(i).GetVector(), MGSettings.POSITION_TOLERANCE * 2f );
 				if (newVle != null)
 				{
 					ReplaceVertexElement( vleToReplace, newVle);

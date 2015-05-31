@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -44,7 +44,7 @@ namespace MG
 
 		public override VertexElement FindElement(Vector3 pos)
 		{
-			return GetClosestElement ( pos, MG.MeshGenerator.POSITION_TELRANCE );
+			return GetClosestElement ( pos, MG.MGSettings.POSITION_TOLERANCE );
 		}
 
 		public VertexElement AddElement(Vector3 pos)

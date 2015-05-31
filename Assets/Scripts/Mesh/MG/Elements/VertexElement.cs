@@ -80,7 +80,7 @@ namespace MG
 
 		public static bool Equals(VertexElement t, VertexElement other)
 		{
-			return (Vector3.Distance(t.GetVector(), other.GetVector()) < MeshGenerator.POSITION_TELRANCE);
+			return (Vector3.Distance(t.GetVector(), other.GetVector()) < MGSettings.POSITION_TOLERANCE);
 		}
 
 		public void DebugDescribe(System.Text.StringBuilder sb)
