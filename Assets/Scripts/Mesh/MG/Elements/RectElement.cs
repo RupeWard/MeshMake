@@ -38,95 +38,6 @@ namespace MG
 			return vle;
 		}
 
-		public class EdgeDef :IDebugDescribable
-		{
-			private readonly int [] indices = new int[2];
-
-			public int GetIndex(int i)
-			{
-				return indices [ i ];
-			}
-
-			public EdgeDef(int i0, int i1)
-			{
-				indices[0]=i0;
-				indices[1]=i1;
-			}
-
-			private EdgeDef(){}
-
-			public bool SameEdge (EdgeDef ed)
-			{
-				bool result = false;
-				if (ed.indices[0] == this.indices[0] && ed.indices[1] == this.indices[1])
-				{
-					result = true;
-				}
-				return result;
-			}
-
-			public void DebugDescribe(System.Text.StringBuilder sb)
-			{
-				sb.Append ( "(" ).Append ( indices [ 0 ] ).Append ( "," ).Append ( indices [ 1 ] ).Append ( ")" );
-			}
-
-			static System.Text.StringBuilder s_sb = new System.Text.StringBuilder ( );
-			public override string ToString ()
-			{
-				s_sb.Length = 0;
-				DebugDescribe ( s_sb );
-				return s_sb.ToString();
-			}
-		}
-
-		public class EdgeDefs
-		{
-			static private readonly EdgeDef[] edgeDefs = new EdgeDef[] 
-			{
-				new EdgeDef( 0, 1 ),
-				new EdgeDef( 1, 2 ),
-				new EdgeDef( 2, 3 ),
-				new EdgeDef( 3, 0 )
-			};
-
-			static public EdgeDef EdgeDef(int i)
-			{
-				return edgeDefs [ i ];
-			}
-
-			static public int GetIndexOfNeighbouringPointFromEdge(EdgeDef edgeDef, int index)
-			{
-				int result = -1;
-				foreach ( EdgeDef ed in edgeDefs )
-				{
-					if (!ed.SameEdge(edgeDef))
-					{
-						if (ed.GetIndex(0) == index)
-						{
-							if (result != -1)
-							{
-								Debug.LogError("Found secoind neighbour of "+index+" not in "+edgeDef+" which is "+ed.GetIndex(1));
-							}
-							result = ed.GetIndex(1);
-						}
-						else if (ed.GetIndex(1) == index)
-						{
-							if (result != -1)
-							{
-								Debug.LogError("Found secoind neighbour of "+index+" not in "+edgeDef+" which is "+ed.GetIndex(0));
-							}
-							result = ed.GetIndex(0);
-						}
-					}
-				}
-				if ( result == -1 )
-				{
-					Debug.LogError ( "Couldn't fidn nehbouring index" );
-				}
-				return result;
-			}
-		}
-
 		public float DistanceFromCentre(Vector3 position)
 		{
 			Vector3 centre = GetCentre ( );
@@ -225,10 +136,10 @@ namespace MG
 			int shareOrder = 0;
 			for ( int edge = 0; edge < 4 && shareOrder == 0; edge++)
 			{
-				int edgeIndex0 = EdgeDefs.EdgeDef(edge).GetIndex(0);
-				int edgeIndex1 = EdgeDefs.EdgeDef(edge).GetIndex(1);
-				int indexOfNextToEdgeIndex0 = EdgeDefs.GetIndexOfNeighbouringPointFromEdge(EdgeDefs.EdgeDef(edge), edgeIndex0);
-				int indexOfNextToEdgeIndex1 = EdgeDefs.GetIndexOfNeighbouringPointFromEdge(EdgeDefs.EdgeDef(edge), edgeIndex1);
+				int edgeIndex0 = RectEdgeDef.EdgeDefForEdge(edge).GetIndex(0);
+				int edgeIndex1 = RectEdgeDef.EdgeDefForEdge(edge).GetIndex(1);
+				int indexOfNextToEdgeIndex0 = RectEdgeDef.GetIndexOfNeighbouringPointFromEdge(RectEdgeDef.EdgeDefForEdge(edge), edgeIndex0);
+				int indexOfNextToEdgeIndex1 = RectEdgeDef.GetIndexOfNeighbouringPointFromEdge(RectEdgeDef.EdgeDefForEdge(edge), edgeIndex1);
 
 				otherNeighbour0 = GetVertexElement( indexOfNextToEdgeIndex0);
 				otherNeighbour1 = GetVertexElement( indexOfNextToEdgeIndex1);

@@ -440,8 +440,8 @@ namespace MG
 			{
 				rectsSharingEdges[i] = rectList_.GetRectsSharingEdge
 					(
-						originRect.GetVertexElement(RectElement.EdgeDefs.EdgeDef(i).GetIndex(0)),
-						originRect.GetVertexElement(RectElement.EdgeDefs.EdgeDef(i).GetIndex(1)),
+						originRect.GetVertexElement(RectEdgeDef.EdgeDefForEdge(i).GetIndex(0)),
+						originRect.GetVertexElement(RectEdgeDef.EdgeDefForEdge(i).GetIndex(1)),
 						originRect
 					);
 				totalRectsSharingEdges += rectsSharingEdges[i].Count; 
@@ -469,8 +469,8 @@ namespace MG
 					if (DEBUG_EXTENDRECT)
 					{
 						extendSB.Append ("\n  Edge ").Append (i)
-							.Append(" (" ).Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
-								.Append (", ").Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
+							.Append(" (" ).Append(originRect.GetVector( RectEdgeDef.EdgeDefForEdge(i).GetIndex(0) ))
+								.Append (", ").Append(originRect.GetVector( RectEdgeDef.EdgeDefForEdge(i).GetIndex(1) ))
 								.Append (" ): ").Append (rectsSharingEdges[i].Count);
 					}
 					List< RectList.RectsSharingEdgeInfo > toRemove = new List<RectList.RectsSharingEdgeInfo>();
@@ -535,8 +535,8 @@ namespace MG
 							for (int i = 0; i<4; i++)
 							{
 								extendSB.Append ("\n  Edge ").Append (i)
-									.Append(" (" ).Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(0) ))
-										.Append (", ").Append(originRect.GetVector( RectElement.EdgeDefs.EdgeDef(i).GetIndex(1) ))
+									.Append(" (" ).Append(originRect.GetVector( RectEdgeDef.EdgeDefForEdge(i).GetIndex(0) ))
+										.Append (", ").Append(originRect.GetVector( RectEdgeDef.EdgeDefForEdge(i).GetIndex(1) ))
 										.Append (" ): ").Append (rectsSharingEdges[i].Count);
 								foreach (RectList.RectsSharingEdgeInfo sharingEdgeInfo in rectsSharingEdges[i])
 								{
@@ -611,7 +611,7 @@ namespace MG
 
 			for (int edgeIndex = 0; edgeIndex < 4; edgeIndex ++)
 			{
-				RectElement.EdgeDef edgeDef = RectElement.EdgeDefs.EdgeDef(edgeIndex);
+				RectEdgeDef edgeDef = RectEdgeDef.EdgeDefForEdge(edgeIndex);
 
 				List < RectList.RectsSharingEdgeInfo > rectsSharingEdge = rectsSharingEdges[edgeIndex];
 				if (rectsSharingEdge != null && rectsSharingEdge.Count > 0)
