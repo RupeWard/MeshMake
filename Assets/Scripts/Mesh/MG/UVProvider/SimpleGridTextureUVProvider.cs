@@ -4,7 +4,7 @@ using System.Collections;
 namespace MG.UV
 {
 
-	public class SimpleGridTextureUVProvider : MonoBehaviour 
+	public class SimpleGridTextureUVProvider : RectUVProvider 
 	{
 		static public readonly UV.GridPosition cyanRectGridPosition = new UV.GridPosition ( 0,0 );
 		static public readonly UV.GridPosition greyRectGridPosition = new UV.GridPosition( 1,0);// grey in color3x3
@@ -32,11 +32,31 @@ namespace MG.UV
 		public class StatePosition
 		{
 			public ElementStates.EState state = ElementStates.EState.NONE;
-			public int column = 0;
-			public int row = 0;
+			public string name = string.Empty;
 		}
 
 		public StatePosition[] statePositions = new StatePosition[0];
+
+		[System.Serializable]
+		public class PositionDefinition
+		{
+			public string name = string.Empty;
+			public int column =0;
+			public int row = 0;
+		}
+		public PositionDefinition[] positionDefinitions = new PositionDefinition[0];
+
+		private PositionDefinition positionForStatePosition( StatePosition statePos)
+		{
+			foreach ( PositionDefinition posdef in positionDefinitions)
+			{
+				if (posdef.name.Equals(statePos.name))
+				{
+					return posdef;
+				}
+			}
+			return positionDefinitions[0];
+		}
 
 		void Awake()
 		{
@@ -56,7 +76,9 @@ namespace MG.UV
 			gridUvProvider_ = new NewGridUVProvider(numColumns, numRows, new GridPosition(0,0));
 			foreach ( StatePosition statePos in statePositions )
 			{
-				gridUvProvider_.AddPositionForState( statePos.state, new GridPosition(statePos.column, statePos.row));
+				PositionDefinition pd = positionForStatePosition(statePos);
+
+				gridUvProvider_.AddPositionForState( statePos.state, new GridPosition(pd.column, pd.row));
 			}
 /*
 			gridUvProvider_.AddPositionForState(ElementStates.EState.Original, cyanRectGridPosition);
@@ -82,14 +104,12 @@ namespace MG.UV
 */
 		}
 
-		void Start () 
+		#region  RectUVProvider
+		public override Vector2 GetUVForState ( int triangleNumber, int vertexNumber, ElementStates.EState state )
 		{
-	
+			return gridUvProvider_.GetUVForState(triangleNumber, vertexNumber, state);
 		}
-	
-		void Update () 
-		{
-	
-		}
+		#endregion  RectUVProvider
+
 	}
 }

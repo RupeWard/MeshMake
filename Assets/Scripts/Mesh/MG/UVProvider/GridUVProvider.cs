@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MG.UV
 {
-	public class GridUVProvider : I_RectUVProvider
+	public class GridUVProvider : RectUVProvider
 	{
 		static public readonly UV.GridPosition cyanRectGridPosition = new UV.GridPosition ( 0,0 );
 		static public readonly UV.GridPosition greyRectGridPosition = new UV.GridPosition( 1,0);// grey in color3x3
@@ -40,11 +40,6 @@ namespace MG.UV
 				ElementStates.EState oldState = state_;
 				state_ = state;
 
-				/*
-				GridPosition gp = GetPositionForState(state_);
-				SetPosition(gp);
-				Debug.LogWarning ("State changed from "+oldState+" to "+state_+", pos = "+gp.DebugDescribe());
-				*/
 				SetPosition(GetPositionForState(state_));
 			}
 		}
@@ -139,7 +134,7 @@ namespace MG.UV
 			}
 		}
 
-		public Vector2 GetUVForState (int triangleNumber, int vertexNumber, ElementStates.EState state )
+		public override Vector2 GetUVForState (int triangleNumber, int vertexNumber, ElementStates.EState state )
 		{
 			Vector2 uv = Vector2.zero;
 			SetState(state);
@@ -165,4 +160,5 @@ namespace MG.UV
 		}
 
 	}
+
 }

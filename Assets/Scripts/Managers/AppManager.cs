@@ -3,6 +3,8 @@ using System.Collections;
 
 public class AppManager : SingletonApplicationLifetime< AppManager > 
 {
+	public MG.UV.RectUVProvider rectUVProvider;
+
 	public Material defaultMaterial;
 	public PhysicMaterial defaultThingPhysicsMaterials;
 
@@ -173,10 +175,16 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 		}
 		else
 		{
+			MG.UV.I_RectUVProvider iUVp= rectUVProvider;
+			if (iUVp == null)
+			{
+				Debug.LogWarning("Having to create the UVprovider");
+				iUVp = new MG.UV.GridUVProvider(3,3);
+			}
 			MG.CubeMeshGenerator cubeGenerator 
 				= MG.CubeMeshGenerator.Create ("Cub", Vector3.zero, 10f,
 				                               defaultMaterial,
-				                               new MG.UV.GridUVProvider(3,3));
+				                               iUVp);
 			cubeGenerator.SetDirty();
 			currentCubeGenerator_ = cubeGenerator;
 		}
