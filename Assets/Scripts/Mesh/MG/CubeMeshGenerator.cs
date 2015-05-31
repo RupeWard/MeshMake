@@ -44,6 +44,7 @@ namespace MG
 		public void SetMaterial(Material m)
 		{
 			meshRenderer_.material = m;
+			SetDirty ( );
 		}
 
 		private bool isDirty_ = false;
@@ -52,22 +53,24 @@ namespace MG
 			isDirty_ = true;
 		}
 
-		static public CubeMeshGenerator Create (string name, Vector3 centre, float size, UV.I_RectUVProvider rup)
+		static public CubeMeshGenerator Create (string name, Vector3 centre, float size,
+		                                        Material mat, UV.I_RectUVProvider rup)
 		{
 			GameObject go = new GameObject ( name );
 			CubeMeshGenerator tg = go.AddComponent< CubeMeshGenerator >();
-			tg.Init( size, rup);
+			tg.Init( size, mat, rup);
 			go.transform.localPosition = centre;
 			go.transform.parent = AppManager.Instance.world;
 			return tg;
 		}
 		
-		private void Init(float size, UV.I_RectUVProvider rup) 
+		private void Init(float size, Material mat, UV.I_RectUVProvider rup) 
 		{
 			//			Debug.Log ( "CubeGen: CTOR Start" );
 			this.size_ = size;
 			this.rectUvProvider_ = rup;
-
+			this.SetMaterial ( mat );
+			SetDirty();
 			Create ( );
 			
 			Debug.Log ( "Created " + this.DebugDescribe ( ));
@@ -175,7 +178,6 @@ namespace MG
 
 		void Start()
 		{
-			isDirty_ = false;
 		}
 
 		public void MakeMesh()

@@ -175,10 +175,9 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 		{
 			MG.CubeMeshGenerator cubeGenerator 
 				= MG.CubeMeshGenerator.Create ("Cub", Vector3.zero, 10f,
+				                               defaultMaterial,
 				                               new MG.UV.GridUVProvider(3,3));
-			cubeGenerator.SetMaterial(defaultMaterial);
-			cubeGenerator.MakeMesh();
-			
+			cubeGenerator.SetDirty();
 			currentCubeGenerator_ = cubeGenerator;
 		}
 	}
