@@ -848,8 +848,8 @@ namespace MG
 			}
 			else
 			{
-				Debug.Log ( "Something '"+collision.gameObject.name+"' hit "+gameObject.name+" "
-				           + collision.collider.gameObject.name);
+//				Debug.Log ( "Something '"+collision.gameObject.name+"' hit "+gameObject.name+" "
+//				           + collision.collider.gameObject.name);
 			}
 		}
 	}

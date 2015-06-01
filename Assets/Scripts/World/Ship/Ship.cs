@@ -21,6 +21,7 @@ public class Ship : MonoBehaviour
 	public float rotateAccelerationRate = 10f;
 	private float rotateUpDownRate = 0f;
 	private float rotateLeftRightRate = 0f;
+	private float spinRate = 0f;
 
 	public float followingCameraMoveSpeed = 10f;
 	public float followingCameraRotateSpeed = 10f;
@@ -30,6 +31,21 @@ public class Ship : MonoBehaviour
 		get { Vector3 v = (nose.transform.position - rear.transform.position); v.Normalize(); return v; }
 	}
 
+	public void OnSpinLeftPressed()
+	{
+		spinRate = -1f * rotateAccelerationRate;
+	}
+
+	public void OnSpinRightPressed()
+	{
+		spinRate = rotateAccelerationRate;
+	}
+
+	public void OnSpinReleased()
+	{
+		spinRate = 0f;
+	}
+	
 	public void OnRotateUpPressed()
 	{
 		rotateUpDownRate = rotateAccelerationRate;
@@ -137,7 +153,12 @@ public class Ship : MonoBehaviour
 			axis.Normalize();
 			rigidBody.AddTorque( -1f * axis * rotateLeftRightRate * Time.fixedDeltaTime);
 		}
-		//up = spin
+		if (spinRate != 0f)
+		{
+			Vector3 axis = DirectionPointing;
+			axis.Normalize();
+			rigidBody.AddTorque( -1f * axis * spinRate * Time.fixedDeltaTime);
+		}
 
 	}
 }
