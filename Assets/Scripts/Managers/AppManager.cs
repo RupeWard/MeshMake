@@ -180,15 +180,18 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 			MG.UV.I_RectUVProvider iUVp= rectUVProvider;
 			if (iUVp == null)
 			{
-				Debug.LogWarning("Having to create the UVprovider");
-				iUVp = new MG.UV.GridUVProvider(3,3);
+				Debug.LogError("NO UVprovider");
 			}
-			MG.CubeMeshGenerator cubeGenerator 
-				= MG.CubeMeshGenerator.Create ("Cub", Vector3.zero, 10f,
-				                               defaultMaterial,
-				                               iUVp);
-			cubeGenerator.SetDirty();
-			currentCubeGenerator_ = cubeGenerator;
+			else
+			{
+				
+				MG.CubeMeshGenerator cubeGenerator 
+					= MG.CubeMeshGenerator.Create ("Cub", Vector3.zero, 10f,
+					                               defaultMaterial,
+					                               iUVp);
+				cubeGenerator.SetDirty();
+				currentCubeGenerator_ = cubeGenerator;
+			}
 		}
 	}
 
