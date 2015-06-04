@@ -45,15 +45,17 @@ public class Ship : MonoBehaviour
 	{
 		spinRate = 0f;
 	}
-	
+
+	private float rotateAccelerationRatio=2.5f;
+
 	public void OnRotateUpPressed()
 	{
-		rotateUpDownRate = rotateAccelerationRate;
+		rotateUpDownRate = rotateAccelerationRatio*rotateAccelerationRate;
 	}
 
 	public void OnRotateDownPressed()
 	{
-		rotateUpDownRate = -1f * rotateAccelerationRate;
+		rotateUpDownRate = -1f * rotateAccelerationRatio * rotateAccelerationRate;
 	}
 
 	public void OnRotateLeftPressed()
