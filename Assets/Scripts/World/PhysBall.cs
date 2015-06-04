@@ -50,4 +50,37 @@ public class PhysBall : MonoBehaviour
 		
 	}
 
+	public void OnCollisionExit(Collision collision)
+	{
+		Wall wall = collision.gameObject.GetComponent< Wall > ( );
+		if ( wall != null )
+		{
+			Vector3 v = rigidBody_.velocity;
+			v.Normalize();
+			float force = Random.Range ( AppManager.Instance.minForceWallOnBall, AppManager.Instance.maxForceWallOnBall);
+			rigidBody_.AddForce( v*force); 
+		}
+
+		MG.CubeMeshGenerator cubeMeshGen = collision.gameObject.GetComponent< MG.CubeMeshGenerator > ( );
+		if (cubeMeshGen != null)
+		{
+			Vector3 v = rigidBody_.velocity;
+			v.Normalize();
+			float force = Random.Range ( AppManager.Instance.minForceMeshOnBall, AppManager.Instance.maxForceMeshOnBall);
+			rigidBody_.AddForce( v*force); 
+		}
+
+		PhysBall physBall = collision.gameObject.GetComponent< PhysBall > ( );
+		if (physBall != null)
+		{
+			Vector3 v = rigidBody_.velocity;
+			v.Normalize();
+			float force = Random.Range ( AppManager.Instance.minForceBallOnBall, AppManager.Instance.maxForceBallOnBall);
+			rigidBody_.AddForce( v*force); 
+		}
+		
+
+
+	}
+
 }

@@ -14,6 +14,16 @@ public class AppManager : SingletonApplicationLifetime< AppManager >
 
 	public float minMeshUpdateWait = 0.05f;
 
+	public float minForceMeshOnBall = 20f;
+	public float maxForceMeshOnBall = 150f;
+
+	public float minForceWallOnBall = 0f;
+	public float maxForceWallOnBall = 100f;
+
+	public float minForceBallOnBall = 0f;
+	public float maxForceBallOnBall = 100f;
+	
+
 	public bool allowMultiExtend = false;
 	public bool allowSameVertexMultiExtend = false;
 	public bool denyFacing =true;

@@ -830,6 +830,10 @@ namespace MG
 
 		public void OnCollisionEnter(Collision collision)
 		{
+			if ( collision.gameObject == this.gameObject )
+			{
+				Debug.LogError("Mesh hit itself!");
+			}
 			PhysBall ball = collision.gameObject.GetComponent< PhysBall > ( );
 			if ( ball != null )
 			{
